@@ -34,7 +34,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 
@@ -157,7 +157,6 @@ export default function EquipamentoDetalhe() {
 
     if (isNew) {
       const result = await createEquipamento.mutateAsync(data);
-      // Adicionar sentidos pendentes ao novo equipamento
       for (const sentidoId of pendingSentidos) {
         await addSentido.mutateAsync({ equipamento_id: result.id, sentido_id: sentidoId });
       }
@@ -298,7 +297,6 @@ export default function EquipamentoDetalhe() {
       return;
     }
 
-    // Sentido obrigatório para TAE
     if ((shForm.tipo === 'tae_80' || shForm.tipo === 'tae_100') && !shForm.sentido_id) {
       toast({ title: 'Sentido é obrigatório para TAE', variant: 'destructive' });
       return;
@@ -360,54 +358,83 @@ export default function EquipamentoDetalhe() {
   };
 
   if (!isNew && isLoading) {
-    return <div className="flex items-center justify-center h-64">Carregando...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/equipamentos')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/equipamentos')} className="hover:bg-primary/10">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {isNew ? 'Novo Equipamento' : `Equipamento ${equipamento?.numero_serie}`}
-          </h1>
-          <p className="text-muted-foreground">
-            {isNew ? 'Cadastre um novo equipamento' : 'Visualize e edite os dados do equipamento'}
-          </p>
+        <div className="flex items-center gap-3 flex-1">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
+            <Radio className="h-6 w-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {isNew ? 'Novo Equipamento' : `Equipamento ${equipamento?.numero_serie}`}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {isNew ? 'Cadastre um novo equipamento no sistema' : 'Visualize e edite os dados do equipamento'}
+            </p>
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue="dados" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="dados">Dados do Equipamento</TabsTrigger>
+      <Tabs defaultValue="dados" className="space-y-6">
+        <TabsList className="bg-muted/50 p-1 h-auto">
+          <TabsTrigger value="dados" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+            <Settings className="h-4 w-4 mr-2" />
+            Dados do Equipamento
+          </TabsTrigger>
           {formData.tem_sinalizacao_vertical && (
-            <TabsTrigger value="vertical">Sinalização Vertical</TabsTrigger>
+            <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              Sinalização Vertical
+            </TabsTrigger>
           )}
           {formData.tem_sinalizacao_horizontal && (
-            <TabsTrigger value="horizontal">Sinalização Horizontal</TabsTrigger>
+            <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+              <ArrowLeftRight className="h-4 w-4 mr-2" />
+              Sinalização Horizontal
+            </TabsTrigger>
           )}
         </TabsList>
 
         {/* Tab Dados */}
-        <TabsContent value="dados">
-          <Card>
-            <CardHeader>
-              <CardTitle>Dados do Equipamento</CardTitle>
-              <CardDescription>Informações básicas do equipamento de radar</CardDescription>
+        <TabsContent value="dados" className="space-y-6">
+          {/* Informações Básicas */}
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Radio className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Informações Básicas</CardTitle>
+                  <CardDescription>Dados de identificação do equipamento</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Contrato *</Label>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="sm:col-span-2 space-y-2">
+                  <Label className="text-sm font-medium">Contrato <span className="text-destructive">*</span></Label>
                   <Select
                     value={formData.contrato_id}
                     onValueChange={(v) => setFormData({ ...formData, contrato_id: v })}
                     disabled={!canEdit}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Selecione o contrato" />
                     </SelectTrigger>
                     <SelectContent>
@@ -420,62 +447,23 @@ export default function EquipamentoDetalhe() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Nº Série *</Label>
+                  <Label className="text-sm font-medium">Nº Série <span className="text-destructive">*</span></Label>
                   <Input
                     value={formData.numero_serie}
                     onChange={(e) => setFormData({ ...formData, numero_serie: e.target.value })}
-                    placeholder="Número de série"
+                    placeholder="Ex: RAD-001"
                     disabled={!canEdit}
+                    className="h-11 font-mono"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Município *</Label>
-                  <Input
-                    value={formData.municipio}
-                    onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
-                    placeholder="Município"
-                    disabled={!canEdit}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Endereço *</Label>
-                  <Input
-                    value={formData.endereco}
-                    onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                    placeholder="Endereço completo"
-                    disabled={!canEdit}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Latitude</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={formData.latitude}
-                    onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                    placeholder="-23.550520"
-                    disabled={!canEdit}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Longitude</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={formData.longitude}
-                    onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                    placeholder="-46.633308"
-                    disabled={!canEdit}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Tipo de Equipamento</Label>
+                  <Label className="text-sm font-medium">Tipo de Equipamento</Label>
                   <Select
                     value={formData.tipo_equipamento}
                     onValueChange={(v) => setFormData({ ...formData, tipo_equipamento: v })}
                     disabled={!canEdit}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -486,43 +474,139 @@ export default function EquipamentoDetalhe() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Quantidade de Faixas</Label>
+                  <Label className="text-sm font-medium">Município <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={formData.municipio}
+                    onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
+                    placeholder="Nome do município"
+                    disabled={!canEdit}
+                    className="h-11"
+                  />
+                </div>
+                <div className="sm:col-span-2 lg:col-span-1 space-y-2">
+                  <Label className="text-sm font-medium">Quantidade de Faixas</Label>
                   <Input
                     type="number"
                     min={1}
                     value={formData.quantidade_faixas}
                     onChange={(e) => setFormData({ ...formData, quantidade_faixas: parseInt(e.target.value) || 1 })}
                     disabled={!canEdit}
+                    className="h-11"
+                  />
+                </div>
+                <div className="sm:col-span-2 lg:col-span-1 space-y-2">
+                  <Label className="text-sm font-medium">Endereço <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={formData.endereco}
+                    onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                    placeholder="Endereço completo"
+                    disabled={!canEdit}
+                    className="h-11"
                   />
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="flex gap-6">
-                <div className="flex items-center gap-2">
+          {/* Localização */}
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                  <MapPin className="h-4 w-4 text-success" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Localização</CardTitle>
+                  <CardDescription>Coordenadas geográficas do equipamento</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Latitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={formData.latitude}
+                    onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                    placeholder="-23.550520"
+                    disabled={!canEdit}
+                    className="h-11 font-mono"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Longitude</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={formData.longitude}
+                    onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                    placeholder="-46.633308"
+                    disabled={!canEdit}
+                    className="h-11 font-mono"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Configurações */}
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
+                  <Settings className="h-4 w-4 text-warning" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Configurações</CardTitle>
+                  <CardDescription>Tipo de sinalização e sentidos associados</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-wrap gap-6">
+                <label className="flex items-center gap-3 cursor-pointer group">
                   <Checkbox
                     id="vertical"
                     checked={formData.tem_sinalizacao_vertical}
                     onCheckedChange={(v) => setFormData({ ...formData, tem_sinalizacao_vertical: !!v })}
                     disabled={!canEdit}
+                    className="h-5 w-5"
                   />
-                  <Label htmlFor="vertical">Possui Sinalização Vertical</Label>
-                </div>
-                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium group-hover:text-foreground transition-colors">Possui Sinalização Vertical</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
                   <Checkbox
                     id="horizontal"
                     checked={formData.tem_sinalizacao_horizontal}
                     onCheckedChange={(v) => setFormData({ ...formData, tem_sinalizacao_horizontal: !!v })}
                     disabled={!canEdit}
+                    className="h-5 w-5"
                   />
-                  <Label htmlFor="horizontal">Possui Sinalização Horizontal</Label>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <ArrowLeftRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium group-hover:text-foreground transition-colors">Possui Sinalização Horizontal</span>
+                  </div>
+                </label>
               </div>
 
-              {/* Sentidos do equipamento */}
-              <div className="space-y-4 border-t pt-4">
+              <div className="section-divider" />
+
+              {/* Sentidos */}
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-base font-semibold">Sentidos do Equipamento</Label>
+                  <div>
+                    <Label className="text-base font-semibold">Sentidos do Equipamento</Label>
+                    <p className="text-sm text-muted-foreground">Direções de fiscalização do radar</p>
+                  </div>
                   {canEdit && (
                     <div className="flex gap-2">
                       <Select 
@@ -537,7 +621,7 @@ export default function EquipamentoDetalhe() {
                           }
                         }}
                       >
-                        <SelectTrigger className="w-40">
+                        <SelectTrigger className="w-44 h-10">
                           <SelectValue placeholder="Adicionar sentido" />
                         </SelectTrigger>
                         <SelectContent>
@@ -552,12 +636,12 @@ export default function EquipamentoDetalhe() {
                         </SelectContent>
                       </Select>
                       {!isNew && (
-                        <Button size="sm" onClick={handleAddSentido} disabled={!selectedSentidoToAdd}>
+                        <Button size="sm" onClick={handleAddSentido} disabled={!selectedSentidoToAdd} className="h-10 px-4">
                           <Plus className="h-4 w-4" />
                         </Button>
                       )}
                       <Dialog open={sentidoDialogOpen} onOpenChange={setSentidoDialogOpen}>
-                        <Button size="sm" variant="outline" onClick={() => setSentidoDialogOpen(true)}>
+                        <Button size="sm" variant="outline" onClick={() => setSentidoDialogOpen(true)} className="h-10">
                           <Plus className="h-4 w-4 mr-1" />
                           Novo
                         </Button>
@@ -566,13 +650,14 @@ export default function EquipamentoDetalhe() {
                             <DialogTitle>Criar Novo Sentido</DialogTitle>
                             <DialogDescription>Adicione um novo sentido ao sistema</DialogDescription>
                           </DialogHeader>
-                          <div className="space-y-4">
+                          <div className="space-y-4 py-4">
                             <div className="space-y-2">
                               <Label>Nome do sentido</Label>
                               <Input
                                 value={newSentidoNome}
                                 onChange={(e) => setNewSentidoNome(e.target.value)}
                                 placeholder="Ex: Norte, Sul..."
+                                className="h-11"
                               />
                             </div>
                           </div>
@@ -586,20 +671,20 @@ export default function EquipamentoDetalhe() {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 min-h-[40px] p-4 bg-muted/30 rounded-lg border border-dashed">
                   {isNew ? (
                     <>
                       {pendingSentidos.map((sentidoId) => {
                         const sentido = sentidos?.find(s => s.id === sentidoId);
                         return (
-                          <Badge key={sentidoId} variant="secondary" className="gap-1">
+                          <Badge key={sentidoId} variant="secondary" className="gap-2 px-3 py-1.5 text-sm">
                             {sentido?.nome}
                             {canEdit && (
                               <button 
                                 onClick={() => setPendingSentidos(pendingSentidos.filter(id => id !== sentidoId))} 
-                                className="ml-1 hover:text-destructive"
+                                className="hover:text-destructive transition-colors"
                               >
-                                <X className="h-3 w-3" />
+                                <X className="h-3.5 w-3.5" />
                               </button>
                             )}
                           </Badge>
@@ -612,12 +697,12 @@ export default function EquipamentoDetalhe() {
                   ) : (
                     <>
                       {equipamentoSentidos?.map((es) => (
-                        <Badge key={es.id} variant="secondary" className="gap-1">
+                        <Badge key={es.id} variant="secondary" className="gap-2 px-3 py-1.5 text-sm">
                           {es.sentidos?.nome}
-                          {es.is_principal && <span className="text-xs">(principal)</span>}
+                          {es.is_principal && <span className="text-xs opacity-70">(principal)</span>}
                           {canEdit && (
-                            <button onClick={() => removeSentido.mutate(es.id)} className="ml-1 hover:text-destructive">
-                              <X className="h-3 w-3" />
+                            <button onClick={() => removeSentido.mutate(es.id)} className="hover:text-destructive transition-colors">
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </Badge>
@@ -631,12 +716,20 @@ export default function EquipamentoDetalhe() {
               </div>
 
               {canEdit && (
-                <div className="flex justify-end pt-4 border-t">
-                  <Button onClick={handleSave} disabled={createEquipamento.isPending || updateEquipamento.isPending}>
-                    <Save className="h-4 w-4 mr-2" />
-                    {isNew ? 'Criar Equipamento' : 'Salvar Alterações'}
-                  </Button>
-                </div>
+                <>
+                  <div className="section-divider" />
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={createEquipamento.isPending || updateEquipamento.isPending}
+                      size="lg"
+                      className="shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isNew ? 'Criar Equipamento' : 'Salvar Alterações'}
+                    </Button>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -644,14 +737,19 @@ export default function EquipamentoDetalhe() {
 
         {/* Tab Sinalização Vertical */}
         <TabsContent value="vertical">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Sinalização Vertical</CardTitle>
-                <CardDescription>Blocos de sinalização vertical do equipamento</CardDescription>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                  <ArrowUpDown className="h-5 w-5 text-success" />
+                </div>
+                <div>
+                  <CardTitle>Sinalização Vertical</CardTitle>
+                  <CardDescription>Blocos de sinalização vertical do equipamento</CardDescription>
+                </div>
               </div>
               {canEdit && (
-                <Button onClick={() => openSVDialog()}>
+                <Button onClick={() => openSVDialog()} className="shadow-sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar Bloco
                 </Button>
@@ -659,46 +757,47 @@ export default function EquipamentoDetalhe() {
             </CardHeader>
             <CardContent>
               {sinalizacaoVertical?.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Nenhum bloco de sinalização vertical cadastrado
+                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <ArrowUpDown className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhum bloco de sinalização vertical cadastrado</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {sinalizacaoVertical?.map((sv) => (
-                    <Card key={sv.id}>
-                      <CardContent className="pt-4">
-                        <div className="flex justify-between items-start">
+                    <Card key={sv.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-5">
+                        <div className="flex justify-between items-start gap-4">
                           <div className="flex gap-4 flex-1">
                             {sv.foto_url && (
                               <ImageThumbnail src={sv.foto_url} alt="Foto da sinalização" />
                             )}
-                            <div className="grid gap-2 md:grid-cols-4 flex-1">
-                              <div>
-                                <span className="text-sm text-muted-foreground">Tipo:</span>
-                                <p className="font-medium">{sv.tipo}</p>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo</span>
+                                <p className="font-semibold">{sv.tipo}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Subtipo:</span>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Subtipo</span>
                                 <p className="font-medium">{sv.subtipo}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Sentido:</span>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sentido</span>
                                 <p className="font-medium">{sv.sentidos?.nome || '-'}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Lado:</span>
-                                <p className="font-medium">{sv.lado}</p>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Lado</span>
+                                <Badge variant="outline">{sv.lado === 'D' ? 'Direito' : 'Esquerdo'}</Badge>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Endereço:</span>
-                                <p className="font-medium">{sv.endereco}</p>
+                              <div className="space-y-1 sm:col-span-2">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Endereço</span>
+                                <p className="font-medium text-sm">{sv.endereco}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Instalação:</span>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Instalação</span>
                                 <p className="font-medium">{sv.instalacao}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Quantidades:</span>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quantidades</span>
                                 <p className="font-medium text-sm">
                                   {sv.qtd_pontaletes} pont. / {sv.qtd_perfis_metalicos} perf. / {sv.qtd_postes_colapsiveis} post.
                                 </p>
@@ -706,15 +805,15 @@ export default function EquipamentoDetalhe() {
                             </div>
                           </div>
                           {canEdit && (
-                            <div className="flex gap-2 ml-4">
-                              <Button variant="ghost" size="icon" onClick={() => openSVDialog(sv)}>
+                            <div className="flex gap-1 shrink-0">
+                              <Button variant="ghost" size="icon" onClick={() => openSVDialog(sv)} className="hover:bg-primary/10 hover:text-primary">
                                 <Edit className="h-4 w-4" />
                               </Button>
                               {canDelete && (
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="icon">
-                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Button variant="ghost" size="icon" className="hover:bg-destructive/10 hover:text-destructive">
+                                      <Trash2 className="h-4 w-4" />
                                     </Button>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
@@ -724,7 +823,9 @@ export default function EquipamentoDetalhe() {
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => deleteSV.mutate(sv.id)}>Excluir</AlertDialogAction>
+                                      <AlertDialogAction onClick={() => deleteSV.mutate(sv.id)} className="bg-destructive hover:bg-destructive/90">
+                                        Excluir
+                                      </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
@@ -742,130 +843,162 @@ export default function EquipamentoDetalhe() {
 
           {/* Dialog SV */}
           <Dialog open={svDialogOpen} onOpenChange={setSvDialogOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingSV ? 'Editar Bloco' : 'Novo Bloco de Sinalização Vertical'}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <ArrowUpDown className="h-5 w-5 text-success" />
+                  {editingSV ? 'Editar Bloco' : 'Novo Bloco de Sinalização Vertical'}
+                </DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Sentido</Label>
-                  <Select value={svForm.sentido_id} onValueChange={(v) => setSvForm({ ...svForm, sentido_id: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sentidos?.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-6 py-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Sentido</Label>
+                    <Select value={svForm.sentido_id} onValueChange={(v) => setSvForm({ ...svForm, sentido_id: v })}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sentidos?.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Tipo <span className="text-destructive">*</span></Label>
+                    <Input
+                      value={svForm.tipo}
+                      onChange={(e) => setSvForm({ ...svForm, tipo: e.target.value })}
+                      placeholder="Ex: R-19, A-25..."
+                      className="h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Subtipo</Label>
+                    <Select value={svForm.subtipo} onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}>
+                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="equipamento">Equipamento</SelectItem>
+                        <SelectItem value="aproximacao">Aproximação</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Instalação</Label>
+                    <Select value={svForm.instalacao} onValueChange={(v) => setSvForm({ ...svForm, instalacao: v })}>
+                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solo">Solo</SelectItem>
+                        <SelectItem value="aerea">Aérea</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Lado</Label>
+                    <Select value={svForm.lado} onValueChange={(v) => setSvForm({ ...svForm, lado: v })}>
+                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="D">Direito</SelectItem>
+                        <SelectItem value="E">Esquerdo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      <Calendar className="h-3.5 w-3.5" /> Data
+                    </Label>
+                    <Input
+                      type="date"
+                      value={svForm.data}
+                      onChange={(e) => setSvForm({ ...svForm, data: e.target.value })}
+                      className="h-10"
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Endereço *</Label>
+                  <Label className="text-sm font-medium">Endereço <span className="text-destructive">*</span></Label>
                   <Input
                     value={svForm.endereco}
                     onChange={(e) => setSvForm({ ...svForm, endereco: e.target.value })}
+                    placeholder="Endereço da sinalização"
+                    className="h-10"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Tipo *</Label>
-                  <Input
-                    value={svForm.tipo}
-                    onChange={(e) => setSvForm({ ...svForm, tipo: e.target.value })}
-                    placeholder="Ex: R-19, A-25..."
-                  />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" /> Latitude
+                    </Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={svForm.latitude}
+                      onChange={(e) => setSvForm({ ...svForm, latitude: e.target.value })}
+                      placeholder="-23.550520"
+                      className="h-10 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" /> Longitude
+                    </Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={svForm.longitude}
+                      onChange={(e) => setSvForm({ ...svForm, longitude: e.target.value })}
+                      placeholder="-46.633308"
+                      className="h-10 font-mono"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Subtipo</Label>
-                  <Select value={svForm.subtipo} onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="equipamento">Equipamento</SelectItem>
-                      <SelectItem value="aproximacao">Aproximação</SelectItem>
-                    </SelectContent>
-                  </Select>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Qtd. Pontaletes</Label>
+                    <Input
+                      type="number"
+                      value={svForm.qtd_pontaletes}
+                      onChange={(e) => setSvForm({ ...svForm, qtd_pontaletes: parseInt(e.target.value) || 0 })}
+                      className="h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Qtd. Perfis Metálicos</Label>
+                    <Input
+                      type="number"
+                      value={svForm.qtd_perfis_metalicos}
+                      onChange={(e) => setSvForm({ ...svForm, qtd_perfis_metalicos: parseInt(e.target.value) || 0 })}
+                      className="h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Qtd. Postes Colapsíveis</Label>
+                    <Input
+                      type="number"
+                      value={svForm.qtd_postes_colapsiveis}
+                      onChange={(e) => setSvForm({ ...svForm, qtd_postes_colapsiveis: parseInt(e.target.value) || 0 })}
+                      className="h-10"
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Instalação</Label>
-                  <Select value={svForm.instalacao} onValueChange={(v) => setSvForm({ ...svForm, instalacao: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="solo">Solo</SelectItem>
-                      <SelectItem value="aerea">Aérea</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Lado</Label>
-                  <Select value={svForm.lado} onValueChange={(v) => setSvForm({ ...svForm, lado: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="D">Direito</SelectItem>
-                      <SelectItem value="E">Esquerdo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Latitude</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={svForm.latitude}
-                    onChange={(e) => setSvForm({ ...svForm, latitude: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Longitude</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={svForm.longitude}
-                    onChange={(e) => setSvForm({ ...svForm, longitude: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Qtd. Pontaletes</Label>
-                  <Input
-                    type="number"
-                    value={svForm.qtd_pontaletes}
-                    onChange={(e) => setSvForm({ ...svForm, qtd_pontaletes: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Qtd. Perfis Metálicos</Label>
-                  <Input
-                    type="number"
-                    value={svForm.qtd_perfis_metalicos}
-                    onChange={(e) => setSvForm({ ...svForm, qtd_perfis_metalicos: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Qtd. Postes Colapsíveis</Label>
-                  <Input
-                    type="number"
-                    value={svForm.qtd_postes_colapsiveis}
-                    onChange={(e) => setSvForm({ ...svForm, qtd_postes_colapsiveis: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Data</Label>
-                  <Input
-                    type="date"
-                    value={svForm.data}
-                    onChange={(e) => setSvForm({ ...svForm, data: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Foto</Label>
-                  <div className="flex gap-2 items-center">
+                  <Label className="text-sm font-medium flex items-center gap-1">
+                    <Image className="h-3.5 w-3.5" /> Foto
+                  </Label>
+                  <div className="flex gap-3 items-center">
                     {svForm.foto_url && (
                       <ImageThumbnail src={svForm.foto_url} alt="Foto da sinalização" />
                     )}
                     <Input
                       value={svForm.foto_url}
                       onChange={(e) => setSvForm({ ...svForm, foto_url: e.target.value })}
-                      placeholder="URL da foto"
-                      className="flex-1"
+                      placeholder="URL da foto ou faça upload"
+                      className="flex-1 h-10"
                     />
                     <Label className="cursor-pointer">
                       <input
@@ -877,7 +1010,7 @@ export default function EquipamentoDetalhe() {
                           if (file) handleFileUpload(file, (url) => setSvForm({ ...svForm, foto_url: url }));
                         }}
                       />
-                      <Button type="button" variant="outline" size="icon" asChild>
+                      <Button type="button" variant="outline" size="icon" asChild className="h-10 w-10">
                         <span><Upload className="h-4 w-4" /></span>
                       </Button>
                     </Label>
@@ -885,6 +1018,7 @@ export default function EquipamentoDetalhe() {
                 </div>
               </div>
               <DialogFooter>
+                <Button variant="outline" onClick={() => setSvDialogOpen(false)}>Cancelar</Button>
                 <Button onClick={handleSaveSV}>Salvar</Button>
               </DialogFooter>
             </DialogContent>
@@ -893,14 +1027,19 @@ export default function EquipamentoDetalhe() {
 
         {/* Tab Sinalização Horizontal */}
         <TabsContent value="horizontal">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Sinalização Horizontal</CardTitle>
-                <CardDescription>Itens de sinalização horizontal do equipamento</CardDescription>
+          <Card className="shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+                  <ArrowLeftRight className="h-5 w-5 text-warning" />
+                </div>
+                <div>
+                  <CardTitle>Sinalização Horizontal</CardTitle>
+                  <CardDescription>Itens de sinalização horizontal do equipamento</CardDescription>
+                </div>
               </div>
               {canEdit && (
-                <Button onClick={() => openSHDialog()}>
+                <Button onClick={() => openSHDialog()} className="shadow-sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar Item
                 </Button>
@@ -908,56 +1047,57 @@ export default function EquipamentoDetalhe() {
             </CardHeader>
             <CardContent>
               {sinalizacaoHorizontal?.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Nenhum item de sinalização horizontal cadastrado
+                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhum item de sinalização horizontal cadastrado</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {sinalizacaoHorizontal?.map((sh) => (
-                    <Card key={sh.id}>
-                      <CardContent className="pt-4">
-                        <div className="flex justify-between items-start">
+                    <Card key={sh.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-5">
+                        <div className="flex justify-between items-start gap-4">
                           <div className="flex gap-4 flex-1">
                             {sh.foto_url && (
                               <ImageThumbnail src={sh.foto_url} alt="Foto da sinalização" />
                             )}
-                            <div className="grid gap-2 md:grid-cols-4 flex-1">
-                              <div>
-                                <span className="text-sm text-muted-foreground">Tipo:</span>
-                                <p className="font-medium">{tipoHorizontalLabels[sh.tipo]}</p>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 flex-1">
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo</span>
+                                <p className="font-semibold">{tipoHorizontalLabels[sh.tipo]}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Sentido:</span>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sentido</span>
                                 <p className="font-medium">{sh.sentidos?.nome || '-'}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Lado:</span>
-                                <p className="font-medium">{sh.lado}</p>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Lado</span>
+                                <Badge variant="outline">{sh.lado === 'D' ? 'Direito' : 'Esquerdo'}</Badge>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Endereço:</span>
-                                <p className="font-medium">{sh.endereco}</p>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Endereço</span>
+                                <p className="font-medium text-sm">{sh.endereco}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Lâminas:</span>
-                                <p className="font-medium">{sh.qtd_laminas}</p>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Lâminas</span>
+                                <p className="font-semibold text-lg">{sh.qtd_laminas}</p>
                               </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Postes:</span>
-                                <p className="font-medium">{sh.qtd_postes}</p>
+                              <div className="space-y-1">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Postes</span>
+                                <p className="font-semibold text-lg">{sh.qtd_postes}</p>
                               </div>
                             </div>
                           </div>
                           {canEdit && (
-                            <div className="flex gap-2 ml-4">
-                              <Button variant="ghost" size="icon" onClick={() => openSHDialog(sh)}>
+                            <div className="flex gap-1 shrink-0">
+                              <Button variant="ghost" size="icon" onClick={() => openSHDialog(sh)} className="hover:bg-primary/10 hover:text-primary">
                                 <Edit className="h-4 w-4" />
                               </Button>
                               {canDelete && (
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="icon">
-                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Button variant="ghost" size="icon" className="hover:bg-destructive/10 hover:text-destructive">
+                                      <Trash2 className="h-4 w-4" />
                                     </Button>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
@@ -967,7 +1107,9 @@ export default function EquipamentoDetalhe() {
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => deleteSH.mutate(sh.id)}>Excluir</AlertDialogAction>
+                                      <AlertDialogAction onClick={() => deleteSH.mutate(sh.id)} className="bg-destructive hover:bg-destructive/90">
+                                        Excluir
+                                      </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
@@ -985,108 +1127,137 @@ export default function EquipamentoDetalhe() {
 
           {/* Dialog SH */}
           <Dialog open={shDialogOpen} onOpenChange={setShDialogOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingSH ? 'Editar Item' : 'Novo Item de Sinalização Horizontal'}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <ArrowLeftRight className="h-5 w-5 text-warning" />
+                  {editingSH ? 'Editar Item' : 'Novo Item de Sinalização Horizontal'}
+                </DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Tipo *</Label>
-                  <Select
-                    value={shForm.tipo}
-                    onValueChange={(v) => setShForm({ ...shForm, tipo: v as typeof shForm.tipo })}
-                  >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
-                      <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
-                      <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-6 py-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Tipo <span className="text-destructive">*</span></Label>
+                    <Select
+                      value={shForm.tipo}
+                      onValueChange={(v) => setShForm({ ...shForm, tipo: v as typeof shForm.tipo })}
+                    >
+                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
+                        <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
+                        <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      Sentido {(shForm.tipo === 'tae_80' || shForm.tipo === 'tae_100') && <span className="text-destructive">*</span>}
+                    </Label>
+                    <Select value={shForm.sentido_id} onValueChange={(v) => setShForm({ ...shForm, sentido_id: v })}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sentidos?.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Lado</Label>
+                    <Select value={shForm.lado} onValueChange={(v) => setShForm({ ...shForm, lado: v })}>
+                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="D">Direito</SelectItem>
+                        <SelectItem value="E">Esquerdo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      <Calendar className="h-3.5 w-3.5" /> Data
+                    </Label>
+                    <Input
+                      type="date"
+                      value={shForm.data}
+                      onChange={(e) => setShForm({ ...shForm, data: e.target.value })}
+                      className="h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Qtd. Lâminas</Label>
+                    <Input
+                      type="number"
+                      value={shForm.qtd_laminas}
+                      onChange={(e) => setShForm({ ...shForm, qtd_laminas: parseInt(e.target.value) || 0 })}
+                      className="h-10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Qtd. Postes</Label>
+                    <Input
+                      type="number"
+                      value={shForm.qtd_postes}
+                      onChange={(e) => setShForm({ ...shForm, qtd_postes: parseInt(e.target.value) || 0 })}
+                      className="h-10"
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Sentido {(shForm.tipo === 'tae_80' || shForm.tipo === 'tae_100') && '*'}</Label>
-                  <Select value={shForm.sentido_id} onValueChange={(v) => setShForm({ ...shForm, sentido_id: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sentidos?.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Endereço *</Label>
+                  <Label className="text-sm font-medium">Endereço <span className="text-destructive">*</span></Label>
                   <Input
                     value={shForm.endereco}
                     onChange={(e) => setShForm({ ...shForm, endereco: e.target.value })}
+                    placeholder="Endereço da sinalização"
+                    className="h-10"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Lado</Label>
-                  <Select value={shForm.lado} onValueChange={(v) => setShForm({ ...shForm, lado: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="D">Direito</SelectItem>
-                      <SelectItem value="E">Esquerdo</SelectItem>
-                    </SelectContent>
-                  </Select>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" /> Latitude
+                    </Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={shForm.latitude}
+                      onChange={(e) => setShForm({ ...shForm, latitude: e.target.value })}
+                      placeholder="-23.550520"
+                      className="h-10 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" /> Longitude
+                    </Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={shForm.longitude}
+                      onChange={(e) => setShForm({ ...shForm, longitude: e.target.value })}
+                      placeholder="-46.633308"
+                      className="h-10 font-mono"
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Latitude</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={shForm.latitude}
-                    onChange={(e) => setShForm({ ...shForm, latitude: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Longitude</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={shForm.longitude}
-                    onChange={(e) => setShForm({ ...shForm, longitude: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Qtd. Lâminas</Label>
-                  <Input
-                    type="number"
-                    value={shForm.qtd_laminas}
-                    onChange={(e) => setShForm({ ...shForm, qtd_laminas: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Qtd. Postes</Label>
-                  <Input
-                    type="number"
-                    value={shForm.qtd_postes}
-                    onChange={(e) => setShForm({ ...shForm, qtd_postes: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Data</Label>
-                  <Input
-                    type="date"
-                    value={shForm.data}
-                    onChange={(e) => setShForm({ ...shForm, data: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label>Foto</Label>
-                  <div className="flex gap-2 items-center">
+                  <Label className="text-sm font-medium flex items-center gap-1">
+                    <Image className="h-3.5 w-3.5" /> Foto
+                  </Label>
+                  <div className="flex gap-3 items-center">
                     {shForm.foto_url && (
                       <ImageThumbnail src={shForm.foto_url} alt="Foto da sinalização" />
                     )}
                     <Input
                       value={shForm.foto_url}
                       onChange={(e) => setShForm({ ...shForm, foto_url: e.target.value })}
-                      placeholder="URL da foto"
-                      className="flex-1"
+                      placeholder="URL da foto ou faça upload"
+                      className="flex-1 h-10"
                     />
                     <Label className="cursor-pointer">
                       <input
@@ -1098,7 +1269,7 @@ export default function EquipamentoDetalhe() {
                           if (file) handleFileUpload(file, (url) => setShForm({ ...shForm, foto_url: url }));
                         }}
                       />
-                      <Button type="button" variant="outline" size="icon" asChild>
+                      <Button type="button" variant="outline" size="icon" asChild className="h-10 w-10">
                         <span><Upload className="h-4 w-4" /></span>
                       </Button>
                     </Label>
@@ -1106,6 +1277,7 @@ export default function EquipamentoDetalhe() {
                 </div>
               </div>
               <DialogFooter>
+                <Button variant="outline" onClick={() => setShDialogOpen(false)}>Cancelar</Button>
                 <Button onClick={handleSaveSH}>Salvar</Button>
               </DialogFooter>
             </DialogContent>
