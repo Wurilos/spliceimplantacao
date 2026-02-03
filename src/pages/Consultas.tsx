@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useContratos } from '@/hooks/useContratos';
 import { useSentidos } from '@/hooks/useSentidos';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,7 +30,7 @@ export default function Consultas() {
   const [shTipo, setShTipo] = useState<string>('all');
 
   // Query equipamentos
-  const { data: equipamentos } = useQuery({
+  const { data: equipamentos, isLoading: isLoadingEq } = useQuery({
     queryKey: ['consulta-equipamentos', eqContrato, eqMunicipio, eqSerie],
     queryFn: async () => {
       let query = supabase
@@ -48,7 +48,7 @@ export default function Consultas() {
   });
 
   // Query sinalização vertical
-  const { data: sinalizacaoVertical } = useQuery({
+  const { data: sinalizacaoVertical, isLoading: isLoadingSV } = useQuery({
     queryKey: ['consulta-sinalizacao-vertical', svContrato, svSentido],
     queryFn: async () => {
       let query = supabase
@@ -77,7 +77,7 @@ export default function Consultas() {
   });
 
   // Query sinalização horizontal
-  const { data: sinalizacaoHorizontal } = useQuery({
+  const { data: sinalizacaoHorizontal, isLoading: isLoadingSH } = useQuery({
     queryKey: ['consulta-sinalizacao-horizontal', shContrato, shTipo],
     queryFn: async () => {
       let query = supabase
@@ -113,22 +113,30 @@ export default function Consultas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Consultas</h1>
-        <p className="text-muted-foreground">Pesquise equipamentos e sinalizações</p>
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Search className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="page-title">Consultas</h1>
+            <p className="page-description">Pesquise equipamentos e sinalizações</p>
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="equipamentos" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="equipamentos" className="gap-2">
+      <Tabs defaultValue="equipamentos" className="space-y-6">
+        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-3">
+          <TabsTrigger value="equipamentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
             <Radio className="h-4 w-4" />
             Equipamentos
           </TabsTrigger>
-          <TabsTrigger value="vertical" className="gap-2">
+          <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
             <ArrowUpDown className="h-4 w-4" />
             Sinalização Vertical
           </TabsTrigger>
-          <TabsTrigger value="horizontal" className="gap-2">
+          <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
             <ArrowLeftRight className="h-4 w-4" />
             Sinalização Horizontal
           </TabsTrigger>
@@ -136,102 +144,130 @@ export default function Consultas() {
 
         {/* Tab Equipamentos */}
         <TabsContent value="equipamentos">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pesquisa de Equipamentos</CardTitle>
-              <div className="grid gap-4 md:grid-cols-4 mt-4">
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="space-y-2">
-                  <Label>Contrato</Label>
+                  <Label className="text-sm font-medium">Contrato</Label>
                   <Select value={eqContrato} onValueChange={setEqContrato}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="all">Todos os contratos</SelectItem>
                       {contratos?.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.id_contrato}</SelectItem>
+                        <SelectItem key={c.id} value={c.id}>{c.id_contrato} - {c.nome}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Município</Label>
+                  <Label className="text-sm font-medium">Município</Label>
                   <Input
                     placeholder="Filtrar município..."
                     value={eqMunicipio}
                     onChange={(e) => setEqMunicipio(e.target.value)}
+                    className="h-11"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Nº Série</Label>
+                  <Label className="text-sm font-medium">Nº Série</Label>
                   <Input
                     placeholder="Filtrar nº série..."
                     value={eqSerie}
                     onChange={(e) => setEqSerie(e.target.value)}
+                    className="h-11"
                   />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nº Série</TableHead>
-                    <TableHead>Contrato</TableHead>
-                    <TableHead>Município</TableHead>
-                    <TableHead>Endereço</TableHead>
-                    <TableHead>Sinalização</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {equipamentos?.map((eq: any) => (
-                    <TableRow key={eq.id}>
-                      <TableCell className="font-mono">{eq.numero_serie}</TableCell>
-                      <TableCell>{eq.contratos?.id_contrato}</TableCell>
-                      <TableCell>{eq.municipio}</TableCell>
-                      <TableCell className="max-w-xs truncate">{eq.endereco}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {eq.tem_sinalizacao_vertical && <Badge variant="outline">V</Badge>}
-                          {eq.tem_sinalizacao_horizontal && <Badge variant="outline">H</Badge>}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {isLoadingEq ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  Carregando...
+                </div>
+              ) : equipamentos?.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Radio className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhum equipamento encontrado</p>
+                </div>
+              ) : (
+                <div className="rounded-lg border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="font-semibold">Nº Série</TableHead>
+                        <TableHead className="font-semibold">Contrato</TableHead>
+                        <TableHead className="font-semibold">Município</TableHead>
+                        <TableHead className="font-semibold">Endereço</TableHead>
+                        <TableHead className="font-semibold">Sinalização</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {equipamentos?.map((eq: any) => (
+                        <TableRow key={eq.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono font-medium">{eq.numero_serie}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-normal">
+                              {eq.contratos?.id_contrato}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{eq.municipio}</TableCell>
+                          <TableCell className="max-w-xs truncate text-muted-foreground">{eq.endereco}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1.5">
+                              {eq.tem_sinalizacao_vertical && (
+                                <Badge variant="secondary" className="gap-1 bg-success/10 text-success border-success/20">
+                                  <ArrowUpDown className="h-3 w-3" />
+                                  V
+                                </Badge>
+                              )}
+                              {eq.tem_sinalizacao_horizontal && (
+                                <Badge variant="secondary" className="gap-1 bg-warning/10 text-warning border-warning/20">
+                                  <ArrowLeftRight className="h-3 w-3" />
+                                  H
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Tab Sinalização Vertical */}
         <TabsContent value="vertical">
-          <Card>
-            <CardHeader>
-              <CardTitle>Consulta Sinalização Vertical</CardTitle>
-              <div className="grid gap-4 md:grid-cols-3 mt-4">
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Contrato</Label>
+                  <Label className="text-sm font-medium">Contrato</Label>
                   <Select value={svContrato} onValueChange={setSvContrato}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="all">Todos os contratos</SelectItem>
                       {contratos?.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.id_contrato}</SelectItem>
+                        <SelectItem key={c.id} value={c.id}>{c.id_contrato} - {c.nome}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Sentido</Label>
+                  <Label className="text-sm font-medium">Sentido</Label>
                   <Select value={svSentido} onValueChange={setSvSentido}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="all">Todos os sentidos</SelectItem>
                       {sentidos?.map((s) => (
                         <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
                       ))}
@@ -241,66 +277,83 @@ export default function Consultas() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Equipamento</TableHead>
-                    <TableHead>Contrato</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Subtipo</TableHead>
-                    <TableHead>Sentido</TableHead>
-                    <TableHead>Pontaletes</TableHead>
-                    <TableHead>Perfis</TableHead>
-                    <TableHead>Postes Col.</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sinalizacaoVertical?.map((sv: any) => (
-                    <TableRow key={sv.id}>
-                      <TableCell className="font-mono">{sv.equipamentos?.numero_serie}</TableCell>
-                      <TableCell>{sv.equipamentos?.contratos?.id_contrato}</TableCell>
-                      <TableCell>{sv.tipo}</TableCell>
-                      <TableCell>{sv.subtipo}</TableCell>
-                      <TableCell>{sv.sentidos?.nome || '-'}</TableCell>
-                      <TableCell>{sv.qtd_pontaletes}</TableCell>
-                      <TableCell>{sv.qtd_perfis_metalicos}</TableCell>
-                      <TableCell>{sv.qtd_postes_colapsiveis}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {isLoadingSV ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  Carregando...
+                </div>
+              ) : sinalizacaoVertical?.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <ArrowUpDown className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhuma sinalização vertical encontrada</p>
+                </div>
+              ) : (
+                <div className="rounded-lg border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="font-semibold">Equipamento</TableHead>
+                        <TableHead className="font-semibold">Contrato</TableHead>
+                        <TableHead className="font-semibold">Tipo</TableHead>
+                        <TableHead className="font-semibold">Subtipo</TableHead>
+                        <TableHead className="font-semibold">Sentido</TableHead>
+                        <TableHead className="font-semibold text-center">Pontaletes</TableHead>
+                        <TableHead className="font-semibold text-center">Perfis</TableHead>
+                        <TableHead className="font-semibold text-center">Postes Col.</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sinalizacaoVertical?.map((sv: any) => (
+                        <TableRow key={sv.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono font-medium">{sv.equipamentos?.numero_serie}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-normal">
+                              {sv.equipamentos?.contratos?.id_contrato}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{sv.tipo}</TableCell>
+                          <TableCell className="text-muted-foreground">{sv.subtipo}</TableCell>
+                          <TableCell>{sv.sentidos?.nome || '-'}</TableCell>
+                          <TableCell className="text-center font-medium">{sv.qtd_pontaletes}</TableCell>
+                          <TableCell className="text-center font-medium">{sv.qtd_perfis_metalicos}</TableCell>
+                          <TableCell className="text-center font-medium">{sv.qtd_postes_colapsiveis}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Tab Sinalização Horizontal */}
         <TabsContent value="horizontal">
-          <Card>
-            <CardHeader>
-              <CardTitle>Consulta Sinalização Horizontal</CardTitle>
-              <div className="grid gap-4 md:grid-cols-3 mt-4">
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Contrato</Label>
+                  <Label className="text-sm font-medium">Contrato</Label>
                   <Select value={shContrato} onValueChange={setShContrato}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="all">Todos os contratos</SelectItem>
                       {contratos?.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.id_contrato}</SelectItem>
+                        <SelectItem key={c.id} value={c.id}>{c.id_contrato} - {c.nome}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Tipo</Label>
+                  <Label className="text-sm font-medium">Tipo</Label>
                   <Select value={shTipo} onValueChange={setShTipo}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="all">Todos os tipos</SelectItem>
                       <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
                       <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
                       <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
@@ -310,32 +363,54 @@ export default function Consultas() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Equipamento</TableHead>
-                    <TableHead>Contrato</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Sentido</TableHead>
-                    <TableHead>Lado</TableHead>
-                    <TableHead>Lâminas</TableHead>
-                    <TableHead>Postes</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sinalizacaoHorizontal?.map((sh: any) => (
-                    <TableRow key={sh.id}>
-                      <TableCell className="font-mono">{sh.equipamentos?.numero_serie}</TableCell>
-                      <TableCell>{sh.equipamentos?.contratos?.id_contrato}</TableCell>
-                      <TableCell>{tipoHorizontalLabels[sh.tipo]}</TableCell>
-                      <TableCell>{sh.sentidos?.nome || '-'}</TableCell>
-                      <TableCell>{sh.lado}</TableCell>
-                      <TableCell>{sh.qtd_laminas}</TableCell>
-                      <TableCell>{sh.qtd_postes}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {isLoadingSH ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  Carregando...
+                </div>
+              ) : sinalizacaoHorizontal?.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhuma sinalização horizontal encontrada</p>
+                </div>
+              ) : (
+                <div className="rounded-lg border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="font-semibold">Equipamento</TableHead>
+                        <TableHead className="font-semibold">Contrato</TableHead>
+                        <TableHead className="font-semibold">Tipo</TableHead>
+                        <TableHead className="font-semibold">Sentido</TableHead>
+                        <TableHead className="font-semibold">Lado</TableHead>
+                        <TableHead className="font-semibold text-center">Lâminas</TableHead>
+                        <TableHead className="font-semibold text-center">Postes</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sinalizacaoHorizontal?.map((sh: any) => (
+                        <TableRow key={sh.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono font-medium">{sh.equipamentos?.numero_serie}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-normal">
+                              {sh.equipamentos?.contratos?.id_contrato}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="font-normal">
+                              {tipoHorizontalLabels[sh.tipo]}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{sh.sentidos?.nome || '-'}</TableCell>
+                          <TableCell className="font-medium">{sh.lado}</TableCell>
+                          <TableCell className="text-center font-medium">{sh.qtd_laminas}</TableCell>
+                          <TableCell className="text-center font-medium">{sh.qtd_postes}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

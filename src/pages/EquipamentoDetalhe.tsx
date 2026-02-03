@@ -467,27 +467,14 @@ export default function EquipamentoDetalhe() {
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fixo">Fixo</SelectItem>
-                      <SelectItem value="movel">Móvel</SelectItem>
-                      <SelectItem value="portatil">Portátil</SelectItem>
-                      <SelectItem value="estacionario">Estacionário</SelectItem>
+                      <SelectItem value="REV">REV</SelectItem>
+                      <SelectItem value="REC">REC</SelectItem>
+                      <SelectItem value="CEV">CEV</SelectItem>
+                      <SelectItem value="CEC">CEC</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Município <span className="text-destructive">*</span></Label>
-                  <Input
-                    value={formData.municipio}
-                    onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
-                    placeholder="Nome do município"
-                    disabled={!canEdit}
-                    className="h-11"
-                  />
-                </div>
-                <div className="sm:col-span-2 lg:col-span-1 space-y-2">
                   <Label className="text-sm font-medium">Quantidade de Faixas</Label>
                   <Input
                     type="number"
@@ -498,7 +485,19 @@ export default function EquipamentoDetalhe() {
                     className="h-11"
                   />
                 </div>
-                <div className="sm:col-span-2 lg:col-span-1 space-y-2">
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Município <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={formData.municipio}
+                    onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
+                    placeholder="Nome do município"
+                    disabled={!canEdit}
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label className="text-sm font-medium">Endereço <span className="text-destructive">*</span></Label>
                   <Input
                     value={formData.endereco}
@@ -530,11 +529,9 @@ export default function EquipamentoDetalhe() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Latitude</Label>
                   <Input
-                    type="number"
-                    step="any"
                     value={formData.latitude}
                     onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                    placeholder="-23.550520"
+                    placeholder="-23.5505"
                     disabled={!canEdit}
                     className="h-11 font-mono"
                   />
@@ -542,11 +539,9 @@ export default function EquipamentoDetalhe() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Longitude</Label>
                   <Input
-                    type="number"
-                    step="any"
                     value={formData.longitude}
                     onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                    placeholder="-46.633308"
+                    placeholder="-46.6333"
                     disabled={!canEdit}
                     className="h-11 font-mono"
                   />
