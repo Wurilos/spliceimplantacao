@@ -12,6 +12,8 @@ export interface Equipamento {
   longitude: number | null;
   tem_sinalizacao_vertical: boolean;
   tem_sinalizacao_horizontal: boolean;
+  tipo_equipamento: string | null;
+  quantidade_faixas: number | null;
   created_at: string;
   updated_at: string;
   contratos?: {

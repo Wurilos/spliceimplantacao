@@ -87,8 +87,10 @@ export type Database = {
           longitude: number | null
           municipio: string
           numero_serie: string
+          quantidade_faixas: number | null
           tem_sinalizacao_horizontal: boolean | null
           tem_sinalizacao_vertical: boolean | null
+          tipo_equipamento: string | null
           updated_at: string
         }
         Insert: {
@@ -100,8 +102,10 @@ export type Database = {
           longitude?: number | null
           municipio: string
           numero_serie: string
+          quantidade_faixas?: number | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
+          tipo_equipamento?: string | null
           updated_at?: string
         }
         Update: {
@@ -113,8 +117,10 @@ export type Database = {
           longitude?: number | null
           municipio?: string
           numero_serie?: string
+          quantidade_faixas?: number | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
+          tipo_equipamento?: string | null
           updated_at?: string
         }
         Relationships: [

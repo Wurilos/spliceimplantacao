@@ -74,12 +74,15 @@ export default function EquipamentoDetalhe() {
     longitude: '',
     tem_sinalizacao_vertical: false,
     tem_sinalizacao_horizontal: false,
+    tipo_equipamento: '',
+    quantidade_faixas: 1,
   });
 
   // Dialog states
   const [sentidoDialogOpen, setSentidoDialogOpen] = useState(false);
   const [newSentidoNome, setNewSentidoNome] = useState('');
   const [selectedSentidoToAdd, setSelectedSentidoToAdd] = useState<string>('');
+  const [pendingSentidos, setPendingSentidos] = useState<string[]>([]);
 
   const [svDialogOpen, setSvDialogOpen] = useState(false);
   const [editingSV, setEditingSV] = useState<SinalizacaoVertical | null>(null);
@@ -126,6 +129,8 @@ export default function EquipamentoDetalhe() {
         longitude: equipamento.longitude?.toString() || '',
         tem_sinalizacao_vertical: equipamento.tem_sinalizacao_vertical,
         tem_sinalizacao_horizontal: equipamento.tem_sinalizacao_horizontal,
+        tipo_equipamento: equipamento.tipo_equipamento || '',
+        quantidade_faixas: equipamento.quantidade_faixas || 1,
       });
     }
   }, [equipamento]);
@@ -145,10 +150,16 @@ export default function EquipamentoDetalhe() {
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       tem_sinalizacao_vertical: formData.tem_sinalizacao_vertical,
       tem_sinalizacao_horizontal: formData.tem_sinalizacao_horizontal,
+      tipo_equipamento: formData.tipo_equipamento || null,
+      quantidade_faixas: formData.quantidade_faixas,
     };
 
     if (isNew) {
       const result = await createEquipamento.mutateAsync(data);
+      // Adicionar sentidos pendentes ao novo equipamento
+      for (const sentidoId of pendingSentidos) {
+        await addSentido.mutateAsync({ equipamento_id: result.id, sentido_id: sentidoId });
+      }
       navigate(`/equipamentos/${result.id}`);
     } else {
       await updateEquipamento.mutateAsync({ id: id!, ...data });
@@ -166,8 +177,12 @@ export default function EquipamentoDetalhe() {
     const result = await createSentido.mutateAsync({ nome: newSentidoNome });
     setNewSentidoNome('');
     setSentidoDialogOpen(false);
-    if (id && result.id) {
-      await addSentido.mutateAsync({ equipamento_id: id, sentido_id: result.id });
+    if (result.id) {
+      if (isNew) {
+        setPendingSentidos([...pendingSentidos, result.id]);
+      } else if (id) {
+        await addSentido.mutateAsync({ equipamento_id: id, sentido_id: result.id });
+      }
     }
   };
 
@@ -452,6 +467,34 @@ export default function EquipamentoDetalhe() {
                     disabled={!canEdit}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Tipo de Equipamento</Label>
+                  <Select
+                    value={formData.tipo_equipamento}
+                    onValueChange={(v) => setFormData({ ...formData, tipo_equipamento: v })}
+                    disabled={!canEdit}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixo">Fixo</SelectItem>
+                      <SelectItem value="movel">Móvel</SelectItem>
+                      <SelectItem value="portatil">Portátil</SelectItem>
+                      <SelectItem value="estacionario">Estacionário</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Quantidade de Faixas</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={formData.quantidade_faixas}
+                    onChange={(e) => setFormData({ ...formData, quantidade_faixas: parseInt(e.target.value) || 1 })}
+                    disabled={!canEdit}
+                  />
+                </div>
               </div>
 
               <div className="flex gap-6">
@@ -476,73 +519,115 @@ export default function EquipamentoDetalhe() {
               </div>
 
               {/* Sentidos do equipamento */}
-              {!isNew && (
-                <div className="space-y-4 border-t pt-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Sentidos do Equipamento</Label>
-                    {canEdit && (
-                      <div className="flex gap-2">
-                        <Select value={selectedSentidoToAdd} onValueChange={setSelectedSentidoToAdd}>
-                          <SelectTrigger className="w-40">
-                            <SelectValue placeholder="Adicionar sentido" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableSentidosToAdd?.map((s) => (
-                              <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+              <div className="space-y-4 border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold">Sentidos do Equipamento</Label>
+                  {canEdit && (
+                    <div className="flex gap-2">
+                      <Select 
+                        value={selectedSentidoToAdd} 
+                        onValueChange={(value) => {
+                          if (isNew) {
+                            if (!pendingSentidos.includes(value)) {
+                              setPendingSentidos([...pendingSentidos, value]);
+                            }
+                          } else {
+                            setSelectedSentidoToAdd(value);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Adicionar sentido" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isNew 
+                            ? sentidos?.filter(s => !pendingSentidos.includes(s.id)).map((s) => (
+                                <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                              ))
+                            : availableSentidosToAdd?.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                              ))
+                          }
+                        </SelectContent>
+                      </Select>
+                      {!isNew && (
                         <Button size="sm" onClick={handleAddSentido} disabled={!selectedSentidoToAdd}>
                           <Plus className="h-4 w-4" />
                         </Button>
-                        <Dialog open={sentidoDialogOpen} onOpenChange={setSentidoDialogOpen}>
-                          <Button size="sm" variant="outline" onClick={() => setSentidoDialogOpen(true)}>
-                            <Plus className="h-4 w-4 mr-1" />
-                            Novo
-                          </Button>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Criar Novo Sentido</DialogTitle>
-                              <DialogDescription>Adicione um novo sentido ao sistema</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div className="space-y-2">
-                                <Label>Nome do sentido</Label>
-                                <Input
-                                  value={newSentidoNome}
-                                  onChange={(e) => setNewSentidoNome(e.target.value)}
-                                  placeholder="Ex: Norte, Sul..."
-                                />
-                              </div>
+                      )}
+                      <Dialog open={sentidoDialogOpen} onOpenChange={setSentidoDialogOpen}>
+                        <Button size="sm" variant="outline" onClick={() => setSentidoDialogOpen(true)}>
+                          <Plus className="h-4 w-4 mr-1" />
+                          Novo
+                        </Button>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Criar Novo Sentido</DialogTitle>
+                            <DialogDescription>Adicione um novo sentido ao sistema</DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Nome do sentido</Label>
+                              <Input
+                                value={newSentidoNome}
+                                onChange={(e) => setNewSentidoNome(e.target.value)}
+                                placeholder="Ex: Norte, Sul..."
+                              />
                             </div>
-                            <DialogFooter>
-                              <Button onClick={handleCreateSentido} disabled={!newSentidoNome}>
-                                Criar e Adicionar
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {equipamentoSentidos?.map((es) => (
-                      <Badge key={es.id} variant="secondary" className="gap-1">
-                        {es.sentidos?.nome}
-                        {es.is_principal && <span className="text-xs">(principal)</span>}
-                        {canEdit && (
-                          <button onClick={() => removeSentido.mutate(es.id)} className="ml-1 hover:text-destructive">
-                            <X className="h-3 w-3" />
-                          </button>
-                        )}
-                      </Badge>
-                    ))}
-                    {(!equipamentoSentidos || equipamentoSentidos.length === 0) && (
-                      <span className="text-sm text-muted-foreground">Nenhum sentido adicionado</span>
-                    )}
-                  </div>
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={handleCreateSentido} disabled={!newSentidoNome}>
+                              Criar e Adicionar
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
                 </div>
-              )}
+                <div className="flex flex-wrap gap-2">
+                  {isNew ? (
+                    <>
+                      {pendingSentidos.map((sentidoId) => {
+                        const sentido = sentidos?.find(s => s.id === sentidoId);
+                        return (
+                          <Badge key={sentidoId} variant="secondary" className="gap-1">
+                            {sentido?.nome}
+                            {canEdit && (
+                              <button 
+                                onClick={() => setPendingSentidos(pendingSentidos.filter(id => id !== sentidoId))} 
+                                className="ml-1 hover:text-destructive"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            )}
+                          </Badge>
+                        );
+                      })}
+                      {pendingSentidos.length === 0 && (
+                        <span className="text-sm text-muted-foreground">Nenhum sentido selecionado</span>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {equipamentoSentidos?.map((es) => (
+                        <Badge key={es.id} variant="secondary" className="gap-1">
+                          {es.sentidos?.nome}
+                          {es.is_principal && <span className="text-xs">(principal)</span>}
+                          {canEdit && (
+                            <button onClick={() => removeSentido.mutate(es.id)} className="ml-1 hover:text-destructive">
+                              <X className="h-3 w-3" />
+                            </button>
+                          )}
+                        </Badge>
+                      ))}
+                      {(!equipamentoSentidos || equipamentoSentidos.length === 0) && (
+                        <span className="text-sm text-muted-foreground">Nenhum sentido adicionado</span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
 
               {canEdit && (
                 <div className="flex justify-end pt-4 border-t">
