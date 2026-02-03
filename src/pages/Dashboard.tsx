@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Radio, ArrowUpDown, ArrowLeftRight, Package } from 'lucide-react';
+import { Radio, ArrowUpDown, ArrowLeftRight, Package, TrendingUp } from 'lucide-react';
 
 export default function Dashboard() {
   // Métricas de equipamentos
@@ -93,72 +93,92 @@ export default function Dashboard() {
   const totalPostes = sinalizacaoHorizontal?.reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Visão geral do sistema de implantação de radares</p>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="page-header">
+        <h1 className="page-title">Dashboard</h1>
+        <p className="page-description">Visão geral do sistema de implantação de radares</p>
       </div>
 
       {/* Cards de Equipamentos */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+      <div className="grid gap-5 md:grid-cols-3">
+        <Card className="stat-card group hover:shadow-lg transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total de Equipamentos</CardTitle>
-            <Radio className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total de Equipamentos</CardTitle>
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Radio className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalEquipamentos}</div>
+            <div className="text-3xl font-bold">{totalEquipamentos}</div>
+            <p className="text-xs text-muted-foreground mt-1">equipamentos cadastrados</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="stat-card group hover:shadow-lg transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Com Sinalização Vertical</CardTitle>
-            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Com Sinalização Vertical</CardTitle>
+            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <ArrowUpDown className="h-5 w-5 text-success" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{comVertical}</div>
+            <div className="text-3xl font-bold">{comVertical}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalEquipamentos > 0 ? `${((comVertical / totalEquipamentos) * 100).toFixed(0)}% do total` : '0% do total'}
+            </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="stat-card group hover:shadow-lg transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Com Sinalização Horizontal</CardTitle>
-            <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Com Sinalização Horizontal</CardTitle>
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <ArrowLeftRight className="h-5 w-5 text-warning" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{comHorizontal}</div>
+            <div className="text-3xl font-bold">{comHorizontal}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalEquipamentos > 0 ? `${((comHorizontal / totalEquipamentos) * 100).toFixed(0)}% do total` : '0% do total'}
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Cards de Materiais Verticais */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Materiais Verticais</h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-lg font-semibold">Materiais Verticais</h2>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Pontaletes</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pontaletes</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalPontaletes}</div>
+              <p className="text-xs text-muted-foreground mt-1">unidades</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Perfis Metálicos</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Perfis Metálicos</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalPerfis}</div>
+              <p className="text-xs text-muted-foreground mt-1">unidades</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Postes Colapsíveis</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Postes Colapsíveis</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalPostesColapsiveis}</div>
+              <p className="text-xs text-muted-foreground mt-1">unidades</p>
             </CardContent>
           </Card>
         </div>
@@ -166,32 +186,38 @@ export default function Dashboard() {
 
       {/* Cards de Materiais Horizontais */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Materiais Horizontais</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <ArrowLeftRight className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-lg font-semibold">Materiais Horizontais</h2>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Lâminas</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Lâminas</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalLaminas}</div>
+              <p className="text-xs text-muted-foreground mt-1">unidades</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Postes</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Postes</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalPostes}</div>
+              <p className="text-xs text-muted-foreground mt-1">unidades</p>
             </CardContent>
           </Card>
         </div>
       </div>
 
       {/* Gráfico */}
-      <Card>
-        <CardHeader>
+      <Card className="shadow-soft">
+        <CardHeader className="flex flex-row items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-muted-foreground" />
           <CardTitle>Materiais por Contrato</CardTitle>
         </CardHeader>
         <CardContent>
@@ -199,15 +225,29 @@ export default function Dashboard() {
             {chartData && chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nome" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="nome" 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
+                  />
+                  <YAxis 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 12px hsl(var(--foreground) / 0.1)'
+                    }}
+                  />
                   <Legend />
-                  <Bar dataKey="pontaletes" fill="hsl(var(--primary))" name="Pontaletes" />
-                  <Bar dataKey="perfis" fill="hsl(var(--secondary))" name="Perfis" />
-                  <Bar dataKey="postes_colapsiveis" fill="hsl(var(--accent))" name="Postes Col." />
-                  <Bar dataKey="laminas" fill="hsl(var(--muted))" name="Lâminas" />
+                  <Bar dataKey="pontaletes" fill="hsl(217 91% 50%)" name="Pontaletes" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="perfis" fill="hsl(142 76% 36%)" name="Perfis" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="postes_colapsiveis" fill="hsl(38 92% 50%)" name="Postes Col." radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="laminas" fill="hsl(215 16% 47%)" name="Lâminas" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
