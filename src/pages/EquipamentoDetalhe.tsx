@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { ImageThumbnail } from '@/components/ImageThumbnail';
 
 export default function EquipamentoDetalhe() {
   const { id } = useParams();
@@ -667,36 +668,41 @@ export default function EquipamentoDetalhe() {
                     <Card key={sv.id}>
                       <CardContent className="pt-4">
                         <div className="flex justify-between items-start">
-                          <div className="grid gap-2 md:grid-cols-4 flex-1">
-                            <div>
-                              <span className="text-sm text-muted-foreground">Tipo:</span>
-                              <p className="font-medium">{sv.tipo}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Subtipo:</span>
-                              <p className="font-medium">{sv.subtipo}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Sentido:</span>
-                              <p className="font-medium">{sv.sentidos?.nome || '-'}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Lado:</span>
-                              <p className="font-medium">{sv.lado}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Endereço:</span>
-                              <p className="font-medium">{sv.endereco}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Instalação:</span>
-                              <p className="font-medium">{sv.instalacao}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Quantidades:</span>
-                              <p className="font-medium text-sm">
-                                {sv.qtd_pontaletes} pont. / {sv.qtd_perfis_metalicos} perf. / {sv.qtd_postes_colapsiveis} post.
-                              </p>
+                          <div className="flex gap-4 flex-1">
+                            {sv.foto_url && (
+                              <ImageThumbnail src={sv.foto_url} alt="Foto da sinalização" />
+                            )}
+                            <div className="grid gap-2 md:grid-cols-4 flex-1">
+                              <div>
+                                <span className="text-sm text-muted-foreground">Tipo:</span>
+                                <p className="font-medium">{sv.tipo}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Subtipo:</span>
+                                <p className="font-medium">{sv.subtipo}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Sentido:</span>
+                                <p className="font-medium">{sv.sentidos?.nome || '-'}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Lado:</span>
+                                <p className="font-medium">{sv.lado}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Endereço:</span>
+                                <p className="font-medium">{sv.endereco}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Instalação:</span>
+                                <p className="font-medium">{sv.instalacao}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Quantidades:</span>
+                                <p className="font-medium text-sm">
+                                  {sv.qtd_pontaletes} pont. / {sv.qtd_perfis_metalicos} perf. / {sv.qtd_postes_colapsiveis} post.
+                                </p>
+                              </div>
                             </div>
                           </div>
                           {canEdit && (
@@ -851,11 +857,15 @@ export default function EquipamentoDetalhe() {
                 </div>
                 <div className="space-y-2">
                   <Label>Foto</Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    {svForm.foto_url && (
+                      <ImageThumbnail src={svForm.foto_url} alt="Foto da sinalização" />
+                    )}
                     <Input
                       value={svForm.foto_url}
                       onChange={(e) => setSvForm({ ...svForm, foto_url: e.target.value })}
                       placeholder="URL da foto"
+                      className="flex-1"
                     />
                     <Label className="cursor-pointer">
                       <input
@@ -907,30 +917,35 @@ export default function EquipamentoDetalhe() {
                     <Card key={sh.id}>
                       <CardContent className="pt-4">
                         <div className="flex justify-between items-start">
-                          <div className="grid gap-2 md:grid-cols-4 flex-1">
-                            <div>
-                              <span className="text-sm text-muted-foreground">Tipo:</span>
-                              <p className="font-medium">{tipoHorizontalLabels[sh.tipo]}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Sentido:</span>
-                              <p className="font-medium">{sh.sentidos?.nome || '-'}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Lado:</span>
-                              <p className="font-medium">{sh.lado}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Endereço:</span>
-                              <p className="font-medium">{sh.endereco}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Lâminas:</span>
-                              <p className="font-medium">{sh.qtd_laminas}</p>
-                            </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground">Postes:</span>
-                              <p className="font-medium">{sh.qtd_postes}</p>
+                          <div className="flex gap-4 flex-1">
+                            {sh.foto_url && (
+                              <ImageThumbnail src={sh.foto_url} alt="Foto da sinalização" />
+                            )}
+                            <div className="grid gap-2 md:grid-cols-4 flex-1">
+                              <div>
+                                <span className="text-sm text-muted-foreground">Tipo:</span>
+                                <p className="font-medium">{tipoHorizontalLabels[sh.tipo]}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Sentido:</span>
+                                <p className="font-medium">{sh.sentidos?.nome || '-'}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Lado:</span>
+                                <p className="font-medium">{sh.lado}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Endereço:</span>
+                                <p className="font-medium">{sh.endereco}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Lâminas:</span>
+                                <p className="font-medium">{sh.qtd_laminas}</p>
+                              </div>
+                              <div>
+                                <span className="text-sm text-muted-foreground">Postes:</span>
+                                <p className="font-medium">{sh.qtd_postes}</p>
+                              </div>
                             </div>
                           </div>
                           {canEdit && (
@@ -1063,7 +1078,10 @@ export default function EquipamentoDetalhe() {
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label>Foto</Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    {shForm.foto_url && (
+                      <ImageThumbnail src={shForm.foto_url} alt="Foto da sinalização" />
+                    )}
                     <Input
                       value={shForm.foto_url}
                       onChange={(e) => setShForm({ ...shForm, foto_url: e.target.value })}
