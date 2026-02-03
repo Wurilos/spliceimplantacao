@@ -655,8 +655,8 @@ export default function EquipamentoDetalhe() {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      {equipamentoSentidos?.map((es) => (
-                        <SelectItem key={es.sentido_id} value={es.sentido_id}>{es.sentidos?.nome}</SelectItem>
+                      {sentidos?.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -895,8 +895,8 @@ export default function EquipamentoDetalhe() {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      {equipamentoSentidos?.map((es) => (
-                        <SelectItem key={es.sentido_id} value={es.sentido_id}>{es.sentidos?.nome}</SelectItem>
+                      {sentidos?.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
