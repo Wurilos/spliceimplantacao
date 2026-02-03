@@ -20,7 +20,7 @@ export default function Contratos() {
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContrato, setEditingContrato] = useState<Contrato | null>(null);
-  const [formData, setFormData] = useState({ id_contrato: '', nome: '' });
+  const [formData, setFormData] = useState({ nome: '' });
 
   const filteredContratos = contratos?.filter(
     (c) =>
@@ -31,24 +31,24 @@ export default function Contratos() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingContrato) {
-      await updateContrato.mutateAsync({ id: editingContrato.id, ...formData });
+      await updateContrato.mutateAsync({ id: editingContrato.id, id_contrato: editingContrato.id_contrato, nome: formData.nome });
     } else {
-      await createContrato.mutateAsync(formData);
+      await createContrato.mutateAsync({ id_contrato: '', nome: formData.nome });
     }
     setDialogOpen(false);
     setEditingContrato(null);
-    setFormData({ id_contrato: '', nome: '' });
+    setFormData({ nome: '' });
   };
 
   const openEdit = (contrato: Contrato) => {
     setEditingContrato(contrato);
-    setFormData({ id_contrato: contrato.id_contrato, nome: contrato.nome });
+    setFormData({ nome: contrato.nome });
     setDialogOpen(true);
   };
 
   const openNew = () => {
     setEditingContrato(null);
-    setFormData({ id_contrato: '', nome: '' });
+    setFormData({ nome: '' });
     setDialogOpen(true);
   };
 
@@ -75,16 +75,12 @@ export default function Contratos() {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="id_contrato">ID do Contrato</Label>
-                  <Input
-                    id="id_contrato"
-                    value={formData.id_contrato}
-                    onChange={(e) => setFormData({ ...formData, id_contrato: e.target.value })}
-                    placeholder="Ex: CT-001"
-                    required
-                  />
-                </div>
+                {editingContrato && (
+                  <div className="space-y-2">
+                    <Label>ID do Contrato</Label>
+                    <Input value={editingContrato.id_contrato} disabled className="bg-muted" />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome</Label>
                   <Input
