@@ -4,11 +4,11 @@ import { useSentidos, useCreateSentido, useUpdateSentido, useDeleteSentido, Sent
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Compass } from 'lucide-react';
 
 export default function Sentidos() {
   const { canEdit, canDelete } = useAuth();
@@ -52,15 +52,23 @@ export default function Sentidos() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Sentidos</h1>
-          <p className="text-muted-foreground">Gerencie os sentidos/direções do sistema</p>
+        <div className="page-header mb-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Compass className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="page-title">Sentidos</h1>
+              <p className="page-description">Gerencie os sentidos/direções do sistema</p>
+            </div>
+          </div>
         </div>
         {canEdit && (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew}>
+              <Button onClick={openNew} size="lg" className="shadow-md hover:shadow-lg transition-shadow">
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Sentido
               </Button>
@@ -81,6 +89,7 @@ export default function Sentidos() {
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Ex: Norte, Sul, Leste..."
                     required
+                    className="h-11"
                   />
                 </div>
                 <DialogFooter>
@@ -94,75 +103,88 @@ export default function Sentidos() {
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 max-w-sm">
+      <Card className="shadow-soft">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar sentido..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-10 h-11"
               />
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Carregando...</div>
+            <div className="text-center py-12 text-muted-foreground">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              Carregando...
+            </div>
           ) : filteredSentidos?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">Nenhum sentido encontrado</div>
+            <div className="text-center py-12 text-muted-foreground">
+              <Compass className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p>Nenhum sentido encontrado</p>
+            </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Data de Criação</TableHead>
-                  {canEdit && <TableHead className="w-24">Ações</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSentidos?.map((sentido) => (
-                  <TableRow key={sentido.id}>
-                    <TableCell className="font-medium">{sentido.nome}</TableCell>
-                    <TableCell>{new Date(sentido.created_at).toLocaleDateString('pt-BR')}</TableCell>
-                    {canEdit && (
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => openEdit(sentido)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {canDelete && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Excluir sentido?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Esta ação não pode ser desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteSentido.mutate(sentido.id)}>
-                                    Excluir
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          )}
-                        </div>
-                      </TableCell>
-                    )}
+            <div className="rounded-lg border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50 hover:bg-muted/50">
+                    <TableHead className="font-semibold">Nome</TableHead>
+                    <TableHead className="font-semibold">Data de Criação</TableHead>
+                    {canEdit && <TableHead className="w-28 font-semibold">Ações</TableHead>}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredSentidos?.map((sentido) => (
+                    <TableRow key={sentido.id} className="hover:bg-muted/30">
+                      <TableCell className="font-medium">{sentido.nome}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(sentido.created_at).toLocaleDateString('pt-BR')}
+                      </TableCell>
+                      {canEdit && (
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => openEdit(sentido)} className="hover:bg-primary/10 hover:text-primary">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            {canDelete && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="hover:bg-destructive/10 hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Excluir sentido?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta ação não pode ser desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => deleteSentido.mutate(sentido.id)}
+                                      className="bg-destructive hover:bg-destructive/90"
+                                    >
+                                      Excluir
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
