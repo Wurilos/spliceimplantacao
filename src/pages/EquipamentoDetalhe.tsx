@@ -96,6 +96,7 @@ export default function EquipamentoDetalhe() {
     qtd_pontaletes: 0,
     qtd_perfis_metalicos: 0,
     qtd_postes_colapsiveis: 0,
+    data: '',
   });
 
   const [shDialogOpen, setShDialogOpen] = useState(false);
@@ -110,6 +111,7 @@ export default function EquipamentoDetalhe() {
     foto_url: '',
     qtd_laminas: 0,
     qtd_postes: 0,
+    data: '',
   });
 
   // Load equipamento data
@@ -186,6 +188,7 @@ export default function EquipamentoDetalhe() {
         qtd_pontaletes: sv.qtd_pontaletes,
         qtd_perfis_metalicos: sv.qtd_perfis_metalicos,
         qtd_postes_colapsiveis: sv.qtd_postes_colapsiveis,
+        data: sv.data || '',
       });
     } else {
       setEditingSV(null);
@@ -202,6 +205,7 @@ export default function EquipamentoDetalhe() {
         qtd_pontaletes: 0,
         qtd_perfis_metalicos: 0,
         qtd_postes_colapsiveis: 0,
+        data: '',
       });
     }
     setSvDialogOpen(true);
@@ -227,6 +231,7 @@ export default function EquipamentoDetalhe() {
       qtd_pontaletes: svForm.qtd_pontaletes,
       qtd_perfis_metalicos: svForm.qtd_perfis_metalicos,
       qtd_postes_colapsiveis: svForm.qtd_postes_colapsiveis,
+      data: svForm.data || null,
     };
 
     if (editingSV) {
@@ -251,6 +256,7 @@ export default function EquipamentoDetalhe() {
         foto_url: sh.foto_url || '',
         qtd_laminas: sh.qtd_laminas,
         qtd_postes: sh.qtd_postes,
+        data: sh.data || '',
       });
     } else {
       setEditingSH(null);
@@ -264,6 +270,7 @@ export default function EquipamentoDetalhe() {
         foto_url: '',
         qtd_laminas: 0,
         qtd_postes: 0,
+        data: '',
       });
     }
     setShDialogOpen(true);
@@ -292,6 +299,7 @@ export default function EquipamentoDetalhe() {
       foto_url: shForm.foto_url || null,
       qtd_laminas: shForm.qtd_laminas,
       qtd_postes: shForm.qtd_postes,
+      data: shForm.data || null,
     };
 
     if (editingSH) {
@@ -749,6 +757,14 @@ export default function EquipamentoDetalhe() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>Data</Label>
+                  <Input
+                    type="date"
+                    value={svForm.data}
+                    onChange={(e) => setSvForm({ ...svForm, data: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>Foto</Label>
                   <div className="flex gap-2">
                     <Input
@@ -950,6 +966,14 @@ export default function EquipamentoDetalhe() {
                     type="number"
                     value={shForm.qtd_postes}
                     onChange={(e) => setShForm({ ...shForm, qtd_postes: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Data</Label>
+                  <Input
+                    type="date"
+                    value={shForm.data}
+                    onChange={(e) => setShForm({ ...shForm, data: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">

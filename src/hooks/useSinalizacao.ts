@@ -17,6 +17,7 @@ export interface SinalizacaoVertical {
   qtd_pontaletes: number;
   qtd_perfis_metalicos: number;
   qtd_postes_colapsiveis: number;
+  data: string | null;
   created_at: string;
   updated_at: string;
   sentidos?: {
@@ -36,6 +37,7 @@ export interface SinalizacaoHorizontal {
   foto_url: string | null;
   qtd_laminas: number;
   qtd_postes: number;
+  data: string | null;
   created_at: string;
   updated_at: string;
   sentidos?: {
