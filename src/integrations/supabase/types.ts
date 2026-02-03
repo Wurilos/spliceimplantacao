@@ -175,6 +175,7 @@ export type Database = {
       sinalizacao_horizontal_itens: {
         Row: {
           created_at: string
+          data: string | null
           endereco: string
           equipamento_id: string
           foto_url: string | null
@@ -190,6 +191,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          data?: string | null
           endereco: string
           equipamento_id: string
           foto_url?: string | null
@@ -205,6 +207,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          data?: string | null
           endereco?: string
           equipamento_id?: string
           foto_url?: string | null
@@ -238,6 +241,7 @@ export type Database = {
       sinalizacao_vertical_blocos: {
         Row: {
           created_at: string
+          data: string | null
           endereco: string
           equipamento_id: string
           foto_url: string | null
@@ -256,6 +260,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          data?: string | null
           endereco: string
           equipamento_id: string
           foto_url?: string | null
@@ -274,6 +279,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          data?: string | null
           endereco?: string
           equipamento_id?: string
           foto_url?: string | null
