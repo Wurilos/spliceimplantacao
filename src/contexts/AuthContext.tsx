@@ -29,70 +29,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    console.log('[Auth] Starting initialization...');
 
     const fetchUserRole = async (userId: string) => {
-      console.log('[Auth] Fetching role for user:', userId);
       try {
-        const { data: roleData, error } = await supabase
+        const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', userId)
           .maybeSingle();
         
-        console.log('[Auth] Role fetch result:', { roleData, error });
-        
         if (mounted) {
           setRole(roleData?.role as AppRole ?? 'consulta');
         }
-      } catch (error) {
-        console.error('[Auth] Error fetching user role:', error);
+      } catch {
         if (mounted) {
           setRole('consulta');
         }
       }
     };
 
-    // Check for existing session first
-    const initializeAuth = async () => {
-      console.log('[Auth] initializeAuth called');
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        console.log('[Auth] getSession result:', { session: !!session, error });
-        
-        if (!mounted) {
-          console.log('[Auth] Component unmounted, aborting');
-          return;
-        }
-        
-        if (error) {
-          console.error('[Auth] Error getting session:', error);
-          setLoading(false);
-          return;
-        }
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchUserRole(session.user.id);
-        }
-        
-        console.log('[Auth] Initialization complete');
-      } catch (error) {
-        console.error('[Auth] Error initializing auth:', error);
-      } finally {
-        console.log('[Auth] Setting loading to false');
-        if (mounted) {
-          setLoading(false);
-        }
+    // Timeout de segurança - garante que loading seja false após 5 segundos
+    const timeoutId = setTimeout(() => {
+      if (mounted) {
+        console.warn('Auth timeout - forcing loading to false');
+        setLoading(false);
       }
-    };
-    
-    initializeAuth();
+    }, 5000);
 
-    // Set up auth state listener for changes
+    // Inicialização da autenticação
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        await fetchUserRole(session.user.id);
+      }
+      
+      setLoading(false);
+    }).catch(() => {
+      if (mounted) {
+        setLoading(false);
+      }
+    });
+
+    // Listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
@@ -101,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await fetchUserRole(session.user.id);
+          fetchUserRole(session.user.id);
         } else {
           setRole(null);
         }
@@ -110,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
