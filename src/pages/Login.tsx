@@ -52,7 +52,7 @@ export default function Login() {
     } else {
       toast({
         title: 'Cadastro realizado!',
-        description: 'Verifique seu email para confirmar o cadastro.',
+        description: 'Você já pode fazer login com suas credenciais.',
       });
     }
 
