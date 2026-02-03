@@ -29,20 +29,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    console.log('[Auth] Starting initialization...');
 
     const fetchUserRole = async (userId: string) => {
+      console.log('[Auth] Fetching role for user:', userId);
       try {
-        const { data: roleData } = await supabase
+        const { data: roleData, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', userId)
           .maybeSingle();
         
+        console.log('[Auth] Role fetch result:', { roleData, error });
+        
         if (mounted) {
           setRole(roleData?.role as AppRole ?? 'consulta');
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error('[Auth] Error fetching user role:', error);
         if (mounted) {
           setRole('consulta');
         }
@@ -51,13 +55,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check for existing session first
     const initializeAuth = async () => {
+      console.log('[Auth] initializeAuth called');
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (!mounted) return;
+        console.log('[Auth] getSession result:', { session: !!session, error });
+        
+        if (!mounted) {
+          console.log('[Auth] Component unmounted, aborting');
+          return;
+        }
         
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('[Auth] Error getting session:', error);
           setLoading(false);
           return;
         }
@@ -68,9 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           await fetchUserRole(session.user.id);
         }
+        
+        console.log('[Auth] Initialization complete');
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('[Auth] Error initializing auth:', error);
       } finally {
+        console.log('[Auth] Setting loading to false');
         if (mounted) {
           setLoading(false);
         }
