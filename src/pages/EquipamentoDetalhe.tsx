@@ -1142,7 +1142,84 @@ export default function EquipamentoDetalhe() {
         </TabsContent>
 
         {/* Tab Sinalização Horizontal */}
-        <TabsContent value="horizontal">
+        <TabsContent value="horizontal" className="space-y-6">
+          {/* Card de Previsão */}
+          <Card className="shadow-soft border-l-4 border-l-info">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-info" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Previsão de Materiais</CardTitle>
+                  <CardDescription>Quantidade prevista de materiais para sinalização horizontal</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Defensa</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_defensas}
+                    onChange={(e) => setFormData({ ...formData, prev_defensas: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Postes</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_postes_horizontal}
+                    onChange={(e) => setFormData({ ...formData, prev_postes_horizontal: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. TAE 80 Km/h</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_tae_80}
+                    onChange={(e) => setFormData({ ...formData, prev_tae_80: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. TAE 100 Km/h</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_tae_100}
+                    onChange={(e) => setFormData({ ...formData, prev_tae_100: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+              </div>
+              {canEdit && (
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={createEquipamento.isPending || updateEquipamento.isPending}
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Salvar Previsão
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Card de Itens */}
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <div className="flex items-center gap-3">
@@ -1150,7 +1227,7 @@ export default function EquipamentoDetalhe() {
                   <ArrowLeftRight className="h-5 w-5 text-warning" />
                 </div>
                 <div>
-                  <CardTitle>Sinalização Horizontal</CardTitle>
+                  <CardTitle>Itens Instalados</CardTitle>
                   <CardDescription>Itens de sinalização horizontal do equipamento</CardDescription>
                 </div>
               </div>
