@@ -195,7 +195,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Main content */}
       <main className="lg:ml-72 pt-16 lg:pt-0 min-h-screen">
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">{children}</div>
+        <div className="p-6 lg:p-8 animate-fade-in">{children}</div>
       </main>
     </div>
   );
