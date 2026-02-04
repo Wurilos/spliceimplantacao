@@ -81,7 +81,9 @@ export type Database = {
         Row: {
           contrato_id: string
           created_at: string
+          croqui_caracterizacao_url: string | null
           endereco: string
+          estudo_viabilidade_url: string | null
           id: string
           latitude: number | null
           longitude: number | null
@@ -96,7 +98,9 @@ export type Database = {
           prev_semi_porticos: number | null
           prev_tae_100: number | null
           prev_tae_80: number | null
+          projeto_croqui_url: string | null
           quantidade_faixas: number | null
+          relatorio_vdm_url: string | null
           tem_sinalizacao_horizontal: boolean | null
           tem_sinalizacao_vertical: boolean | null
           tipo_equipamento: string | null
@@ -105,7 +109,9 @@ export type Database = {
         Insert: {
           contrato_id: string
           created_at?: string
+          croqui_caracterizacao_url?: string | null
           endereco: string
+          estudo_viabilidade_url?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
@@ -120,7 +126,9 @@ export type Database = {
           prev_semi_porticos?: number | null
           prev_tae_100?: number | null
           prev_tae_80?: number | null
+          projeto_croqui_url?: string | null
           quantidade_faixas?: number | null
+          relatorio_vdm_url?: string | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
           tipo_equipamento?: string | null
@@ -129,7 +137,9 @@ export type Database = {
         Update: {
           contrato_id?: string
           created_at?: string
+          croqui_caracterizacao_url?: string | null
           endereco?: string
+          estudo_viabilidade_url?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
@@ -144,7 +154,9 @@ export type Database = {
           prev_semi_porticos?: number | null
           prev_tae_100?: number | null
           prev_tae_80?: number | null
+          projeto_croqui_url?: string | null
           quantidade_faixas?: number | null
+          relatorio_vdm_url?: string | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
           tipo_equipamento?: string | null

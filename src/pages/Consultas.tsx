@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Radio, ArrowUpDown, ArrowLeftRight } from 'lucide-react';
+import { Search, Radio, ArrowUpDown, ArrowLeftRight, FileText } from 'lucide-react';
+import { ConsultaDocumentos } from '@/components/ConsultaDocumentos';
 
 export default function Consultas() {
   const { data: contratos } = useContratos();
@@ -127,18 +128,22 @@ export default function Consultas() {
       </div>
 
       <Tabs defaultValue="equipamentos" className="space-y-6">
-        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-3">
+        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-4">
           <TabsTrigger value="equipamentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
             <Radio className="h-4 w-4" />
             Equipamentos
           </TabsTrigger>
           <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
             <ArrowUpDown className="h-4 w-4" />
-            Sinalização Vertical
+            Sinal. Vertical
           </TabsTrigger>
           <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
             <ArrowLeftRight className="h-4 w-4" />
-            Sinalização Horizontal
+            Sinal. Horizontal
+          </TabsTrigger>
+          <TabsTrigger value="documentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
+            <FileText className="h-4 w-4" />
+            Documentos
           </TabsTrigger>
         </TabsList>
 
@@ -413,6 +418,11 @@ export default function Consultas() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Tab Documentos */}
+        <TabsContent value="documentos">
+          <ConsultaDocumentos />
         </TabsContent>
       </Tabs>
     </div>

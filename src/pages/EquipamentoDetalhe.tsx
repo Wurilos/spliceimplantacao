@@ -34,9 +34,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
+import { EquipamentoUploads } from '@/components/EquipamentoUploads';
 
 export default function EquipamentoDetalhe() {
   const { id } = useParams();
@@ -435,7 +436,7 @@ export default function EquipamentoDetalhe() {
       </div>
 
       <Tabs defaultValue="dados" className="space-y-6">
-        <TabsList className="bg-muted/50 p-1 h-auto">
+        <TabsList className="bg-muted/50 p-1 h-auto flex-wrap">
           <TabsTrigger value="dados" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
             <Settings className="h-4 w-4 mr-2" />
             Dados do Equipamento
@@ -450,6 +451,12 @@ export default function EquipamentoDetalhe() {
             <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
               <ArrowLeftRight className="h-4 w-4 mr-2" />
               Sinalização Horizontal
+            </TabsTrigger>
+          )}
+          {!isNew && (
+            <TabsTrigger value="uploads" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+              <FileText className="h-4 w-4 mr-2" />
+              Upload de Arquivos
             </TabsTrigger>
           )}
         </TabsList>
@@ -1536,6 +1543,24 @@ export default function EquipamentoDetalhe() {
             </DialogContent>
           </Dialog>
         </TabsContent>
+
+        {/* Tab Uploads */}
+        {!isNew && (
+          <TabsContent value="uploads">
+            <EquipamentoUploads
+              equipamentoId={id!}
+              canEdit={canEdit}
+              projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
+              croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
+              estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
+              relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
+              onUpdate={() => {
+                // Trigger refetch of equipamento data
+                window.location.reload();
+              }}
+            />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
