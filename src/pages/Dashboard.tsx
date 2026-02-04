@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
-import { Radio, ArrowUpDown, ArrowLeftRight, Sparkles, Activity, ChevronRight, MapPin } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Radio, ArrowUpDown, ArrowLeftRight, Sparkles, Activity, ChevronRight, MapPin, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 
@@ -121,56 +121,104 @@ export default function Dashboard() {
     },
   });
 
-  // Calcular totais gerais
-  const totais = equipamentos?.reduce((acc, eq) => ({
+  // Calcular totais gerais para o gráfico consolidado
+  const totaisGerais = equipamentos?.reduce((acc, eq) => ({
     totalEquipamentos: acc.totalEquipamentos + 1,
+    // Verticais
+    prevPlacas: acc.prevPlacas + eq.prev_placas,
     prevPontaletes: acc.prevPontaletes + eq.prev_pontaletes,
     instPontaletes: acc.instPontaletes + eq.instalado_pontaletes,
     prevPostesCol: acc.prevPostesCol + eq.prev_postes_colapsiveis,
     instPostesCol: acc.instPostesCol + eq.instalado_postes_colapsiveis,
+    prevBracosProj: acc.prevBracosProj + eq.prev_bracos_projetados,
+    prevSemiPorticos: acc.prevSemiPorticos + eq.prev_semi_porticos,
+    // Horizontais
     prevDefensas: acc.prevDefensas + eq.prev_defensas,
     instDefensas: acc.instDefensas + eq.instalado_laminas,
+    prevPostesHor: acc.prevPostesHor + eq.prev_postes_horizontal,
+    instPostesHor: acc.instPostesHor + eq.instalado_postes,
+    prevTae80: acc.prevTae80 + eq.prev_tae_80,
+    instTae80: acc.instTae80 + eq.instalado_tae_80,
+    prevTae100: acc.prevTae100 + eq.prev_tae_100,
+    instTae100: acc.instTae100 + eq.instalado_tae_100,
   }), {
     totalEquipamentos: 0,
+    prevPlacas: 0,
     prevPontaletes: 0,
     instPontaletes: 0,
     prevPostesCol: 0,
     instPostesCol: 0,
+    prevBracosProj: 0,
+    prevSemiPorticos: 0,
     prevDefensas: 0,
     instDefensas: 0,
+    prevPostesHor: 0,
+    instPostesHor: 0,
+    prevTae80: 0,
+    instTae80: 0,
+    prevTae100: 0,
+    instTae100: 0,
   });
 
-  // Gerar dados para gráfico de um equipamento
+  // Dados para o gráfico geral consolidado
+  const chartDataGeral = [
+    { name: 'Placas', previsto: totaisGerais?.prevPlacas || 0, instalado: 0 },
+    { name: 'Pontaletes', previsto: totaisGerais?.prevPontaletes || 0, instalado: totaisGerais?.instPontaletes || 0 },
+    { name: 'Postes Col.', previsto: totaisGerais?.prevPostesCol || 0, instalado: totaisGerais?.instPostesCol || 0 },
+    { name: 'Braço Proj.', previsto: totaisGerais?.prevBracosProj || 0, instalado: 0 },
+    { name: 'Semi Pórtico', previsto: totaisGerais?.prevSemiPorticos || 0, instalado: 0 },
+    { name: 'Defensas', previsto: totaisGerais?.prevDefensas || 0, instalado: totaisGerais?.instDefensas || 0 },
+    { name: 'Postes Hor.', previsto: totaisGerais?.prevPostesHor || 0, instalado: totaisGerais?.instPostesHor || 0 },
+    { name: 'TAE 80', previsto: totaisGerais?.prevTae80 || 0, instalado: totaisGerais?.instTae80 || 0 },
+    { name: 'TAE 100', previsto: totaisGerais?.prevTae100 || 0, instalado: totaisGerais?.instTae100 || 0 },
+  ].filter(item => item.previsto > 0 || item.instalado > 0);
+
+  // Gerar dados para gráfico de um equipamento (incluindo TODOS os itens)
   const getChartData = (eq: EquipamentoComPrevisao) => [
+    { name: 'Placas', previsto: eq.prev_placas, instalado: 0 },
     { name: 'Pontaletes', previsto: eq.prev_pontaletes, instalado: eq.instalado_pontaletes },
     { name: 'Postes Col.', previsto: eq.prev_postes_colapsiveis, instalado: eq.instalado_postes_colapsiveis },
+    { name: 'Braço Proj.', previsto: eq.prev_bracos_projetados, instalado: 0 },
+    { name: 'Semi Pórtico', previsto: eq.prev_semi_porticos, instalado: 0 },
     { name: 'Defensas', previsto: eq.prev_defensas, instalado: eq.instalado_laminas },
     { name: 'Postes Hor.', previsto: eq.prev_postes_horizontal, instalado: eq.instalado_postes },
     { name: 'TAE 80', previsto: eq.prev_tae_80, instalado: eq.instalado_tae_80 },
     { name: 'TAE 100', previsto: eq.prev_tae_100, instalado: eq.instalado_tae_100 },
   ].filter(item => item.previsto > 0 || item.instalado > 0);
 
+  // Calcular total geral previsto e instalado
+  const totalPrevisto = (totaisGerais?.prevPlacas || 0) + (totaisGerais?.prevPontaletes || 0) + 
+    (totaisGerais?.prevPostesCol || 0) + (totaisGerais?.prevBracosProj || 0) + 
+    (totaisGerais?.prevSemiPorticos || 0) + (totaisGerais?.prevDefensas || 0) + 
+    (totaisGerais?.prevPostesHor || 0) + (totaisGerais?.prevTae80 || 0) + (totaisGerais?.prevTae100 || 0);
+  
+  const totalInstalado = (totaisGerais?.instPontaletes || 0) + (totaisGerais?.instPostesCol || 0) + 
+    (totaisGerais?.instDefensas || 0) + (totaisGerais?.instPostesHor || 0) + 
+    (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
+
+  const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
+
   const statsCards = [
     {
       title: 'Total de Equipamentos',
-      value: totais?.totalEquipamentos || 0,
+      value: totaisGerais?.totalEquipamentos || 0,
       subtitle: 'equipamentos cadastrados',
       icon: Radio,
       gradient: 'from-primary to-accent',
     },
     {
-      title: 'Pontaletes',
-      value: `${totais?.instPontaletes || 0} / ${totais?.prevPontaletes || 0}`,
-      subtitle: 'instalados / previstos',
-      icon: ArrowUpDown,
-      gradient: 'from-success to-info',
+      title: 'Total Previsto',
+      value: totalPrevisto,
+      subtitle: 'itens de materiais',
+      icon: TrendingUp,
+      gradient: 'from-info to-primary',
     },
     {
-      title: 'Defensas',
-      value: `${totais?.instDefensas || 0} / ${totais?.prevDefensas || 0}`,
-      subtitle: 'instaladas / previstas',
-      icon: ArrowLeftRight,
-      gradient: 'from-warning to-destructive',
+      title: 'Total Instalado',
+      value: `${totalInstalado} (${percentualConcluido}%)`,
+      subtitle: 'itens instalados',
+      icon: Activity,
+      gradient: 'from-success to-info',
     },
   ];
 
@@ -193,7 +241,7 @@ export default function Dashboard() {
           <h1 className="page-title">Dashboard</h1>
           <Sparkles className="w-6 h-6 text-warning animate-pulse-soft" />
         </div>
-        <p className="page-description">Visão geral do sistema - Previsão vs Instalado por equipamento</p>
+        <p className="page-description">Visão geral do sistema - Previsão vs Instalado</p>
       </div>
 
       {/* Cards Resumo */}
@@ -221,13 +269,89 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Gráfico Geral Consolidado */}
+      <Card className="shadow-soft overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-warning" />
+        <CardHeader className="flex flex-row items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+            <TrendingUp className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle>Resumo Geral - Previsão x Instalado</CardTitle>
+            <CardDescription>Totais consolidados de todos os equipamentos</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {chartDataGeral.length > 0 ? (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartDataGeral} barGap={8}>
+                  <defs>
+                    <linearGradient id="gradPrevistoGeral" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(221, 83%, 53%)" stopOpacity={1} />
+                      <stop offset="100%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.6} />
+                    </linearGradient>
+                    <linearGradient id="gradInstaladoGeral" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(160, 84%, 39%)" stopOpacity={1} />
+                      <stop offset="100%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.6} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 40px hsl(var(--foreground) / 0.15)',
+                    }}
+                    cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+                  />
+                  <Legend iconType="circle" iconSize={10} />
+                  <Bar 
+                    dataKey="previsto" 
+                    fill="url(#gradPrevistoGeral)" 
+                    name="Previsto" 
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={50}
+                  />
+                  <Bar 
+                    dataKey="instalado" 
+                    fill="url(#gradInstaladoGeral)" 
+                    name="Instalado" 
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={50}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-80 flex flex-col items-center justify-center text-muted-foreground">
+              <Activity className="h-12 w-12 mb-3 opacity-30" />
+              <p>Nenhuma previsão cadastrada</p>
+              <p className="text-sm opacity-70">Configure previsões nos equipamentos</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Listagem de Equipamentos com Gráficos */}
       <div>
         <div className="section-header">
           <div className="section-header-icon bg-gradient-to-br from-primary/20 to-accent/20">
-            <Activity className="h-5 w-5 text-primary" />
+            <Radio className="h-5 w-5 text-primary" />
           </div>
-          <h2 className="section-header-title">Equipamentos - Previsão x Instalado</h2>
+          <h2 className="section-header-title">Equipamentos - Detalhamento Individual</h2>
         </div>
         
         <div className="space-y-4">
@@ -242,6 +366,14 @@ export default function Dashboard() {
             equipamentos?.map((eq, index) => {
               const chartData = getChartData(eq);
               const hasData = chartData.length > 0;
+
+              // Calcular totais do equipamento
+              const eqTotalPrev = eq.prev_placas + eq.prev_pontaletes + eq.prev_postes_colapsiveis + 
+                eq.prev_bracos_projetados + eq.prev_semi_porticos + eq.prev_defensas + 
+                eq.prev_postes_horizontal + eq.prev_tae_80 + eq.prev_tae_100;
+              const eqTotalInst = eq.instalado_pontaletes + eq.instalado_postes_colapsiveis + 
+                eq.instalado_laminas + eq.instalado_postes + eq.instalado_tae_80 + eq.instalado_tae_100;
+              const eqPercent = eqTotalPrev > 0 ? Math.round((eqTotalInst / eqTotalPrev) * 100) : 0;
 
               return (
                 <Card 
@@ -280,26 +412,78 @@ export default function Dashboard() {
                         </Link>
                       </div>
                       
-                      {/* Resumo rápido */}
+                      {/* Resumo com progresso */}
                       <div className="mt-6 pt-4 border-t border-border/50">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Resumo Previsão</p>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Pontaletes:</span>
-                            <span className="font-semibold">{eq.prev_pontaletes}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Postes Col.:</span>
-                            <span className="font-semibold">{eq.prev_postes_colapsiveis}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Defensas:</span>
-                            <span className="font-semibold">{eq.prev_defensas}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">TAE:</span>
-                            <span className="font-semibold">{eq.prev_tae_80 + eq.prev_tae_100}</span>
-                          </div>
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Progresso</p>
+                          <Badge variant={eqPercent >= 100 ? "default" : eqPercent >= 50 ? "secondary" : "outline"} className={eqPercent >= 100 ? "bg-success text-success-foreground" : ""}>
+                            {eqPercent}%
+                          </Badge>
+                        </div>
+                        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-primary to-success transition-all duration-500"
+                            style={{ width: `${Math.min(eqPercent, 100)}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                          <span>Instalado: {eqTotalInst}</span>
+                          <span>Previsto: {eqTotalPrev}</span>
+                        </div>
+                      </div>
+
+                      {/* Grid de previsão */}
+                      <div className="mt-4 pt-4 border-t border-border/50">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Detalhes Previsão</p>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {eq.prev_placas > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Placas:</span>
+                              <span className="font-semibold">{eq.prev_placas}</span>
+                            </div>
+                          )}
+                          {eq.prev_pontaletes > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Pontaletes:</span>
+                              <span className="font-semibold">{eq.prev_pontaletes}</span>
+                            </div>
+                          )}
+                          {eq.prev_postes_colapsiveis > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Postes Col.:</span>
+                              <span className="font-semibold">{eq.prev_postes_colapsiveis}</span>
+                            </div>
+                          )}
+                          {eq.prev_bracos_projetados > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Braço Proj.:</span>
+                              <span className="font-semibold">{eq.prev_bracos_projetados}</span>
+                            </div>
+                          )}
+                          {eq.prev_semi_porticos > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Semi Pórt.:</span>
+                              <span className="font-semibold">{eq.prev_semi_porticos}</span>
+                            </div>
+                          )}
+                          {eq.prev_defensas > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Defensas:</span>
+                              <span className="font-semibold">{eq.prev_defensas}</span>
+                            </div>
+                          )}
+                          {eq.prev_postes_horizontal > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Postes Hor.:</span>
+                              <span className="font-semibold">{eq.prev_postes_horizontal}</span>
+                            </div>
+                          )}
+                          {(eq.prev_tae_80 > 0 || eq.prev_tae_100 > 0) && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">TAE:</span>
+                              <span className="font-semibold">{eq.prev_tae_80 + eq.prev_tae_100}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -307,7 +491,7 @@ export default function Dashboard() {
                     {/* Gráfico */}
                     <div className="lg:w-2/3 p-6">
                       {hasData ? (
-                        <div className="h-52">
+                        <div className="h-56">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} barGap={4}>
                               <defs>
@@ -323,9 +507,13 @@ export default function Dashboard() {
                               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                               <XAxis 
                                 dataKey="name" 
-                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                                 axisLine={{ stroke: 'hsl(var(--border))' }}
                                 tickLine={false}
+                                interval={0}
+                                angle={-20}
+                                textAnchor="end"
+                                height={50}
                               />
                               <YAxis 
                                 tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
@@ -346,27 +534,27 @@ export default function Dashboard() {
                               <Legend 
                                 iconType="circle" 
                                 iconSize={8}
-                                wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
+                                wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
                               />
                               <Bar 
                                 dataKey="previsto" 
                                 fill={`url(#gradPrev-${eq.id})`} 
                                 name="Previsto" 
                                 radius={[4, 4, 0, 0]}
-                                maxBarSize={35}
+                                maxBarSize={30}
                               />
                               <Bar 
                                 dataKey="instalado" 
                                 fill={`url(#gradInst-${eq.id})`}
                                 name="Instalado" 
                                 radius={[4, 4, 0, 0]}
-                                maxBarSize={35}
+                                maxBarSize={30}
                               />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
                       ) : (
-                        <div className="h-52 flex flex-col items-center justify-center text-muted-foreground">
+                        <div className="h-56 flex flex-col items-center justify-center text-muted-foreground">
                           <Activity className="h-10 w-10 mb-2 opacity-30" />
                           <p className="text-sm">Sem dados de previsão</p>
                           <p className="text-xs opacity-70">Configure a previsão no cadastro do equipamento</p>
