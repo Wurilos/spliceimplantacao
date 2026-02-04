@@ -272,6 +272,66 @@ export default function Dashboard() {
         <p className="page-description">Visão geral do sistema - Previsão vs Instalado</p>
       </div>
 
+      {/* Filtros */}
+      <Card className="shadow-soft">
+        <CardContent className="py-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Filtros:</span>
+            </div>
+            
+            <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Contrato</label>
+                <Select value={filtroContrato} onValueChange={setFiltroContrato}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Todos os contratos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os contratos</SelectItem>
+                    {contratos?.map((contrato) => (
+                      <SelectItem key={contrato.id} value={contrato.id}>
+                        {contrato.id_contrato} - {contrato.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Equipamento</label>
+                <Select value={filtroEquipamento} onValueChange={setFiltroEquipamento}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Todos os equipamentos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os equipamentos</SelectItem>
+                    {equipamentosRaw?.map((eq) => (
+                      <SelectItem key={eq.id} value={eq.id}>
+                        {eq.numero_serie} - {eq.municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {(filtroContrato !== 'todos' || filtroEquipamento !== 'todos') && (
+              <button 
+                onClick={() => {
+                  setFiltroContrato('todos');
+                  setFiltroEquipamento('todos');
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Limpar filtros
+              </button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Cards Resumo */}
       <div className="grid gap-6 md:grid-cols-3">
         {statsCards.map((stat, index) => (
