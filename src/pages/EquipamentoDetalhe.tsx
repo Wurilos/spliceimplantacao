@@ -226,6 +226,7 @@ export default function EquipamentoDetalhe() {
     if (sv) {
       setEditingSV(sv);
       setSvForm({
+        categoria: (sv.categoria as 'placas' | 'braco_projetado' | 'semi_portico') || 'placas',
         sentido_id: sv.sentido_id || '',
         endereco: sv.endereco,
         tipo: sv.tipo,
@@ -239,10 +240,12 @@ export default function EquipamentoDetalhe() {
         qtd_perfis_metalicos: sv.qtd_perfis_metalicos,
         qtd_postes_colapsiveis: sv.qtd_postes_colapsiveis,
         data: sv.data || '',
+        total_m2: sv.total_m2?.toString() || '',
       });
     } else {
       setEditingSV(null);
       setSvForm({
+        categoria: 'placas',
         sentido_id: '',
         endereco: '',
         tipo: '',
@@ -256,6 +259,7 @@ export default function EquipamentoDetalhe() {
         qtd_perfis_metalicos: 0,
         qtd_postes_colapsiveis: 0,
         data: '',
+        total_m2: '',
       });
     }
     setSvDialogOpen(true);
