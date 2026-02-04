@@ -195,7 +195,7 @@ export default function EquipamentoDetalhe() {
       }
       navigate(`/equipamentos/${result.id}`);
     } else {
-      await updateEquipamento.mutateAsync({ id: id!, ...data });
+      await updateEquipamento.mutateAsync({ id: id!, ...data } as any);
     }
   };
 
