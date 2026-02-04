@@ -87,6 +87,15 @@ export type Database = {
           longitude: number | null
           municipio: string
           numero_serie: string
+          prev_bracos_projetados: number | null
+          prev_defensas: number | null
+          prev_placas: number | null
+          prev_pontaletes: number | null
+          prev_postes_colapsiveis: number | null
+          prev_postes_horizontal: number | null
+          prev_semi_porticos: number | null
+          prev_tae_100: number | null
+          prev_tae_80: number | null
           quantidade_faixas: number | null
           tem_sinalizacao_horizontal: boolean | null
           tem_sinalizacao_vertical: boolean | null
@@ -102,6 +111,15 @@ export type Database = {
           longitude?: number | null
           municipio: string
           numero_serie: string
+          prev_bracos_projetados?: number | null
+          prev_defensas?: number | null
+          prev_placas?: number | null
+          prev_pontaletes?: number | null
+          prev_postes_colapsiveis?: number | null
+          prev_postes_horizontal?: number | null
+          prev_semi_porticos?: number | null
+          prev_tae_100?: number | null
+          prev_tae_80?: number | null
           quantidade_faixas?: number | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
@@ -117,6 +135,15 @@ export type Database = {
           longitude?: number | null
           municipio?: string
           numero_serie?: string
+          prev_bracos_projetados?: number | null
+          prev_defensas?: number | null
+          prev_placas?: number | null
+          prev_pontaletes?: number | null
+          prev_postes_colapsiveis?: number | null
+          prev_postes_horizontal?: number | null
+          prev_semi_porticos?: number | null
+          prev_tae_100?: number | null
+          prev_tae_80?: number | null
           quantidade_faixas?: number | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
