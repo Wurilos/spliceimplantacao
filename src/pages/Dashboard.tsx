@@ -111,6 +111,7 @@ export default function Dashboard() {
           municipio: eq.municipio,
           endereco: eq.endereco,
           tipo_equipamento: eq.tipo_equipamento,
+          contrato_id: eq.contrato_id,
           prev_placas: eq.prev_placas || 0,
           prev_pontaletes: eq.prev_pontaletes || 0,
           prev_postes_colapsiveis: eq.prev_postes_colapsiveis || 0,
@@ -134,6 +135,17 @@ export default function Dashboard() {
       return processedData;
     },
   });
+
+  // Filtrar equipamentos com base nos filtros selecionados
+  const equipamentos = useMemo(() => {
+    if (!equipamentosRaw) return [];
+    
+    return equipamentosRaw.filter(eq => {
+      const matchContrato = filtroContrato === 'todos' || eq.contrato_id === filtroContrato;
+      const matchEquipamento = filtroEquipamento === 'todos' || eq.id === filtroEquipamento;
+      return matchContrato && matchEquipamento;
+    });
+  }, [equipamentosRaw, filtroContrato, filtroEquipamento]);
 
   // Calcular totais gerais para o gráfico consolidado
   const totaisGerais = equipamentos?.reduce((acc, eq) => ({
