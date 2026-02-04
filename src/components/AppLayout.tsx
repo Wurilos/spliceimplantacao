@@ -24,11 +24,11 @@ interface AppLayoutProps {
 }
 
 const menuItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard', color: 'from-primary to-accent' },
-  { path: '/contratos', icon: FileText, label: 'Contratos', color: 'from-info to-primary' },
-  { path: '/sentidos', icon: Compass, label: 'Sentidos', color: 'from-success to-info' },
-  { path: '/equipamentos', icon: Radio, label: 'Equipamentos', color: 'from-warning to-destructive' },
-  { path: '/consultas', icon: Search, label: 'Consultas', color: 'from-accent to-primary' },
+  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/contratos', icon: FileText, label: 'Contratos' },
+  { path: '/sentidos', icon: Compass, label: 'Sentidos' },
+  { path: '/equipamentos', icon: Radio, label: 'Equipamentos' },
+  { path: '/consultas', icon: Search, label: 'Consultas' },
 ];
 
 const roleLabels = {
