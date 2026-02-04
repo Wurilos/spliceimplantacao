@@ -1543,6 +1543,24 @@ export default function EquipamentoDetalhe() {
             </DialogContent>
           </Dialog>
         </TabsContent>
+
+        {/* Tab Uploads */}
+        {!isNew && (
+          <TabsContent value="uploads">
+            <EquipamentoUploads
+              equipamentoId={id!}
+              canEdit={canEdit}
+              projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
+              croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
+              estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
+              relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
+              onUpdate={() => {
+                // Trigger refetch of equipamento data
+                window.location.reload();
+              }}
+            />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

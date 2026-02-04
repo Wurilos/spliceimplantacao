@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Radio, ArrowUpDown, ArrowLeftRight } from 'lucide-react';
+import { Search, Radio, ArrowUpDown, ArrowLeftRight, FileText } from 'lucide-react';
+import { ConsultaDocumentos } from '@/components/ConsultaDocumentos';
 
 export default function Consultas() {
   const { data: contratos } = useContratos();
