@@ -978,6 +978,24 @@ export default function EquipamentoDetalhe() {
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-6 py-4">
+                {/* Categoria - primeiro campo */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Categoria <span className="text-destructive">*</span></Label>
+                  <Select 
+                    value={svForm.categoria} 
+                    onValueChange={(v: 'placas' | 'braco_projetado' | 'semi_portico') => setSvForm({ ...svForm, categoria: v })}
+                  >
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Selecione a categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="placas">Placas</SelectItem>
+                      <SelectItem value="braco_projetado">Braço Projetado</SelectItem>
+                      <SelectItem value="semi_portico">Semi Pórtico</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Sentido</Label>
@@ -993,17 +1011,24 @@ export default function EquipamentoDetalhe() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Tipo <span className="text-destructive">*</span></Label>
+                    <Label className="text-sm font-medium">
+                      Tipo {svForm.categoria === 'placas' && <span className="text-destructive">*</span>}
+                    </Label>
                     <Input
                       value={svForm.tipo}
                       onChange={(e) => setSvForm({ ...svForm, tipo: e.target.value })}
                       placeholder="Ex: R-19, A-25..."
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Subtipo</Label>
-                    <Select value={svForm.subtipo} onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}>
+                    <Select 
+                      value={svForm.subtipo} 
+                      onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}
+                      disabled={svForm.categoria !== 'placas'}
+                    >
                       <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="equipamento">Equipamento</SelectItem>
@@ -1043,6 +1068,21 @@ export default function EquipamentoDetalhe() {
                     />
                   </div>
                 </div>
+
+                {/* Total m² - apenas para Placas */}
+                {svForm.categoria === 'placas' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Total m²</Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={svForm.total_m2}
+                      onChange={(e) => setSvForm({ ...svForm, total_m2: e.target.value })}
+                      placeholder="Área total em m²"
+                      className="h-10"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Endereço <span className="text-destructive">*</span></Label>
@@ -1085,30 +1125,39 @@ export default function EquipamentoDetalhe() {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Qtd. Pontaletes</Label>
+                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                      Qtd. Pontaletes
+                    </Label>
                     <Input
                       type="number"
                       value={svForm.qtd_pontaletes}
                       onChange={(e) => setSvForm({ ...svForm, qtd_pontaletes: parseInt(e.target.value) || 0 })}
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Qtd. Perfis Metálicos</Label>
+                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                      Qtd. Perfis Metálicos
+                    </Label>
                     <Input
                       type="number"
                       value={svForm.qtd_perfis_metalicos}
                       onChange={(e) => setSvForm({ ...svForm, qtd_perfis_metalicos: parseInt(e.target.value) || 0 })}
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Qtd. Postes Colapsíveis</Label>
+                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                      Qtd. Postes Colapsíveis
+                    </Label>
                     <Input
                       type="number"
                       value={svForm.qtd_postes_colapsiveis}
                       onChange={(e) => setSvForm({ ...svForm, qtd_postes_colapsiveis: parseInt(e.target.value) || 0 })}
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                 </div>
