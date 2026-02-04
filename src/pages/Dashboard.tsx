@@ -65,7 +65,8 @@ export default function Dashboard() {
 
       // Processar os dados para calcular totais instalados
       const processedData: EquipamentoComPrevisao[] = (eqData || []).map((eq: any) => {
-        // Totais verticais
+        // Totais verticais (cada bloco = 1 placa instalada)
+        let instalado_placas = eq.sinalizacao_vertical_blocos?.length || 0;
         let instalado_pontaletes = 0;
         let instalado_perfis = 0;
         let instalado_postes_colapsiveis = 0;
