@@ -109,6 +109,7 @@ export default function Dashboard() {
           prev_postes_horizontal: eq.prev_postes_horizontal || 0,
           prev_tae_80: eq.prev_tae_80 || 0,
           prev_tae_100: eq.prev_tae_100 || 0,
+          instalado_placas,
           instalado_pontaletes,
           instalado_perfis,
           instalado_postes_colapsiveis,
