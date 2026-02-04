@@ -175,10 +175,21 @@ export default function EquipamentoDetalhe() {
       tem_sinalizacao_horizontal: formData.tem_sinalizacao_horizontal,
       tipo_equipamento: formData.tipo_equipamento || null,
       quantidade_faixas: formData.quantidade_faixas,
+      // Previsão Sinalização Vertical
+      prev_placas: formData.prev_placas,
+      prev_pontaletes: formData.prev_pontaletes,
+      prev_postes_colapsiveis: formData.prev_postes_colapsiveis,
+      prev_bracos_projetados: formData.prev_bracos_projetados,
+      prev_semi_porticos: formData.prev_semi_porticos,
+      // Previsão Sinalização Horizontal
+      prev_defensas: formData.prev_defensas,
+      prev_postes_horizontal: formData.prev_postes_horizontal,
+      prev_tae_80: formData.prev_tae_80,
+      prev_tae_100: formData.prev_tae_100,
     };
 
     if (isNew) {
-      const result = await createEquipamento.mutateAsync(data);
+      const result = await createEquipamento.mutateAsync(data as any);
       for (const sentidoId of pendingSentidos) {
         await addSentido.mutateAsync({ equipamento_id: result.id, sentido_id: sentidoId });
       }
