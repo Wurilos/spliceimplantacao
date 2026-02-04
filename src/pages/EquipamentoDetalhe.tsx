@@ -436,7 +436,7 @@ export default function EquipamentoDetalhe() {
       </div>
 
       <Tabs defaultValue="dados" className="space-y-6">
-        <TabsList className="bg-muted/50 p-1 h-auto">
+        <TabsList className="bg-muted/50 p-1 h-auto flex-wrap">
           <TabsTrigger value="dados" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
             <Settings className="h-4 w-4 mr-2" />
             Dados do Equipamento
@@ -451,6 +451,12 @@ export default function EquipamentoDetalhe() {
             <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
               <ArrowLeftRight className="h-4 w-4 mr-2" />
               Sinalização Horizontal
+            </TabsTrigger>
+          )}
+          {!isNew && (
+            <TabsTrigger value="uploads" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+              <FileText className="h-4 w-4 mr-2" />
+              Upload de Arquivos
             </TabsTrigger>
           )}
         </TabsList>
