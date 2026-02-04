@@ -1,10 +1,13 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Radio, ArrowUpDown, ArrowLeftRight, Sparkles, Activity, ChevronRight, MapPin, TrendingUp } from 'lucide-react';
+import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useContratos } from '@/hooks/useContratos';
 
 interface EquipamentoComPrevisao {
   id: string;
@@ -12,6 +15,7 @@ interface EquipamentoComPrevisao {
   municipio: string;
   endereco: string;
   tipo_equipamento: string | null;
+  contrato_id: string;
   // Previsão Vertical
   prev_placas: number;
   prev_pontaletes: number;
@@ -36,8 +40,14 @@ interface EquipamentoComPrevisao {
 }
 
 export default function Dashboard() {
+  const [filtroContrato, setFiltroContrato] = useState<string>('todos');
+  const [filtroEquipamento, setFiltroEquipamento] = useState<string>('todos');
+
+  // Buscar contratos para o filtro
+  const { data: contratos } = useContratos();
+
   // Query para buscar equipamentos com previsão e totais instalados
-  const { data: equipamentos, isLoading } = useQuery({
+  const { data: equipamentosRaw, isLoading } = useQuery({
     queryKey: ['dashboard-equipamentos-previsao'],
     queryFn: async () => {
       const { data: eqData, error: eqError } = await supabase
@@ -48,6 +58,7 @@ export default function Dashboard() {
           municipio,
           endereco,
           tipo_equipamento,
+          contrato_id,
           prev_placas,
           prev_pontaletes,
           prev_postes_colapsiveis,
