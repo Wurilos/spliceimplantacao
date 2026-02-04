@@ -99,6 +99,7 @@ export default function EquipamentoDetalhe() {
   const [svDialogOpen, setSvDialogOpen] = useState(false);
   const [editingSV, setEditingSV] = useState<SinalizacaoVertical | null>(null);
   const [svForm, setSvForm] = useState({
+    categoria: 'placas' as 'placas' | 'braco_projetado' | 'semi_portico',
     sentido_id: '',
     endereco: '',
     tipo: '',
@@ -112,6 +113,7 @@ export default function EquipamentoDetalhe() {
     qtd_perfis_metalicos: 0,
     qtd_postes_colapsiveis: 0,
     data: '',
+    total_m2: '',
   });
 
   const [shDialogOpen, setShDialogOpen] = useState(false);
@@ -224,6 +226,7 @@ export default function EquipamentoDetalhe() {
     if (sv) {
       setEditingSV(sv);
       setSvForm({
+        categoria: (sv.categoria as 'placas' | 'braco_projetado' | 'semi_portico') || 'placas',
         sentido_id: sv.sentido_id || '',
         endereco: sv.endereco,
         tipo: sv.tipo,
@@ -237,10 +240,12 @@ export default function EquipamentoDetalhe() {
         qtd_perfis_metalicos: sv.qtd_perfis_metalicos,
         qtd_postes_colapsiveis: sv.qtd_postes_colapsiveis,
         data: sv.data || '',
+        total_m2: sv.total_m2?.toString() || '',
       });
     } else {
       setEditingSV(null);
       setSvForm({
+        categoria: 'placas',
         sentido_id: '',
         endereco: '',
         tipo: '',
@@ -254,32 +259,38 @@ export default function EquipamentoDetalhe() {
         qtd_perfis_metalicos: 0,
         qtd_postes_colapsiveis: 0,
         data: '',
+        total_m2: '',
       });
     }
     setSvDialogOpen(true);
   };
 
   const handleSaveSV = async () => {
-    if (!id || !svForm.endereco || !svForm.tipo) {
+    const isPlacas = svForm.categoria === 'placas';
+    
+    // Validação: tipo obrigatório apenas para placas
+    if (!id || !svForm.endereco || (isPlacas && !svForm.tipo)) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
       return;
     }
 
     const data = {
       equipamento_id: id,
+      categoria: svForm.categoria,
       sentido_id: svForm.sentido_id || null,
       endereco: svForm.endereco,
-      tipo: svForm.tipo,
+      tipo: svForm.tipo || svForm.categoria, // usa categoria como tipo se vazio
       subtipo: svForm.subtipo,
       instalacao: svForm.instalacao,
       lado: svForm.lado,
       latitude: svForm.latitude ? parseFloat(svForm.latitude) : null,
       longitude: svForm.longitude ? parseFloat(svForm.longitude) : null,
       foto_url: svForm.foto_url || null,
-      qtd_pontaletes: svForm.qtd_pontaletes,
-      qtd_perfis_metalicos: svForm.qtd_perfis_metalicos,
-      qtd_postes_colapsiveis: svForm.qtd_postes_colapsiveis,
+      qtd_pontaletes: isPlacas ? svForm.qtd_pontaletes : 0,
+      qtd_perfis_metalicos: isPlacas ? svForm.qtd_perfis_metalicos : 0,
+      qtd_postes_colapsiveis: isPlacas ? svForm.qtd_postes_colapsiveis : 0,
       data: svForm.data || null,
+      total_m2: isPlacas && svForm.total_m2 ? parseFloat(svForm.total_m2) : null,
     };
 
     if (editingSV) {
@@ -967,6 +978,24 @@ export default function EquipamentoDetalhe() {
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-6 py-4">
+                {/* Categoria - primeiro campo */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Categoria <span className="text-destructive">*</span></Label>
+                  <Select 
+                    value={svForm.categoria} 
+                    onValueChange={(v: 'placas' | 'braco_projetado' | 'semi_portico') => setSvForm({ ...svForm, categoria: v })}
+                  >
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Selecione a categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="placas">Placas</SelectItem>
+                      <SelectItem value="braco_projetado">Braço Projetado</SelectItem>
+                      <SelectItem value="semi_portico">Semi Pórtico</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Sentido</Label>
@@ -982,17 +1011,24 @@ export default function EquipamentoDetalhe() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Tipo <span className="text-destructive">*</span></Label>
+                    <Label className="text-sm font-medium">
+                      Tipo {svForm.categoria === 'placas' && <span className="text-destructive">*</span>}
+                    </Label>
                     <Input
                       value={svForm.tipo}
                       onChange={(e) => setSvForm({ ...svForm, tipo: e.target.value })}
                       placeholder="Ex: R-19, A-25..."
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Subtipo</Label>
-                    <Select value={svForm.subtipo} onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}>
+                    <Select 
+                      value={svForm.subtipo} 
+                      onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}
+                      disabled={svForm.categoria !== 'placas'}
+                    >
                       <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="equipamento">Equipamento</SelectItem>
@@ -1032,6 +1068,21 @@ export default function EquipamentoDetalhe() {
                     />
                   </div>
                 </div>
+
+                {/* Total m² - apenas para Placas */}
+                {svForm.categoria === 'placas' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Total m²</Label>
+                    <Input
+                      type="number"
+                      step="any"
+                      value={svForm.total_m2}
+                      onChange={(e) => setSvForm({ ...svForm, total_m2: e.target.value })}
+                      placeholder="Área total em m²"
+                      className="h-10"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Endereço <span className="text-destructive">*</span></Label>
@@ -1074,30 +1125,39 @@ export default function EquipamentoDetalhe() {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Qtd. Pontaletes</Label>
+                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                      Qtd. Pontaletes
+                    </Label>
                     <Input
                       type="number"
                       value={svForm.qtd_pontaletes}
                       onChange={(e) => setSvForm({ ...svForm, qtd_pontaletes: parseInt(e.target.value) || 0 })}
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Qtd. Perfis Metálicos</Label>
+                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                      Qtd. Perfis Metálicos
+                    </Label>
                     <Input
                       type="number"
                       value={svForm.qtd_perfis_metalicos}
                       onChange={(e) => setSvForm({ ...svForm, qtd_perfis_metalicos: parseInt(e.target.value) || 0 })}
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Qtd. Postes Colapsíveis</Label>
+                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                      Qtd. Postes Colapsíveis
+                    </Label>
                     <Input
                       type="number"
                       value={svForm.qtd_postes_colapsiveis}
                       onChange={(e) => setSvForm({ ...svForm, qtd_postes_colapsiveis: parseInt(e.target.value) || 0 })}
                       className="h-10"
+                      disabled={svForm.categoria !== 'placas'}
                     />
                   </div>
                 </div>

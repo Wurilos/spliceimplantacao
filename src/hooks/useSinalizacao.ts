@@ -18,6 +18,8 @@ export interface SinalizacaoVertical {
   qtd_perfis_metalicos: number;
   qtd_postes_colapsiveis: number;
   data: string | null;
+  categoria: string;
+  total_m2: number | null;
   created_at: string;
   updated_at: string;
   sentidos?: {
