@@ -143,6 +143,17 @@ export default function EquipamentoDetalhe() {
         tem_sinalizacao_horizontal: equipamento.tem_sinalizacao_horizontal,
         tipo_equipamento: equipamento.tipo_equipamento || '',
         quantidade_faixas: equipamento.quantidade_faixas || 1,
+        // Previsão Sinalização Vertical
+        prev_placas: (equipamento as any).prev_placas || 0,
+        prev_pontaletes: (equipamento as any).prev_pontaletes || 0,
+        prev_postes_colapsiveis: (equipamento as any).prev_postes_colapsiveis || 0,
+        prev_bracos_projetados: (equipamento as any).prev_bracos_projetados || 0,
+        prev_semi_porticos: (equipamento as any).prev_semi_porticos || 0,
+        // Previsão Sinalização Horizontal
+        prev_defensas: (equipamento as any).prev_defensas || 0,
+        prev_postes_horizontal: (equipamento as any).prev_postes_horizontal || 0,
+        prev_tae_80: (equipamento as any).prev_tae_80 || 0,
+        prev_tae_100: (equipamento as any).prev_tae_100 || 0,
       });
     }
   }, [equipamento]);
