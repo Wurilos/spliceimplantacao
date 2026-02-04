@@ -34,9 +34,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
+import { EquipamentoUploads } from '@/components/EquipamentoUploads';
 
 export default function EquipamentoDetalhe() {
   const { id } = useParams();
