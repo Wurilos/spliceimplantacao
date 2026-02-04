@@ -14,6 +14,17 @@ export interface Equipamento {
   tem_sinalizacao_horizontal: boolean;
   tipo_equipamento: string | null;
   quantidade_faixas: number | null;
+  // Previsão Sinalização Vertical
+  prev_placas?: number;
+  prev_pontaletes?: number;
+  prev_postes_colapsiveis?: number;
+  prev_bracos_projetados?: number;
+  prev_semi_porticos?: number;
+  // Previsão Sinalização Horizontal
+  prev_defensas?: number;
+  prev_postes_horizontal?: number;
+  prev_tae_80?: number;
+  prev_tae_100?: number;
   created_at: string;
   updated_at: string;
   contratos?: {
