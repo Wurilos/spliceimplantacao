@@ -371,29 +371,43 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Cards Resumo */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {statsCards.map((stat, index) => (
-          <Card 
-            key={stat.title} 
-            className="stat-card group overflow-hidden"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.gradient}`} />
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-              <div className="icon-container bg-primary/10 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-                <stat.icon className="h-6 w-6 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-3xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
-                {stat.value}
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">{stat.subtitle}</p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Cards de Materiais */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        {materialCards.map((mat, index) => {
+          const percent = calcPercent(mat.instalado, mat.previsto);
+          return (
+            <Card 
+              key={mat.title} 
+              className="stat-card group overflow-hidden"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${mat.gradient}`} />
+              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{mat.title}</CardTitle>
+                <div className="icon-container w-8 h-8 bg-primary/10 group-hover:scale-110 transition-all duration-300">
+                  <mat.icon className="h-4 w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-2xl font-bold bg-gradient-to-r ${mat.gradient} bg-clip-text text-transparent`}>
+                    {mat.instalado}
+                  </span>
+                  <span className="text-sm text-muted-foreground">/ {mat.previsto}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full bg-gradient-to-r ${mat.gradient} transition-all duration-500`}
+                      style={{ width: `${Math.min(percent, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">{percent}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Gráfico Geral Consolidado */}
