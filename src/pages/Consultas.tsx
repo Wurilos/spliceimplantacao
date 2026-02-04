@@ -419,6 +419,11 @@ export default function Consultas() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Tab Documentos */}
+        <TabsContent value="documentos">
+          <ConsultaDocumentos />
+        </TabsContent>
       </Tabs>
     </div>
   );
