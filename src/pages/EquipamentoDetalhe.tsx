@@ -77,6 +77,17 @@ export default function EquipamentoDetalhe() {
     tem_sinalizacao_horizontal: false,
     tipo_equipamento: '',
     quantidade_faixas: 1,
+    // Previsão Sinalização Vertical
+    prev_placas: 0,
+    prev_pontaletes: 0,
+    prev_postes_colapsiveis: 0,
+    prev_bracos_projetados: 0,
+    prev_semi_porticos: 0,
+    // Previsão Sinalização Horizontal
+    prev_defensas: 0,
+    prev_postes_horizontal: 0,
+    prev_tae_80: 0,
+    prev_tae_100: 0,
   });
 
   // Dialog states
