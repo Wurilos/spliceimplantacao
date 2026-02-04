@@ -376,13 +376,13 @@ export default function Dashboard() {
               const eqTotalPrev = eq.prev_placas + eq.prev_pontaletes + eq.prev_postes_colapsiveis + 
                 eq.prev_bracos_projetados + eq.prev_semi_porticos + eq.prev_defensas + 
                 eq.prev_postes_horizontal + eq.prev_tae_80 + eq.prev_tae_100;
-              const eqTotalInst = eq.instalado_pontaletes + eq.instalado_postes_colapsiveis + 
+              const eqTotalInst = eq.instalado_placas + eq.instalado_pontaletes + eq.instalado_postes_colapsiveis + 
                 eq.instalado_laminas + eq.instalado_postes + eq.instalado_tae_80 + eq.instalado_tae_100;
               const eqPercent = eqTotalPrev > 0 ? Math.round((eqTotalInst / eqTotalPrev) * 100) : 0;
 
               return (
                 <Card 
-                  key={eq.id} 
+                  key={eq.id}
                   className="shadow-soft hover:shadow-md transition-all duration-300 overflow-hidden group"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
