@@ -226,27 +226,66 @@ export default function Dashboard() {
 
   const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
-  const statsCards = [
+  // Função para calcular percentual
+  const calcPercent = (instalado: number, previsto: number) => 
+    previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
+
+  const materialCards = [
     {
-      title: 'Total de Equipamentos',
-      value: totaisGerais?.totalEquipamentos || 0,
-      subtitle: 'equipamentos cadastrados',
+      title: 'Defensas',
+      previsto: totaisGerais?.prevDefensas || 0,
+      instalado: totaisGerais?.instDefensas || 0,
+      icon: Activity,
+      gradient: 'from-warning to-destructive',
+    },
+    {
+      title: 'TAE 80',
+      previsto: totaisGerais?.prevTae80 || 0,
+      instalado: totaisGerais?.instTae80 || 0,
+      icon: Activity,
+      gradient: 'from-info to-primary',
+    },
+    {
+      title: 'TAE 100',
+      previsto: totaisGerais?.prevTae100 || 0,
+      instalado: totaisGerais?.instTae100 || 0,
+      icon: Activity,
+      gradient: 'from-accent to-info',
+    },
+    {
+      title: 'Placas',
+      previsto: totaisGerais?.prevPlacas || 0,
+      instalado: totaisGerais?.instPlacas || 0,
       icon: Radio,
       gradient: 'from-primary to-accent',
     },
     {
-      title: 'Total Previsto',
-      value: totalPrevisto,
-      subtitle: 'itens de materiais',
+      title: 'Pontaletes',
+      previsto: totaisGerais?.prevPontaletes || 0,
+      instalado: totaisGerais?.instPontaletes || 0,
       icon: TrendingUp,
-      gradient: 'from-info to-primary',
+      gradient: 'from-success to-info',
     },
     {
-      title: 'Total Instalado',
-      value: `${totalInstalado} (${percentualConcluido}%)`,
-      subtitle: 'itens instalados',
-      icon: Activity,
-      gradient: 'from-success to-info',
+      title: 'Postes Colapsíveis',
+      previsto: totaisGerais?.prevPostesCol || 0,
+      instalado: totaisGerais?.instPostesCol || 0,
+      icon: MapPin,
+      gradient: 'from-destructive to-warning',
+    },
+    {
+      title: 'Braço Projetado',
+      previsto: totaisGerais?.prevBracosProj || 0,
+      instalado: 0, // Não há campo instalado ainda
+      icon: Sparkles,
+      gradient: 'from-primary to-success',
+    },
+    {
+      title: 'Semi Pórtico',
+      previsto: totaisGerais?.prevSemiPorticos || 0,
+      instalado: 0, // Não há campo instalado ainda
+      icon: Filter,
+      gradient: 'from-info to-accent',
     },
   ];
 
