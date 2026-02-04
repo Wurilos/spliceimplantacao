@@ -764,7 +764,95 @@ export default function EquipamentoDetalhe() {
         </TabsContent>
 
         {/* Tab Sinalização Vertical */}
-        <TabsContent value="vertical">
+        <TabsContent value="vertical" className="space-y-6">
+          {/* Card de Previsão */}
+          <Card className="shadow-soft border-l-4 border-l-warning">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-warning" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Previsão de Materiais</CardTitle>
+                  <CardDescription>Quantidade prevista de materiais para sinalização vertical</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Placas</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_placas}
+                    onChange={(e) => setFormData({ ...formData, prev_placas: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Pontalete</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_pontaletes}
+                    onChange={(e) => setFormData({ ...formData, prev_pontaletes: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Poste Colapsível</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_postes_colapsiveis}
+                    onChange={(e) => setFormData({ ...formData, prev_postes_colapsiveis: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Braço Projetado</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_bracos_projetados}
+                    onChange={(e) => setFormData({ ...formData, prev_bracos_projetados: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Qtd. Semi Pórtico</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.prev_semi_porticos}
+                    onChange={(e) => setFormData({ ...formData, prev_semi_porticos: parseInt(e.target.value) || 0 })}
+                    disabled={!canEdit}
+                    className="h-10"
+                  />
+                </div>
+              </div>
+              {canEdit && (
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={createEquipamento.isPending || updateEquipamento.isPending}
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Salvar Previsão
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Card de Blocos */}
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <div className="flex items-center gap-3">
@@ -772,7 +860,7 @@ export default function EquipamentoDetalhe() {
                   <ArrowUpDown className="h-5 w-5 text-success" />
                 </div>
                 <div>
-                  <CardTitle>Sinalização Vertical</CardTitle>
+                  <CardTitle>Blocos Instalados</CardTitle>
                   <CardDescription>Blocos de sinalização vertical do equipamento</CardDescription>
                 </div>
               </div>
