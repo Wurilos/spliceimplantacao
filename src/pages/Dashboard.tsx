@@ -23,7 +23,8 @@ interface EquipamentoComPrevisao {
   prev_postes_horizontal: number;
   prev_tae_80: number;
   prev_tae_100: number;
-  // Instalado Vertical
+  // Instalado Vertical (cada bloco = 1 placa)
+  instalado_placas: number;
   instalado_pontaletes: number;
   instalado_perfis: number;
   instalado_postes_colapsiveis: number;
@@ -64,7 +65,8 @@ export default function Dashboard() {
 
       // Processar os dados para calcular totais instalados
       const processedData: EquipamentoComPrevisao[] = (eqData || []).map((eq: any) => {
-        // Totais verticais
+        // Totais verticais (cada bloco = 1 placa instalada)
+        let instalado_placas = eq.sinalizacao_vertical_blocos?.length || 0;
         let instalado_pontaletes = 0;
         let instalado_perfis = 0;
         let instalado_postes_colapsiveis = 0;
@@ -107,6 +109,7 @@ export default function Dashboard() {
           prev_postes_horizontal: eq.prev_postes_horizontal || 0,
           prev_tae_80: eq.prev_tae_80 || 0,
           prev_tae_100: eq.prev_tae_100 || 0,
+          instalado_placas,
           instalado_pontaletes,
           instalado_perfis,
           instalado_postes_colapsiveis,
@@ -126,6 +129,7 @@ export default function Dashboard() {
     totalEquipamentos: acc.totalEquipamentos + 1,
     // Verticais
     prevPlacas: acc.prevPlacas + eq.prev_placas,
+    instPlacas: acc.instPlacas + eq.instalado_placas,
     prevPontaletes: acc.prevPontaletes + eq.prev_pontaletes,
     instPontaletes: acc.instPontaletes + eq.instalado_pontaletes,
     prevPostesCol: acc.prevPostesCol + eq.prev_postes_colapsiveis,
@@ -144,6 +148,7 @@ export default function Dashboard() {
   }), {
     totalEquipamentos: 0,
     prevPlacas: 0,
+    instPlacas: 0,
     prevPontaletes: 0,
     instPontaletes: 0,
     prevPostesCol: 0,
@@ -162,7 +167,7 @@ export default function Dashboard() {
 
   // Dados para o gráfico geral consolidado
   const chartDataGeral = [
-    { name: 'Placas', previsto: totaisGerais?.prevPlacas || 0, instalado: 0 },
+    { name: 'Placas', previsto: totaisGerais?.prevPlacas || 0, instalado: totaisGerais?.instPlacas || 0 },
     { name: 'Pontaletes', previsto: totaisGerais?.prevPontaletes || 0, instalado: totaisGerais?.instPontaletes || 0 },
     { name: 'Postes Col.', previsto: totaisGerais?.prevPostesCol || 0, instalado: totaisGerais?.instPostesCol || 0 },
     { name: 'Braço Proj.', previsto: totaisGerais?.prevBracosProj || 0, instalado: 0 },
@@ -175,7 +180,7 @@ export default function Dashboard() {
 
   // Gerar dados para gráfico de um equipamento (incluindo TODOS os itens)
   const getChartData = (eq: EquipamentoComPrevisao) => [
-    { name: 'Placas', previsto: eq.prev_placas, instalado: 0 },
+    { name: 'Placas', previsto: eq.prev_placas, instalado: eq.instalado_placas },
     { name: 'Pontaletes', previsto: eq.prev_pontaletes, instalado: eq.instalado_pontaletes },
     { name: 'Postes Col.', previsto: eq.prev_postes_colapsiveis, instalado: eq.instalado_postes_colapsiveis },
     { name: 'Braço Proj.', previsto: eq.prev_bracos_projetados, instalado: 0 },
@@ -192,9 +197,9 @@ export default function Dashboard() {
     (totaisGerais?.prevSemiPorticos || 0) + (totaisGerais?.prevDefensas || 0) + 
     (totaisGerais?.prevPostesHor || 0) + (totaisGerais?.prevTae80 || 0) + (totaisGerais?.prevTae100 || 0);
   
-  const totalInstalado = (totaisGerais?.instPontaletes || 0) + (totaisGerais?.instPostesCol || 0) + 
-    (totaisGerais?.instDefensas || 0) + (totaisGerais?.instPostesHor || 0) + 
-    (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
+  const totalInstalado = (totaisGerais?.instPlacas || 0) + (totaisGerais?.instPontaletes || 0) + 
+    (totaisGerais?.instPostesCol || 0) + (totaisGerais?.instDefensas || 0) + 
+    (totaisGerais?.instPostesHor || 0) + (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
 
   const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
@@ -371,13 +376,13 @@ export default function Dashboard() {
               const eqTotalPrev = eq.prev_placas + eq.prev_pontaletes + eq.prev_postes_colapsiveis + 
                 eq.prev_bracos_projetados + eq.prev_semi_porticos + eq.prev_defensas + 
                 eq.prev_postes_horizontal + eq.prev_tae_80 + eq.prev_tae_100;
-              const eqTotalInst = eq.instalado_pontaletes + eq.instalado_postes_colapsiveis + 
+              const eqTotalInst = eq.instalado_placas + eq.instalado_pontaletes + eq.instalado_postes_colapsiveis + 
                 eq.instalado_laminas + eq.instalado_postes + eq.instalado_tae_80 + eq.instalado_tae_100;
               const eqPercent = eqTotalPrev > 0 ? Math.round((eqTotalInst / eqTotalPrev) * 100) : 0;
 
               return (
                 <Card 
-                  key={eq.id} 
+                  key={eq.id}
                   className="shadow-soft hover:shadow-md transition-all duration-300 overflow-hidden group"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
