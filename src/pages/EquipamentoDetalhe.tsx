@@ -99,6 +99,7 @@ export default function EquipamentoDetalhe() {
   const [svDialogOpen, setSvDialogOpen] = useState(false);
   const [editingSV, setEditingSV] = useState<SinalizacaoVertical | null>(null);
   const [svForm, setSvForm] = useState({
+    categoria: 'placas' as 'placas' | 'braco_projetado' | 'semi_portico',
     sentido_id: '',
     endereco: '',
     tipo: '',
@@ -112,6 +113,7 @@ export default function EquipamentoDetalhe() {
     qtd_perfis_metalicos: 0,
     qtd_postes_colapsiveis: 0,
     data: '',
+    total_m2: '',
   });
 
   const [shDialogOpen, setShDialogOpen] = useState(false);
