@@ -129,6 +129,7 @@ export default function Dashboard() {
     totalEquipamentos: acc.totalEquipamentos + 1,
     // Verticais
     prevPlacas: acc.prevPlacas + eq.prev_placas,
+    instPlacas: acc.instPlacas + eq.instalado_placas,
     prevPontaletes: acc.prevPontaletes + eq.prev_pontaletes,
     instPontaletes: acc.instPontaletes + eq.instalado_pontaletes,
     prevPostesCol: acc.prevPostesCol + eq.prev_postes_colapsiveis,
@@ -147,6 +148,7 @@ export default function Dashboard() {
   }), {
     totalEquipamentos: 0,
     prevPlacas: 0,
+    instPlacas: 0,
     prevPontaletes: 0,
     instPontaletes: 0,
     prevPostesCol: 0,
@@ -165,7 +167,7 @@ export default function Dashboard() {
 
   // Dados para o gráfico geral consolidado
   const chartDataGeral = [
-    { name: 'Placas', previsto: totaisGerais?.prevPlacas || 0, instalado: 0 },
+    { name: 'Placas', previsto: totaisGerais?.prevPlacas || 0, instalado: totaisGerais?.instPlacas || 0 },
     { name: 'Pontaletes', previsto: totaisGerais?.prevPontaletes || 0, instalado: totaisGerais?.instPontaletes || 0 },
     { name: 'Postes Col.', previsto: totaisGerais?.prevPostesCol || 0, instalado: totaisGerais?.instPostesCol || 0 },
     { name: 'Braço Proj.', previsto: totaisGerais?.prevBracosProj || 0, instalado: 0 },
@@ -178,7 +180,7 @@ export default function Dashboard() {
 
   // Gerar dados para gráfico de um equipamento (incluindo TODOS os itens)
   const getChartData = (eq: EquipamentoComPrevisao) => [
-    { name: 'Placas', previsto: eq.prev_placas, instalado: 0 },
+    { name: 'Placas', previsto: eq.prev_placas, instalado: eq.instalado_placas },
     { name: 'Pontaletes', previsto: eq.prev_pontaletes, instalado: eq.instalado_pontaletes },
     { name: 'Postes Col.', previsto: eq.prev_postes_colapsiveis, instalado: eq.instalado_postes_colapsiveis },
     { name: 'Braço Proj.', previsto: eq.prev_bracos_projetados, instalado: 0 },
@@ -195,9 +197,9 @@ export default function Dashboard() {
     (totaisGerais?.prevSemiPorticos || 0) + (totaisGerais?.prevDefensas || 0) + 
     (totaisGerais?.prevPostesHor || 0) + (totaisGerais?.prevTae80 || 0) + (totaisGerais?.prevTae100 || 0);
   
-  const totalInstalado = (totaisGerais?.instPontaletes || 0) + (totaisGerais?.instPostesCol || 0) + 
-    (totaisGerais?.instDefensas || 0) + (totaisGerais?.instPostesHor || 0) + 
-    (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
+  const totalInstalado = (totaisGerais?.instPlacas || 0) + (totaisGerais?.instPontaletes || 0) + 
+    (totaisGerais?.instPostesCol || 0) + (totaisGerais?.instDefensas || 0) + 
+    (totaisGerais?.instPostesHor || 0) + (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
 
   const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
