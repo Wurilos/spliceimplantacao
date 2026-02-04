@@ -14,6 +14,7 @@ import {
   User,
   Shield,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +24,11 @@ interface AppLayoutProps {
 }
 
 const menuItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/contratos', icon: FileText, label: 'Contratos' },
-  { path: '/sentidos', icon: Compass, label: 'Sentidos' },
-  { path: '/equipamentos', icon: Radio, label: 'Equipamentos' },
-  { path: '/consultas', icon: Search, label: 'Consultas' },
+  { path: '/', icon: LayoutDashboard, label: 'Dashboard', color: 'from-primary to-accent' },
+  { path: '/contratos', icon: FileText, label: 'Contratos', color: 'from-info to-primary' },
+  { path: '/sentidos', icon: Compass, label: 'Sentidos', color: 'from-success to-info' },
+  { path: '/equipamentos', icon: Radio, label: 'Equipamentos', color: 'from-warning to-destructive' },
+  { path: '/consultas', icon: Search, label: 'Consultas', color: 'from-accent to-primary' },
 ];
 
 const roleLabels = {
@@ -37,8 +38,8 @@ const roleLabels = {
 };
 
 const roleColors = {
-  admin: 'bg-destructive/10 text-destructive border-destructive/20',
-  operador: 'bg-primary/10 text-primary border-primary/20',
+  admin: 'bg-gradient-to-r from-destructive/20 to-warning/20 text-destructive border-destructive/30',
+  operador: 'bg-gradient-to-r from-primary/20 to-accent/20 text-primary border-primary/30',
   consulta: 'bg-muted text-muted-foreground border-muted-foreground/20',
 };
 
@@ -56,18 +57,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar h-16 flex items-center justify-between px-4 shadow-lg">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar h-16 flex items-center justify-between px-4 shadow-2xl border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-sidebar-primary/20 flex items-center justify-center">
-            <Radio className="h-5 w-5 text-sidebar-primary" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow">
+            <Radio className="h-5 w-5 text-white" />
           </div>
-          <span className="font-semibold text-sidebar-foreground">Radares</span>
+          <div>
+            <span className="font-bold text-sidebar-foreground">Radares</span>
+            <Sparkles className="inline-block w-3 h-3 ml-1 text-warning animate-pulse-soft" />
+          </div>
         </div>
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-sidebar-foreground hover:bg-sidebar-accent"
+          className="text-sidebar-foreground hover:bg-sidebar-accent rounded-xl"
         >
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
@@ -76,28 +80,36 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen w-72 bg-sidebar transition-transform lg:translate-x-0 shadow-xl',
+          'fixed top-0 left-0 z-40 h-screen w-72 bg-sidebar transition-all duration-300 ease-out lg:translate-x-0 shadow-2xl',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-primary/20 to-accent/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-accent/20 to-primary/10 rounded-full blur-3xl" />
+          </div>
+
           {/* Logo */}
-          <div className="h-16 flex items-center gap-3 px-5 border-b border-sidebar-border">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sidebar-primary to-sidebar-primary/70 flex items-center justify-center shadow-md">
-              <Radio className="h-5 w-5 text-sidebar-primary-foreground" />
+          <div className="relative h-20 flex items-center gap-4 px-6 border-b border-sidebar-border/50">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center shadow-glow animate-pulse-soft">
+              <Radio className="h-6 w-6 text-white" />
             </div>
             <div>
-              <span className="font-bold text-lg text-sidebar-foreground">Sistema Radares</span>
-              <p className="text-xs text-sidebar-foreground/60">Gestão de Implantação</p>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xl text-sidebar-foreground">Sistema Radares</span>
+              </div>
+              <p className="text-xs text-sidebar-foreground/50">Gestão de Implantação</p>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin">
-            <p className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider px-3 mb-3">
+          <nav className="relative flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
+            <p className="text-[10px] font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3 mb-4">
               Menu Principal
             </p>
-            {menuItems.map((item) => {
+            {menuItems.map((item, index) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
@@ -105,43 +117,59 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 group',
+                    'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 group relative overflow-hidden',
                     isActive
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
-                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground'
+                      ? 'text-white shadow-lg'
+                      : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
                   )}
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                  }}
                 >
-                  <item.icon className={cn(
-                    "h-5 w-5 transition-transform duration-200",
-                    !isActive && "group-hover:scale-110"
-                  )} />
-                  <span className="flex-1">{item.label}</span>
-                  {isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
+                  {isActive && (
+                    <div className={cn('absolute inset-0 bg-gradient-to-r', item.color, 'opacity-100')} />
+                  )}
+                  <div className={cn(
+                    'relative z-10 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300',
+                    isActive 
+                      ? 'bg-white/20' 
+                      : 'bg-sidebar-accent/50 group-hover:bg-sidebar-accent'
+                  )}>
+                    <item.icon className={cn(
+                      "h-5 w-5 transition-all duration-300",
+                      isActive ? "text-white" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
+                      !isActive && "group-hover:scale-110"
+                    )} />
+                  </div>
+                  <span className="relative z-10 flex-1">{item.label}</span>
+                  {isActive && (
+                    <ChevronRight className="relative z-10 h-4 w-4 opacity-70" />
+                  )}
                 </Link>
               );
             })}
           </nav>
 
           {/* User info */}
-          <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/50">
-            <div className="space-y-3">
+          <div className="relative p-4 border-t border-sidebar-border/50 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
+            <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-sidebar-primary/20 flex items-center justify-center">
-                  <User className="h-5 w-5 text-sidebar-primary" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-md">
+                  <User className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  <p className="text-sm font-semibold text-sidebar-foreground truncate">
                     {user?.email?.split('@')[0]}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/60 truncate">
+                  <p className="text-xs text-sidebar-foreground/50 truncate">
                     {user?.email}
                   </p>
                 </div>
               </div>
               {role && (
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-sidebar-foreground/60" />
-                  <Badge variant="outline" className={cn('text-xs border', roleColors[role])}>
+                  <Shield className="h-4 w-4 text-sidebar-foreground/50" />
+                  <Badge variant="outline" className={cn('text-xs border font-medium', roleColors[role])}>
                     {roleLabels[role]}
                   </Badge>
                 </div>
@@ -149,7 +177,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-xl"
                 onClick={handleSignOut}
               >
                 <LogOut className="h-4 w-4 mr-2" />
@@ -163,14 +191,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-foreground/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-foreground/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main content */}
       <main className="lg:ml-72 pt-16 lg:pt-0 min-h-screen">
-        <div className="p-5 lg:p-8 max-w-7xl mx-auto animate-fade-in">{children}</div>
+        <div className="p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">{children}</div>
       </main>
     </div>
   );
