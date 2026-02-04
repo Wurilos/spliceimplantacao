@@ -226,27 +226,66 @@ export default function Dashboard() {
 
   const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
-  const statsCards = [
+  // Função para calcular percentual
+  const calcPercent = (instalado: number, previsto: number) => 
+    previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
+
+  const materialCards = [
     {
-      title: 'Total de Equipamentos',
-      value: totaisGerais?.totalEquipamentos || 0,
-      subtitle: 'equipamentos cadastrados',
+      title: 'Defensas',
+      previsto: totaisGerais?.prevDefensas || 0,
+      instalado: totaisGerais?.instDefensas || 0,
+      icon: Activity,
+      gradient: 'from-warning to-destructive',
+    },
+    {
+      title: 'TAE 80',
+      previsto: totaisGerais?.prevTae80 || 0,
+      instalado: totaisGerais?.instTae80 || 0,
+      icon: Activity,
+      gradient: 'from-info to-primary',
+    },
+    {
+      title: 'TAE 100',
+      previsto: totaisGerais?.prevTae100 || 0,
+      instalado: totaisGerais?.instTae100 || 0,
+      icon: Activity,
+      gradient: 'from-accent to-info',
+    },
+    {
+      title: 'Placas',
+      previsto: totaisGerais?.prevPlacas || 0,
+      instalado: totaisGerais?.instPlacas || 0,
       icon: Radio,
       gradient: 'from-primary to-accent',
     },
     {
-      title: 'Total Previsto',
-      value: totalPrevisto,
-      subtitle: 'itens de materiais',
+      title: 'Pontaletes',
+      previsto: totaisGerais?.prevPontaletes || 0,
+      instalado: totaisGerais?.instPontaletes || 0,
       icon: TrendingUp,
-      gradient: 'from-info to-primary',
+      gradient: 'from-success to-info',
     },
     {
-      title: 'Total Instalado',
-      value: `${totalInstalado} (${percentualConcluido}%)`,
-      subtitle: 'itens instalados',
-      icon: Activity,
-      gradient: 'from-success to-info',
+      title: 'Postes Colapsíveis',
+      previsto: totaisGerais?.prevPostesCol || 0,
+      instalado: totaisGerais?.instPostesCol || 0,
+      icon: MapPin,
+      gradient: 'from-destructive to-warning',
+    },
+    {
+      title: 'Braço Projetado',
+      previsto: totaisGerais?.prevBracosProj || 0,
+      instalado: 0, // Não há campo instalado ainda
+      icon: Sparkles,
+      gradient: 'from-primary to-success',
+    },
+    {
+      title: 'Semi Pórtico',
+      previsto: totaisGerais?.prevSemiPorticos || 0,
+      instalado: 0, // Não há campo instalado ainda
+      icon: Filter,
+      gradient: 'from-info to-accent',
     },
   ];
 
@@ -332,29 +371,43 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Cards Resumo */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {statsCards.map((stat, index) => (
-          <Card 
-            key={stat.title} 
-            className="stat-card group overflow-hidden"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.gradient}`} />
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-              <div className="icon-container bg-primary/10 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-                <stat.icon className="h-6 w-6 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-3xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
-                {stat.value}
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">{stat.subtitle}</p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Cards de Materiais */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        {materialCards.map((mat, index) => {
+          const percent = calcPercent(mat.instalado, mat.previsto);
+          return (
+            <Card 
+              key={mat.title} 
+              className="stat-card group overflow-hidden"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${mat.gradient}`} />
+              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{mat.title}</CardTitle>
+                <div className="icon-container w-8 h-8 bg-primary/10 group-hover:scale-110 transition-all duration-300">
+                  <mat.icon className="h-4 w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-2xl font-bold bg-gradient-to-r ${mat.gradient} bg-clip-text text-transparent`}>
+                    {mat.instalado}
+                  </span>
+                  <span className="text-sm text-muted-foreground">/ {mat.previsto}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full bg-gradient-to-r ${mat.gradient} transition-all duration-500`}
+                      style={{ width: `${Math.min(percent, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">{percent}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Gráfico Geral Consolidado */}
