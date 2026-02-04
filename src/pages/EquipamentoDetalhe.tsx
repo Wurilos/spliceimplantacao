@@ -266,26 +266,31 @@ export default function EquipamentoDetalhe() {
   };
 
   const handleSaveSV = async () => {
-    if (!id || !svForm.endereco || !svForm.tipo) {
+    const isPlacas = svForm.categoria === 'placas';
+    
+    // Validação: tipo obrigatório apenas para placas
+    if (!id || !svForm.endereco || (isPlacas && !svForm.tipo)) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
       return;
     }
 
     const data = {
       equipamento_id: id,
+      categoria: svForm.categoria,
       sentido_id: svForm.sentido_id || null,
       endereco: svForm.endereco,
-      tipo: svForm.tipo,
+      tipo: svForm.tipo || svForm.categoria, // usa categoria como tipo se vazio
       subtipo: svForm.subtipo,
       instalacao: svForm.instalacao,
       lado: svForm.lado,
       latitude: svForm.latitude ? parseFloat(svForm.latitude) : null,
       longitude: svForm.longitude ? parseFloat(svForm.longitude) : null,
       foto_url: svForm.foto_url || null,
-      qtd_pontaletes: svForm.qtd_pontaletes,
-      qtd_perfis_metalicos: svForm.qtd_perfis_metalicos,
-      qtd_postes_colapsiveis: svForm.qtd_postes_colapsiveis,
+      qtd_pontaletes: isPlacas ? svForm.qtd_pontaletes : 0,
+      qtd_perfis_metalicos: isPlacas ? svForm.qtd_perfis_metalicos : 0,
+      qtd_postes_colapsiveis: isPlacas ? svForm.qtd_postes_colapsiveis : 0,
       data: svForm.data || null,
+      total_m2: isPlacas && svForm.total_m2 ? parseFloat(svForm.total_m2) : null,
     };
 
     if (editingSV) {
