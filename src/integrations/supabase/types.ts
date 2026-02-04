@@ -273,6 +273,7 @@ export type Database = {
       }
       sinalizacao_vertical_blocos: {
         Row: {
+          categoria: string
           created_at: string
           data: string | null
           endereco: string
@@ -289,9 +290,11 @@ export type Database = {
           sentido_id: string | null
           subtipo: string
           tipo: string
+          total_m2: number | null
           updated_at: string
         }
         Insert: {
+          categoria?: string
           created_at?: string
           data?: string | null
           endereco: string
@@ -308,9 +311,11 @@ export type Database = {
           sentido_id?: string | null
           subtipo: string
           tipo: string
+          total_m2?: number | null
           updated_at?: string
         }
         Update: {
+          categoria?: string
           created_at?: string
           data?: string | null
           endereco?: string
@@ -327,6 +332,7 @@ export type Database = {
           sentido_id?: string | null
           subtipo?: string
           tipo?: string
+          total_m2?: number | null
           updated_at?: string
         }
         Relationships: [
