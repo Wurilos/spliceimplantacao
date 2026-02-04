@@ -1,10 +1,13 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Radio, ArrowUpDown, ArrowLeftRight, Sparkles, Activity, ChevronRight, MapPin, TrendingUp } from 'lucide-react';
+import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useContratos } from '@/hooks/useContratos';
 
 interface EquipamentoComPrevisao {
   id: string;
@@ -12,6 +15,7 @@ interface EquipamentoComPrevisao {
   municipio: string;
   endereco: string;
   tipo_equipamento: string | null;
+  contrato_id: string;
   // Previsão Vertical
   prev_placas: number;
   prev_pontaletes: number;
@@ -36,8 +40,14 @@ interface EquipamentoComPrevisao {
 }
 
 export default function Dashboard() {
+  const [filtroContrato, setFiltroContrato] = useState<string>('todos');
+  const [filtroEquipamento, setFiltroEquipamento] = useState<string>('todos');
+
+  // Buscar contratos para o filtro
+  const { data: contratos } = useContratos();
+
   // Query para buscar equipamentos com previsão e totais instalados
-  const { data: equipamentos, isLoading } = useQuery({
+  const { data: equipamentosRaw, isLoading } = useQuery({
     queryKey: ['dashboard-equipamentos-previsao'],
     queryFn: async () => {
       const { data: eqData, error: eqError } = await supabase
@@ -48,6 +58,7 @@ export default function Dashboard() {
           municipio,
           endereco,
           tipo_equipamento,
+          contrato_id,
           prev_placas,
           prev_pontaletes,
           prev_postes_colapsiveis,
@@ -100,6 +111,7 @@ export default function Dashboard() {
           municipio: eq.municipio,
           endereco: eq.endereco,
           tipo_equipamento: eq.tipo_equipamento,
+          contrato_id: eq.contrato_id,
           prev_placas: eq.prev_placas || 0,
           prev_pontaletes: eq.prev_pontaletes || 0,
           prev_postes_colapsiveis: eq.prev_postes_colapsiveis || 0,
@@ -123,6 +135,17 @@ export default function Dashboard() {
       return processedData;
     },
   });
+
+  // Filtrar equipamentos com base nos filtros selecionados
+  const equipamentos = useMemo(() => {
+    if (!equipamentosRaw) return [];
+    
+    return equipamentosRaw.filter(eq => {
+      const matchContrato = filtroContrato === 'todos' || eq.contrato_id === filtroContrato;
+      const matchEquipamento = filtroEquipamento === 'todos' || eq.id === filtroEquipamento;
+      return matchContrato && matchEquipamento;
+    });
+  }, [equipamentosRaw, filtroContrato, filtroEquipamento]);
 
   // Calcular totais gerais para o gráfico consolidado
   const totaisGerais = equipamentos?.reduce((acc, eq) => ({
@@ -248,6 +271,66 @@ export default function Dashboard() {
         </div>
         <p className="page-description">Visão geral do sistema - Previsão vs Instalado</p>
       </div>
+
+      {/* Filtros */}
+      <Card className="shadow-soft">
+        <CardContent className="py-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Filtros:</span>
+            </div>
+            
+            <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Contrato</label>
+                <Select value={filtroContrato} onValueChange={setFiltroContrato}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Todos os contratos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os contratos</SelectItem>
+                    {contratos?.map((contrato) => (
+                      <SelectItem key={contrato.id} value={contrato.id}>
+                        {contrato.id_contrato} - {contrato.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Equipamento</label>
+                <Select value={filtroEquipamento} onValueChange={setFiltroEquipamento}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Todos os equipamentos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os equipamentos</SelectItem>
+                    {equipamentosRaw?.map((eq) => (
+                      <SelectItem key={eq.id} value={eq.id}>
+                        {eq.numero_serie} - {eq.municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {(filtroContrato !== 'todos' || filtroEquipamento !== 'todos') && (
+              <button 
+                onClick={() => {
+                  setFiltroContrato('todos');
+                  setFiltroEquipamento('todos');
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Limpar filtros
+              </button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Cards Resumo */}
       <div className="grid gap-6 md:grid-cols-3">
