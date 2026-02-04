@@ -23,7 +23,8 @@ interface EquipamentoComPrevisao {
   prev_postes_horizontal: number;
   prev_tae_80: number;
   prev_tae_100: number;
-  // Instalado Vertical
+  // Instalado Vertical (cada bloco = 1 placa)
+  instalado_placas: number;
   instalado_pontaletes: number;
   instalado_perfis: number;
   instalado_postes_colapsiveis: number;
