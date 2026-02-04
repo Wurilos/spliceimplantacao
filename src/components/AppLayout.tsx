@@ -117,33 +117,30 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 group relative overflow-hidden',
+                    'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 group',
                     isActive
-                      ? 'text-white shadow-lg'
+                      ? 'bg-sidebar-accent text-sidebar-foreground'
                       : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
                   )}
                   style={{
                     animationDelay: `${index * 50}ms`,
                   }}
                 >
-                  {isActive && (
-                    <div className={cn('absolute inset-0 bg-gradient-to-r', item.color, 'opacity-100')} />
-                  )}
                   <div className={cn(
-                    'relative z-10 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300',
+                    'w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300',
                     isActive 
-                      ? 'bg-white/20' 
+                      ? 'bg-sidebar-foreground/10' 
                       : 'bg-sidebar-accent/50 group-hover:bg-sidebar-accent'
                   )}>
                     <item.icon className={cn(
                       "h-5 w-5 transition-all duration-300",
-                      isActive ? "text-white" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
+                      isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
                       !isActive && "group-hover:scale-110"
                     )} />
                   </div>
-                  <span className="relative z-10 flex-1">{item.label}</span>
+                  <span className="flex-1">{item.label}</span>
                   {isActive && (
-                    <ChevronRight className="relative z-10 h-4 w-4 opacity-70" />
+                    <ChevronRight className="h-4 w-4 opacity-70" />
                   )}
                 </Link>
               );
