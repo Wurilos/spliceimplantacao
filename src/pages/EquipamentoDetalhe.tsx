@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContratos } from '@/hooks/useContratos';
@@ -35,9 +35,191 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Activity } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 import { EquipamentoUploads } from '@/components/EquipamentoUploads';
+
+// Component for equipment progress chart
+interface EquipamentoProgressChartProps {
+  formData: {
+    prev_placas: number;
+    prev_pontaletes: number;
+    prev_postes_colapsiveis: number;
+    prev_bracos_projetados: number;
+    prev_semi_porticos: number;
+    prev_defensas: number;
+    prev_postes_horizontal: number;
+    prev_tae_80: number;
+    prev_tae_100: number;
+  };
+  sinalizacaoVertical: SinalizacaoVertical[] | undefined;
+  sinalizacaoHorizontal: SinalizacaoHorizontal[] | undefined;
+}
+
+function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHorizontal }: EquipamentoProgressChartProps) {
+  // Calculate installed values
+  const instalado = useMemo(() => {
+    let placas = sinalizacaoVertical?.length || 0;
+    let pontaletes = 0;
+    let postes_colapsiveis = 0;
+    
+    sinalizacaoVertical?.forEach((sv) => {
+      pontaletes += sv.qtd_pontaletes || 0;
+      postes_colapsiveis += sv.qtd_postes_colapsiveis || 0;
+    });
+
+    let laminas = 0;
+    let postes = 0;
+    let tae_80 = 0;
+    let tae_100 = 0;
+
+    sinalizacaoHorizontal?.forEach((sh) => {
+      if (sh.tipo === 'defensa_metalica') {
+        laminas += sh.qtd_laminas || 0;
+        postes += sh.qtd_postes || 0;
+      } else if (sh.tipo === 'tae_80') {
+        tae_80 += 1;
+      } else if (sh.tipo === 'tae_100') {
+        tae_100 += 1;
+      }
+    });
+
+    return { placas, pontaletes, postes_colapsiveis, laminas, postes, tae_80, tae_100 };
+  }, [sinalizacaoVertical, sinalizacaoHorizontal]);
+
+  // Build chart data
+  const chartData = useMemo(() => [
+    { name: 'Placas', previsto: formData.prev_placas, instalado: instalado.placas },
+    { name: 'Pontaletes', previsto: formData.prev_pontaletes, instalado: instalado.pontaletes },
+    { name: 'Postes Col.', previsto: formData.prev_postes_colapsiveis, instalado: instalado.postes_colapsiveis },
+    { name: 'Braço Proj.', previsto: formData.prev_bracos_projetados, instalado: 0 },
+    { name: 'Semi Pórtico', previsto: formData.prev_semi_porticos, instalado: 0 },
+    { name: 'Defensas', previsto: formData.prev_defensas, instalado: instalado.laminas },
+    { name: 'Postes Hor.', previsto: formData.prev_postes_horizontal, instalado: instalado.postes },
+    { name: 'TAE 80', previsto: formData.prev_tae_80, instalado: instalado.tae_80 },
+    { name: 'TAE 100', previsto: formData.prev_tae_100, instalado: instalado.tae_100 },
+  ].filter(item => item.previsto > 0 || item.instalado > 0), [formData, instalado]);
+
+  // Calculate totals
+  const totalPrevisto = formData.prev_placas + formData.prev_pontaletes + formData.prev_postes_colapsiveis + 
+    formData.prev_bracos_projetados + formData.prev_semi_porticos + formData.prev_defensas + 
+    formData.prev_postes_horizontal + formData.prev_tae_80 + formData.prev_tae_100;
+  
+  const totalInstalado = instalado.placas + instalado.pontaletes + instalado.postes_colapsiveis + 
+    instalado.laminas + instalado.postes + instalado.tae_80 + instalado.tae_100;
+
+  const percentual = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
+
+  const hasData = chartData.length > 0;
+
+  return (
+    <Card className="shadow-soft">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Activity className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1">
+            <CardTitle className="text-lg">Progresso da Implantação</CardTitle>
+            <CardDescription>Comparativo entre previsto e instalado</CardDescription>
+          </div>
+          <Badge variant={percentual >= 100 ? "default" : percentual >= 50 ? "secondary" : "outline"} className={percentual >= 100 ? "bg-success text-success-foreground" : ""}>
+            {percentual}%
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {/* Progress bar */}
+        <div className="mb-6">
+          <div className="flex justify-between text-sm text-muted-foreground mb-2">
+            <span>Instalado: {totalInstalado}</span>
+            <span>Previsto: {totalPrevisto}</span>
+          </div>
+          <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-primary to-success transition-all duration-500"
+              style={{ width: `${Math.min(percentual, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Chart */}
+        {hasData ? (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} barGap={4}>
+                <defs>
+                  <linearGradient id="gradPrevisto" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.5} />
+                  </linearGradient>
+                  <linearGradient id="gradInstalado" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.5} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                  tickLine={false}
+                  interval={0}
+                  angle={-20}
+                  textAnchor="end"
+                  height={50}
+                />
+                <YAxis 
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={35}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '10px',
+                    boxShadow: '0 8px 30px hsl(var(--foreground) / 0.1)',
+                    fontSize: '12px',
+                  }}
+                  cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+                />
+                <Legend 
+                  iconType="circle" 
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                />
+                <Bar 
+                  dataKey="previsto" 
+                  fill="url(#gradPrevisto)" 
+                  name="Previsto" 
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={35}
+                />
+                <Bar 
+                  dataKey="instalado" 
+                  fill="url(#gradInstalado)"
+                  name="Instalado" 
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={35}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-48 flex flex-col items-center justify-center text-muted-foreground">
+            <Activity className="h-10 w-10 mb-2 opacity-30" />
+            <p className="text-sm">Sem dados de previsão</p>
+            <p className="text-xs opacity-70">Configure a previsão nas abas de sinalização</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function EquipamentoDetalhe() {
   const { id } = useParams();
@@ -779,6 +961,15 @@ export default function EquipamentoDetalhe() {
               )}
             </CardContent>
           </Card>
+
+          {/* Gráfico de Progresso do Equipamento */}
+          {!isNew && (
+            <EquipamentoProgressChart
+              formData={formData}
+              sinalizacaoVertical={sinalizacaoVertical}
+              sinalizacaoHorizontal={sinalizacaoHorizontal}
+            />
+          )}
         </TabsContent>
 
         {/* Tab Sinalização Vertical */}
