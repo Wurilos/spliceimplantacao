@@ -260,6 +260,9 @@ export default function EquipamentoDetalhe() {
     tem_sinalizacao_horizontal: false,
     tipo_equipamento: '',
     quantidade_faixas: 1,
+    sentido_id: '',
+    tipo_conexao: '',
+    tipo_energia: '',
     // Previsão Sinalização Vertical
     prev_placas: 0,
     prev_pontaletes: 0,
@@ -274,11 +277,6 @@ export default function EquipamentoDetalhe() {
   });
 
   // Dialog states
-  const [sentidoDialogOpen, setSentidoDialogOpen] = useState(false);
-  const [newSentidoNome, setNewSentidoNome] = useState('');
-  const [selectedSentidoToAdd, setSelectedSentidoToAdd] = useState<string>('');
-  const [pendingSentidos, setPendingSentidos] = useState<string[]>([]);
-
   const [svDialogOpen, setSvDialogOpen] = useState(false);
   const [editingSV, setEditingSV] = useState<SinalizacaoVertical | null>(null);
   const [svForm, setSvForm] = useState({
@@ -328,6 +326,9 @@ export default function EquipamentoDetalhe() {
         tem_sinalizacao_horizontal: equipamento.tem_sinalizacao_horizontal,
         tipo_equipamento: equipamento.tipo_equipamento || '',
         quantidade_faixas: equipamento.quantidade_faixas || 1,
+        sentido_id: (equipamento as any).sentido_id || '',
+        tipo_conexao: (equipamento as any).tipo_conexao || '',
+        tipo_energia: (equipamento as any).tipo_energia || '',
         // Previsão Sinalização Vertical
         prev_placas: (equipamento as any).prev_placas || 0,
         prev_pontaletes: (equipamento as any).prev_pontaletes || 0,
@@ -360,6 +361,9 @@ export default function EquipamentoDetalhe() {
       tem_sinalizacao_horizontal: formData.tem_sinalizacao_horizontal,
       tipo_equipamento: formData.tipo_equipamento || null,
       quantidade_faixas: formData.quantidade_faixas,
+      sentido_id: formData.sentido_id || null,
+      tipo_conexao: formData.tipo_conexao || null,
+      tipo_energia: formData.tipo_energia || null,
       // Previsão Sinalização Vertical
       prev_placas: formData.prev_placas,
       prev_pontaletes: formData.prev_pontaletes,
@@ -375,9 +379,6 @@ export default function EquipamentoDetalhe() {
 
     if (isNew) {
       const result = await createEquipamento.mutateAsync(data as any);
-      for (const sentidoId of pendingSentidos) {
-        await addSentido.mutateAsync({ equipamento_id: result.id, sentido_id: sentidoId });
-      }
       navigate(`/equipamentos/${result.id}`);
     } else {
       await updateEquipamento.mutateAsync({ id: id!, ...data } as any);
