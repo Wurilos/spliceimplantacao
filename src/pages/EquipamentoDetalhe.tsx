@@ -39,6 +39,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 import { EquipamentoUploads } from '@/components/EquipamentoUploads';
  import { InfraestruturaTab } from '@/components/InfraestruturaTab';
+import { useInfraestruturaItens, InfraestruturaItem } from '@/hooks/useInfraestrutura';
 
 // Component for equipment progress chart
 interface EquipamentoProgressChartProps {
@@ -52,12 +53,19 @@ interface EquipamentoProgressChartProps {
     prev_postes_horizontal: number;
     prev_tae_80: number;
     prev_tae_100: number;
+    prev_bases: number;
+    prev_lacos: number;
+    prev_postes_infra: number;
+    prev_conectorizacao: number;
+    prev_ajustes: number;
+    prev_afericao: number;
   };
   sinalizacaoVertical: SinalizacaoVertical[] | undefined;
   sinalizacaoHorizontal: SinalizacaoHorizontal[] | undefined;
+  infraestruturaItens: InfraestruturaItem[] | undefined;
 }
 
-function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHorizontal }: EquipamentoProgressChartProps) {
+function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHorizontal, infraestruturaItens }: EquipamentoProgressChartProps) {
   // Calculate installed values
   const instalado = useMemo(() => {
     let placas = sinalizacaoVertical?.length || 0;
@@ -88,6 +96,41 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
     return { placas, pontaletes, postes_colapsiveis, laminas, postes, tae_80, tae_100 };
   }, [sinalizacaoVertical, sinalizacaoHorizontal]);
 
+  // Calculate infrastructure installed values
+  const infraInstalado = useMemo(() => {
+    let bases = 0;
+    let lacos = 0;
+    let postes_infra = 0;
+    let conectorizacao = 0;
+    let ajustes = 0;
+    let afericao = 0;
+
+    infraestruturaItens?.forEach((inf) => {
+      switch (inf.tipo) {
+        case 'bases':
+          bases += inf.quantidade || 0;
+          break;
+        case 'lacos':
+          lacos += inf.quantidade || 0;
+          break;
+        case 'postes':
+          postes_infra += inf.quantidade || 0;
+          break;
+        case 'conectorizacao':
+          conectorizacao += inf.quantidade || 0;
+          break;
+        case 'ajustes':
+          ajustes += inf.quantidade || 0;
+          break;
+        case 'afericao':
+          afericao += inf.quantidade || 0;
+          break;
+      }
+    });
+
+    return { bases, lacos, postes_infra, conectorizacao, ajustes, afericao };
+  }, [infraestruturaItens]);
+
   // Build chart data
   const chartData = useMemo(() => [
     { name: 'Placas', previsto: formData.prev_placas, instalado: instalado.placas },
@@ -99,15 +142,26 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
     { name: 'Postes Hor.', previsto: formData.prev_postes_horizontal, instalado: instalado.postes },
     { name: 'TAE 80', previsto: formData.prev_tae_80, instalado: instalado.tae_80 },
     { name: 'TAE 100', previsto: formData.prev_tae_100, instalado: instalado.tae_100 },
-  ].filter(item => item.previsto > 0 || item.instalado > 0), [formData, instalado]);
+    // Infraestrutura
+    { name: 'Bases', previsto: formData.prev_bases, instalado: infraInstalado.bases },
+    { name: 'Laços', previsto: formData.prev_lacos, instalado: infraInstalado.lacos },
+    { name: 'Postes Infra', previsto: formData.prev_postes_infra, instalado: infraInstalado.postes_infra },
+    { name: 'Conect.', previsto: formData.prev_conectorizacao, instalado: infraInstalado.conectorizacao },
+    { name: 'Ajustes', previsto: formData.prev_ajustes, instalado: infraInstalado.ajustes },
+    { name: 'Aferição', previsto: formData.prev_afericao, instalado: infraInstalado.afericao },
+  ].filter(item => item.previsto > 0 || item.instalado > 0), [formData, instalado, infraInstalado]);
 
   // Calculate totals
   const totalPrevisto = formData.prev_placas + formData.prev_pontaletes + formData.prev_postes_colapsiveis + 
     formData.prev_bracos_projetados + formData.prev_semi_porticos + formData.prev_defensas + 
-    formData.prev_postes_horizontal + formData.prev_tae_80 + formData.prev_tae_100;
+    formData.prev_postes_horizontal + formData.prev_tae_80 + formData.prev_tae_100 +
+    formData.prev_bases + formData.prev_lacos + formData.prev_postes_infra +
+    formData.prev_conectorizacao + formData.prev_ajustes + formData.prev_afericao;
   
   const totalInstalado = instalado.placas + instalado.pontaletes + instalado.postes_colapsiveis + 
-    instalado.laminas + instalado.postes + instalado.tae_80 + instalado.tae_100;
+    instalado.laminas + instalado.postes + instalado.tae_80 + instalado.tae_100 +
+    infraInstalado.bases + infraInstalado.lacos + infraInstalado.postes_infra +
+    infraInstalado.conectorizacao + infraInstalado.ajustes + infraInstalado.afericao;
 
   const percentual = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
@@ -232,6 +286,7 @@ export default function EquipamentoDetalhe() {
   const { data: equipamento, isLoading } = useEquipamento(isNew ? undefined : id);
   const { data: sinalizacaoVertical } = useSinalizacaoVertical(isNew ? undefined : id);
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
+  const { data: infraestruturaItens } = useInfraestruturaItens(isNew ? undefined : id);
 
   const createEquipamento = useCreateEquipamento();
   const updateEquipamento = useUpdateEquipamento();
@@ -903,6 +958,7 @@ export default function EquipamentoDetalhe() {
               formData={formData}
               sinalizacaoVertical={sinalizacaoVertical}
               sinalizacaoHorizontal={sinalizacaoHorizontal}
+              infraestruturaItens={infraestruturaItens}
             />
           )}
         </TabsContent>
