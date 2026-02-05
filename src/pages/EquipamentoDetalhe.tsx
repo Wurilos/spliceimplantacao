@@ -1329,39 +1329,50 @@ export default function EquipamentoDetalhe() {
                 <div className="space-y-4">
                   {sinalizacaoHorizontal?.map((sh) => (
                     <Card key={sh.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-5">
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="flex gap-4 flex-1">
+                       <CardContent className="p-4">
+                         <div className="flex gap-4">
+                           {/* Foto */}
                             {sh.foto_url && (
-                              <ImageThumbnail src={sh.foto_url} alt="Foto da sinalização" />
+                             <div className="shrink-0">
+                               <ImageThumbnail src={sh.foto_url} alt="Foto da sinalização" className="w-16 h-16" />
+                             </div>
                             )}
-                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 flex-1">
-                              <div className="space-y-1">
+                           
+                           {/* Conteúdo principal */}
+                           <div className="flex-1 min-w-0">
+                             {/* Linha 1: Tipo, Sentido, Lado, Endereço */}
+                             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 mb-3">
+                               <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo</span>
-                                <p className="font-semibold">{tipoHorizontalLabels[sh.tipo]}</p>
+                                 <p className="font-semibold text-sm">{tipoHorizontalLabels[sh.tipo]}</p>
                               </div>
-                              <div className="space-y-1">
+                               <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sentido</span>
-                                <p className="font-medium">{sh.sentidos?.nome || '-'}</p>
+                                 <p className="font-medium text-sm">{sh.sentidos?.nome || '-'}</p>
                               </div>
-                              <div className="space-y-1">
+                               <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Lado</span>
-                                <Badge variant="outline">{sh.lado === 'D' ? 'Direito' : 'Esquerdo'}</Badge>
+                                 <Badge variant="outline" className="mt-0.5">{sh.lado}</Badge>
                               </div>
-                              <div className="space-y-1">
+                               <div className="col-span-2 sm:col-span-3">
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Endereço</span>
-                                <p className="font-medium text-sm">{sh.endereco}</p>
+                                 <p className="font-medium text-sm truncate">{sh.endereco}</p>
                               </div>
-                              <div className="space-y-1">
-                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Lâminas</span>
-                                <p className="font-semibold text-lg">{sh.qtd_laminas}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Postes</span>
-                                <p className="font-semibold text-lg">{sh.qtd_postes}</p>
-                              </div>
+                             </div>
+                             
+                             {/* Linha 2: Quantidades */}
+                             <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                               <div className="flex items-center gap-3 ml-auto">
+                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quantidades</span>
+                                 <div className="flex gap-2">
+                                   <Badge variant="secondary" className="text-xs">{sh.qtd_laminas} lâminas</Badge>
+                                   <Badge variant="secondary" className="text-xs">{sh.qtd_postes} postes</Badge>
+                                 </div>
                             </div>
                           </div>
+                           </div>
+                           
+                           {/* Botões de ação */}
                           {canEdit && (
                             <div className="flex gap-1 shrink-0">
                               <Button variant="ghost" size="icon" onClick={() => openSHDialog(sh)} className="hover:bg-primary/10 hover:text-primary">
