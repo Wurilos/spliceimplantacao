@@ -89,12 +89,18 @@ export type Database = {
           longitude: number | null
           municipio: string
           numero_serie: string
+          prev_afericao: number | null
+          prev_ajustes: number | null
+          prev_bases: number | null
           prev_bracos_projetados: number | null
+          prev_conectorizacao: number | null
           prev_defensas: number | null
+          prev_lacos: number | null
           prev_placas: number | null
           prev_pontaletes: number | null
           prev_postes_colapsiveis: number | null
           prev_postes_horizontal: number | null
+          prev_postes_infra: number | null
           prev_semi_porticos: number | null
           prev_tae_100: number | null
           prev_tae_80: number | null
@@ -120,12 +126,18 @@ export type Database = {
           longitude?: number | null
           municipio: string
           numero_serie: string
+          prev_afericao?: number | null
+          prev_ajustes?: number | null
+          prev_bases?: number | null
           prev_bracos_projetados?: number | null
+          prev_conectorizacao?: number | null
           prev_defensas?: number | null
+          prev_lacos?: number | null
           prev_placas?: number | null
           prev_pontaletes?: number | null
           prev_postes_colapsiveis?: number | null
           prev_postes_horizontal?: number | null
+          prev_postes_infra?: number | null
           prev_semi_porticos?: number | null
           prev_tae_100?: number | null
           prev_tae_80?: number | null
@@ -151,12 +163,18 @@ export type Database = {
           longitude?: number | null
           municipio?: string
           numero_serie?: string
+          prev_afericao?: number | null
+          prev_ajustes?: number | null
+          prev_bases?: number | null
           prev_bracos_projetados?: number | null
+          prev_conectorizacao?: number | null
           prev_defensas?: number | null
+          prev_lacos?: number | null
           prev_placas?: number | null
           prev_pontaletes?: number | null
           prev_postes_colapsiveis?: number | null
           prev_postes_horizontal?: number | null
+          prev_postes_infra?: number | null
           prev_semi_porticos?: number | null
           prev_tae_100?: number | null
           prev_tae_80?: number | null
@@ -184,6 +202,47 @@ export type Database = {
             columns: ["sentido_id"]
             isOneToOne: false
             referencedRelation: "sentidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      infraestrutura_itens: {
+        Row: {
+          created_at: string
+          data: string | null
+          equipamento_id: string
+          foto_url: string | null
+          id: string
+          quantidade: number
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: string | null
+          equipamento_id: string
+          foto_url?: string | null
+          id?: string
+          quantidade?: number
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: string | null
+          equipamento_id?: string
+          foto_url?: string | null
+          id?: string
+          quantidade?: number
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "infraestrutura_itens_equipamento_id_fkey"
+            columns: ["equipamento_id"]
+            isOneToOne: false
+            referencedRelation: "equipamentos"
             referencedColumns: ["id"]
           },
         ]
