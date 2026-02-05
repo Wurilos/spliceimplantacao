@@ -286,6 +286,7 @@ export default function EquipamentoDetalhe() {
   const { data: equipamento, isLoading } = useEquipamento(isNew ? undefined : id);
   const { data: sinalizacaoVertical } = useSinalizacaoVertical(isNew ? undefined : id);
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
+  const { data: infraestruturaItens } = useInfraestruturaItens(isNew ? undefined : id);
 
   const createEquipamento = useCreateEquipamento();
   const updateEquipamento = useUpdateEquipamento();
@@ -957,6 +958,7 @@ export default function EquipamentoDetalhe() {
               formData={formData}
               sinalizacaoVertical={sinalizacaoVertical}
               sinalizacaoHorizontal={sinalizacaoHorizontal}
+              infraestruturaItens={infraestruturaItens}
             />
           )}
         </TabsContent>
