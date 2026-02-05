@@ -2,14 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContratos } from '@/hooks/useContratos';
-import { useSentidos, useCreateSentido } from '@/hooks/useSentidos';
+import { useSentidos } from '@/hooks/useSentidos';
 import {
   useEquipamento,
-  useEquipamentoSentidos,
   useCreateEquipamento,
   useUpdateEquipamento,
-  useAddEquipamentoSentido,
-  useRemoveEquipamentoSentido,
 } from '@/hooks/useEquipamentos';
 import {
   useSinalizacaoVertical,
