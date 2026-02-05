@@ -228,7 +228,6 @@ export default function EquipamentoDetalhe() {
   const { data: contratos } = useContratos();
   const { data: sentidos } = useSentidos();
   const { data: equipamento, isLoading } = useEquipamento(isNew ? undefined : id);
-  const { data: equipamentoSentidos } = useEquipamentoSentidos(isNew ? undefined : id);
   const { data: sinalizacaoVertical } = useSinalizacaoVertical(isNew ? undefined : id);
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
 
