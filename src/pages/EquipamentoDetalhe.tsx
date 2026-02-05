@@ -237,9 +237,6 @@ export default function EquipamentoDetalhe() {
 
   const createEquipamento = useCreateEquipamento();
   const updateEquipamento = useUpdateEquipamento();
-  const addSentido = useAddEquipamentoSentido();
-  const removeSentido = useRemoveEquipamentoSentido();
-  const createSentido = useCreateSentido();
 
   const createSV = useCreateSinalizacaoVertical();
   const updateSV = useUpdateSinalizacaoVertical();
@@ -382,26 +379,6 @@ export default function EquipamentoDetalhe() {
       navigate(`/equipamentos/${result.id}`);
     } else {
       await updateEquipamento.mutateAsync({ id: id!, ...data } as any);
-    }
-  };
-
-  const handleAddSentido = async () => {
-    if (!selectedSentidoToAdd || !id) return;
-    await addSentido.mutateAsync({ equipamento_id: id, sentido_id: selectedSentidoToAdd });
-    setSelectedSentidoToAdd('');
-  };
-
-  const handleCreateSentido = async () => {
-    if (!newSentidoNome) return;
-    const result = await createSentido.mutateAsync({ nome: newSentidoNome });
-    setNewSentidoNome('');
-    setSentidoDialogOpen(false);
-    if (result.id) {
-      if (isNew) {
-        setPendingSentidos([...pendingSentidos, result.id]);
-      } else if (id) {
-        await addSentido.mutateAsync({ equipamento_id: id, sentido_id: result.id });
-      }
     }
   };
 
@@ -574,10 +551,6 @@ export default function EquipamentoDetalhe() {
     setUrl(urlData.publicUrl);
     toast({ title: 'Upload realizado com sucesso!' });
   };
-
-  const availableSentidosToAdd = sentidos?.filter(
-    (s) => !equipamentoSentidos?.some((es) => es.sentido_id === s.id)
-  );
 
   const tipoHorizontalLabels: Record<string, string> = {
     defensa_metalica: 'Defensa Metálica',
