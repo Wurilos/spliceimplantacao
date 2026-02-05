@@ -1698,21 +1698,43 @@ export default function EquipamentoDetalhe() {
         {/* Tab Uploads */}
         {!isNew && (
           <TabsContent value="uploads">
-            <EquipamentoUploads
-              equipamentoId={id!}
-              canEdit={canEdit}
-              projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
-              croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
-              estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
-              relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
-              onUpdate={() => {
-                // Trigger refetch of equipamento data
-                window.location.reload();
-              }}
-            />
-          </TabsContent>
-        )}
-      </Tabs>
-    </div>
-  );
-}
+             <EquipamentoUploads
+               equipamentoId={id!}
+               canEdit={canEdit}
+               projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
+               croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
+               estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
+               relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
+               onUpdate={() => {
+                 // Trigger refetch of equipamento data
+                 window.location.reload();
+               }}
+             />
+           </TabsContent>
+         )}
+ 
+         {/* Tab Infraestrutura */}
+         {!isNew && (
+           <TabsContent value="infraestrutura">
+             <InfraestruturaTab
+               equipamentoId={id!}
+               canEdit={canEdit}
+               canDelete={canDelete}
+               formData={{
+                 prev_bases: formData.prev_bases,
+                 prev_lacos: formData.prev_lacos,
+                 prev_postes_infra: formData.prev_postes_infra,
+                 prev_conectorizacao: formData.prev_conectorizacao,
+                 prev_ajustes: formData.prev_ajustes,
+                 prev_afericao: formData.prev_afericao,
+               }}
+               onFormDataChange={(data) => setFormData({ ...formData, ...data })}
+               onSave={handleSave}
+               isSaving={createEquipamento.isPending || updateEquipamento.isPending}
+             />
+           </TabsContent>
+         )}
+       </Tabs>
+     </div>
+   );
+ }
