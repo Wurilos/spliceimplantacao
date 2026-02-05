@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
-import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter, FileText, FileCheck, FileX } from 'lucide-react';
+import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,6 +27,13 @@ interface EquipamentoComPrevisao {
   prev_postes_horizontal: number;
   prev_tae_80: number;
   prev_tae_100: number;
+  // Previsão Infraestrutura
+  prev_bases: number;
+  prev_lacos: number;
+  prev_postes_infra: number;
+  prev_conectorizacao: number;
+  prev_ajustes: number;
+  prev_afericao: number;
   // Instalado Vertical (cada bloco = 1 placa)
   instalado_placas: number;
   instalado_pontaletes: number;
@@ -37,6 +44,13 @@ interface EquipamentoComPrevisao {
   instalado_postes: number;
   instalado_tae_80: number;
   instalado_tae_100: number;
+  // Instalado Infraestrutura
+  instalado_bases: number;
+  instalado_lacos: number;
+  instalado_postes_infra: number;
+  instalado_conectorizacao: number;
+  instalado_ajustes: number;
+  instalado_afericao: number;
 }
 
 export default function Dashboard() {
@@ -68,12 +82,19 @@ export default function Dashboard() {
           prev_postes_horizontal,
           prev_tae_80,
           prev_tae_100,
+          prev_bases,
+          prev_lacos,
+          prev_postes_infra,
+          prev_conectorizacao,
+          prev_ajustes,
+          prev_afericao,
           projeto_croqui_url,
           croqui_caracterizacao_url,
           estudo_viabilidade_url,
           relatorio_vdm_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis),
-          sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes)
+          sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
+          infraestrutura_itens (tipo, quantidade)
         `);
       
       if (eqError) throw eqError;
@@ -109,6 +130,37 @@ export default function Dashboard() {
           }
         });
 
+      // Totais infraestrutura
+      let instalado_bases = 0;
+      let instalado_lacos = 0;
+      let instalado_postes_infra = 0;
+      let instalado_conectorizacao = 0;
+      let instalado_ajustes = 0;
+      let instalado_afericao = 0;
+
+      eq.infraestrutura_itens?.forEach((inf: any) => {
+        switch (inf.tipo) {
+          case 'bases':
+            instalado_bases += inf.quantidade || 0;
+            break;
+          case 'lacos':
+            instalado_lacos += inf.quantidade || 0;
+            break;
+          case 'postes':
+            instalado_postes_infra += inf.quantidade || 0;
+            break;
+          case 'conectorizacao':
+            instalado_conectorizacao += inf.quantidade || 0;
+            break;
+          case 'ajustes':
+            instalado_ajustes += inf.quantidade || 0;
+            break;
+          case 'afericao':
+            instalado_afericao += inf.quantidade || 0;
+            break;
+        }
+      });
+
         return {
           id: eq.id,
           numero_serie: eq.numero_serie,
@@ -125,6 +177,12 @@ export default function Dashboard() {
           prev_postes_horizontal: eq.prev_postes_horizontal || 0,
           prev_tae_80: eq.prev_tae_80 || 0,
           prev_tae_100: eq.prev_tae_100 || 0,
+          prev_bases: eq.prev_bases || 0,
+          prev_lacos: eq.prev_lacos || 0,
+          prev_postes_infra: eq.prev_postes_infra || 0,
+          prev_conectorizacao: eq.prev_conectorizacao || 0,
+          prev_ajustes: eq.prev_ajustes || 0,
+          prev_afericao: eq.prev_afericao || 0,
           instalado_placas,
           instalado_pontaletes,
           instalado_perfis,
@@ -133,6 +191,12 @@ export default function Dashboard() {
           instalado_postes,
           instalado_tae_80,
           instalado_tae_100,
+          instalado_bases,
+          instalado_lacos,
+          instalado_postes_infra,
+          instalado_conectorizacao,
+          instalado_ajustes,
+          instalado_afericao,
           projeto_croqui_url: eq.projeto_croqui_url,
           croqui_caracterizacao_url: eq.croqui_caracterizacao_url,
           estudo_viabilidade_url: eq.estudo_viabilidade_url,
@@ -176,6 +240,19 @@ export default function Dashboard() {
     instTae80: acc.instTae80 + eq.instalado_tae_80,
     prevTae100: acc.prevTae100 + eq.prev_tae_100,
     instTae100: acc.instTae100 + eq.instalado_tae_100,
+    // Infraestrutura
+    prevBases: acc.prevBases + eq.prev_bases,
+    instBases: acc.instBases + eq.instalado_bases,
+    prevLacos: acc.prevLacos + eq.prev_lacos,
+    instLacos: acc.instLacos + eq.instalado_lacos,
+    prevPostesInfra: acc.prevPostesInfra + eq.prev_postes_infra,
+    instPostesInfra: acc.instPostesInfra + eq.instalado_postes_infra,
+    prevConectorizacao: acc.prevConectorizacao + eq.prev_conectorizacao,
+    instConectorizacao: acc.instConectorizacao + eq.instalado_conectorizacao,
+    prevAjustes: acc.prevAjustes + eq.prev_ajustes,
+    instAjustes: acc.instAjustes + eq.instalado_ajustes,
+    prevAfericao: acc.prevAfericao + eq.prev_afericao,
+    instAfericao: acc.instAfericao + eq.instalado_afericao,
   }), {
     totalEquipamentos: 0,
     prevPlacas: 0,
@@ -194,6 +271,18 @@ export default function Dashboard() {
     instTae80: 0,
     prevTae100: 0,
     instTae100: 0,
+    prevBases: 0,
+    instBases: 0,
+    prevLacos: 0,
+    instLacos: 0,
+    prevPostesInfra: 0,
+    instPostesInfra: 0,
+    prevConectorizacao: 0,
+    instConectorizacao: 0,
+    prevAjustes: 0,
+    instAjustes: 0,
+    prevAfericao: 0,
+    instAfericao: 0,
   });
 
   // Dados para o gráfico geral consolidado
@@ -207,6 +296,13 @@ export default function Dashboard() {
     { name: 'Postes Hor.', previsto: totaisGerais?.prevPostesHor || 0, instalado: totaisGerais?.instPostesHor || 0 },
     { name: 'TAE 80', previsto: totaisGerais?.prevTae80 || 0, instalado: totaisGerais?.instTae80 || 0 },
     { name: 'TAE 100', previsto: totaisGerais?.prevTae100 || 0, instalado: totaisGerais?.instTae100 || 0 },
+    // Infraestrutura
+    { name: 'Bases', previsto: totaisGerais?.prevBases || 0, instalado: totaisGerais?.instBases || 0 },
+    { name: 'Laços', previsto: totaisGerais?.prevLacos || 0, instalado: totaisGerais?.instLacos || 0 },
+    { name: 'Postes Infra', previsto: totaisGerais?.prevPostesInfra || 0, instalado: totaisGerais?.instPostesInfra || 0 },
+    { name: 'Conect.', previsto: totaisGerais?.prevConectorizacao || 0, instalado: totaisGerais?.instConectorizacao || 0 },
+    { name: 'Ajustes', previsto: totaisGerais?.prevAjustes || 0, instalado: totaisGerais?.instAjustes || 0 },
+    { name: 'Aferição', previsto: totaisGerais?.prevAfericao || 0, instalado: totaisGerais?.instAfericao || 0 },
   ].filter(item => item.previsto > 0 || item.instalado > 0);
 
   // Gerar dados para gráfico de um equipamento (incluindo TODOS os itens)
@@ -220,17 +316,28 @@ export default function Dashboard() {
     { name: 'Postes Hor.', previsto: eq.prev_postes_horizontal, instalado: eq.instalado_postes },
     { name: 'TAE 80', previsto: eq.prev_tae_80, instalado: eq.instalado_tae_80 },
     { name: 'TAE 100', previsto: eq.prev_tae_100, instalado: eq.instalado_tae_100 },
+    // Infraestrutura
+    { name: 'Bases', previsto: eq.prev_bases, instalado: eq.instalado_bases },
+    { name: 'Laços', previsto: eq.prev_lacos, instalado: eq.instalado_lacos },
+    { name: 'Postes Infra', previsto: eq.prev_postes_infra, instalado: eq.instalado_postes_infra },
+    { name: 'Conect.', previsto: eq.prev_conectorizacao, instalado: eq.instalado_conectorizacao },
+    { name: 'Ajustes', previsto: eq.prev_ajustes, instalado: eq.instalado_ajustes },
+    { name: 'Aferição', previsto: eq.prev_afericao, instalado: eq.instalado_afericao },
   ].filter(item => item.previsto > 0 || item.instalado > 0);
 
   // Calcular total geral previsto e instalado
   const totalPrevisto = (totaisGerais?.prevPlacas || 0) + (totaisGerais?.prevPontaletes || 0) + 
     (totaisGerais?.prevPostesCol || 0) + (totaisGerais?.prevBracosProj || 0) + 
     (totaisGerais?.prevSemiPorticos || 0) + (totaisGerais?.prevDefensas || 0) + 
-    (totaisGerais?.prevPostesHor || 0) + (totaisGerais?.prevTae80 || 0) + (totaisGerais?.prevTae100 || 0);
+    (totaisGerais?.prevPostesHor || 0) + (totaisGerais?.prevTae80 || 0) + (totaisGerais?.prevTae100 || 0) +
+    (totaisGerais?.prevBases || 0) + (totaisGerais?.prevLacos || 0) + (totaisGerais?.prevPostesInfra || 0) +
+    (totaisGerais?.prevConectorizacao || 0) + (totaisGerais?.prevAjustes || 0) + (totaisGerais?.prevAfericao || 0);
   
   const totalInstalado = (totaisGerais?.instPlacas || 0) + (totaisGerais?.instPontaletes || 0) + 
     (totaisGerais?.instPostesCol || 0) + (totaisGerais?.instDefensas || 0) + 
-    (totaisGerais?.instPostesHor || 0) + (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
+    (totaisGerais?.instPostesHor || 0) + (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0) +
+    (totaisGerais?.instBases || 0) + (totaisGerais?.instLacos || 0) + (totaisGerais?.instPostesInfra || 0) +
+    (totaisGerais?.instConectorizacao || 0) + (totaisGerais?.instAjustes || 0) + (totaisGerais?.instAfericao || 0);
 
   const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
@@ -333,6 +440,49 @@ export default function Dashboard() {
       instalado: 0, // Não há campo instalado ainda
       icon: Filter,
       gradient: 'from-info to-accent',
+    },
+    // Infraestrutura
+    {
+      title: 'Bases',
+      previsto: totaisGerais?.prevBases || 0,
+      instalado: totaisGerais?.instBases || 0,
+      icon: Wrench,
+      gradient: 'from-violet-500 to-purple-600',
+    },
+    {
+      title: 'Laços',
+      previsto: totaisGerais?.prevLacos || 0,
+      instalado: totaisGerais?.instLacos || 0,
+      icon: Wrench,
+      gradient: 'from-cyan-500 to-blue-600',
+    },
+    {
+      title: 'Postes Infra',
+      previsto: totaisGerais?.prevPostesInfra || 0,
+      instalado: totaisGerais?.instPostesInfra || 0,
+      icon: Wrench,
+      gradient: 'from-emerald-500 to-teal-600',
+    },
+    {
+      title: 'Conectorizacao',
+      previsto: totaisGerais?.prevConectorizacao || 0,
+      instalado: totaisGerais?.instConectorizacao || 0,
+      icon: Wrench,
+      gradient: 'from-amber-500 to-orange-600',
+    },
+    {
+      title: 'Ajustes',
+      previsto: totaisGerais?.prevAjustes || 0,
+      instalado: totaisGerais?.instAjustes || 0,
+      icon: Wrench,
+      gradient: 'from-rose-500 to-pink-600',
+    },
+    {
+      title: 'Aferição',
+      previsto: totaisGerais?.prevAfericao || 0,
+      instalado: totaisGerais?.instAfericao || 0,
+      icon: Wrench,
+      gradient: 'from-slate-500 to-gray-600',
     },
   ];
 
