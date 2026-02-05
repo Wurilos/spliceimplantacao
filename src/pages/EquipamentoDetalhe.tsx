@@ -849,65 +849,6 @@ export default function EquipamentoDetalhe() {
                 </label>
               </div>
 
-              <div className="section-divider" />
-
-              {/* Sentido, Tipo de Conexão, Tipo de Energia */}
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="sentido">Sentido</Label>
-                  <Select 
-                    value={formData.sentido_id} 
-                    onValueChange={(v) => setFormData({ ...formData, sentido_id: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o sentido" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sentidos?.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tipo_conexao">Tipo de Conexão</Label>
-                  <Select 
-                    value={formData.tipo_conexao} 
-                    onValueChange={(v) => setFormData({ ...formData, tipo_conexao: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Modem">Modem</SelectItem>
-                      <SelectItem value="Rádio">Rádio</SelectItem>
-                      <SelectItem value="Fibra">Fibra</SelectItem>
-                      <SelectItem value="Satélite">Satélite</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tipo_energia">Tipo de Energia</Label>
-                  <Select 
-                    value={formData.tipo_energia} 
-                    onValueChange={(v) => setFormData({ ...formData, tipo_energia: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Convencional">Convencional</SelectItem>
-                      <SelectItem value="Solar">Solar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
               {canEdit && (
                 <>
                   <div className="section-divider" />
