@@ -306,6 +306,8 @@ export default function Consultas() {
                         <TableHead className="font-semibold text-center">Pontaletes</TableHead>
                         <TableHead className="font-semibold text-center">Perfis</TableHead>
                         <TableHead className="font-semibold text-center">Postes Col.</TableHead>
+                         <TableHead className="font-semibold text-center">Braço Proj.</TableHead>
+                         <TableHead className="font-semibold text-center">Semi Pórtico</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -338,6 +340,12 @@ export default function Consultas() {
                           <TableCell className="text-center font-medium">{sv.qtd_pontaletes}</TableCell>
                           <TableCell className="text-center font-medium">{sv.qtd_perfis_metalicos}</TableCell>
                           <TableCell className="text-center font-medium">{sv.qtd_postes_colapsiveis}</TableCell>
+                           <TableCell className="text-center font-medium">
+                             {sv.categoria === 'braco_projetado' ? 1 : '-'}
+                           </TableCell>
+                           <TableCell className="text-center font-medium">
+                             {sv.categoria === 'semi_portico' ? 1 : '-'}
+                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
