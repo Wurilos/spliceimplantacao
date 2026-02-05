@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
+import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter, FileText, FileCheck, FileX } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -68,6 +68,10 @@ export default function Dashboard() {
           prev_postes_horizontal,
           prev_tae_80,
           prev_tae_100,
+          projeto_croqui_url,
+          croqui_caracterizacao_url,
+          estudo_viabilidade_url,
+          relatorio_vdm_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes)
         `);
@@ -75,7 +79,7 @@ export default function Dashboard() {
       if (eqError) throw eqError;
 
       // Processar os dados para calcular totais instalados
-      const processedData: EquipamentoComPrevisao[] = (eqData || []).map((eq: any) => {
+      const processedData = (eqData || []).map((eq: any) => {
         // Totais verticais (cada bloco = 1 placa instalada)
         let instalado_placas = eq.sinalizacao_vertical_blocos?.length || 0;
         let instalado_pontaletes = 0;
@@ -129,6 +133,10 @@ export default function Dashboard() {
           instalado_postes,
           instalado_tae_80,
           instalado_tae_100,
+          projeto_croqui_url: eq.projeto_croqui_url,
+          croqui_caracterizacao_url: eq.croqui_caracterizacao_url,
+          estudo_viabilidade_url: eq.estudo_viabilidade_url,
+          relatorio_vdm_url: eq.relatorio_vdm_url,
         };
       });
 
@@ -225,6 +233,45 @@ export default function Dashboard() {
     (totaisGerais?.instPostesHor || 0) + (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0);
 
   const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
+
+  // Calcular status de documentos
+  const documentStatus = useMemo(() => {
+    if (!equipamentos) return { complete: 0, incomplete: 0, total: 0, byType: [], pieData: [] };
+    
+    let projetoCroqui = 0;
+    let croquiCaracterizacao = 0;
+    let estudoViabilidade = 0;
+    let relatorioVdm = 0;
+    
+    equipamentos.forEach((eq: any) => {
+      if (eq.projeto_croqui_url) projetoCroqui++;
+      if (eq.croqui_caracterizacao_url) croquiCaracterizacao++;
+      if (eq.estudo_viabilidade_url) estudoViabilidade++;
+      if (eq.relatorio_vdm_url) relatorioVdm++;
+    });
+    
+    const total = equipamentos.length;
+    const byType = [
+      { name: 'Projeto (Croqui)', enviados: projetoCroqui, pendentes: total - projetoCroqui },
+      { name: 'Croqui Caracterização', enviados: croquiCaracterizacao, pendentes: total - croquiCaracterizacao },
+      { name: 'Estudo Viabilidade', enviados: estudoViabilidade, pendentes: total - estudoViabilidade },
+      { name: 'Relatório VDM', enviados: relatorioVdm, pendentes: total - relatorioVdm },
+    ];
+    
+    const totalDocs = total * 4;
+    const completeDocs = projetoCroqui + croquiCaracterizacao + estudoViabilidade + relatorioVdm;
+    
+    return {
+      complete: completeDocs,
+      incomplete: totalDocs - completeDocs,
+      total: totalDocs,
+      byType,
+      pieData: [
+        { name: 'Enviados', value: completeDocs, color: 'hsl(160, 84%, 39%)' },
+        { name: 'Pendentes', value: totalDocs - completeDocs, color: 'hsl(var(--destructive))' },
+      ]
+    };
+  }, [equipamentos]);
 
   // Função para calcular percentual
   const calcPercent = (instalado: number, previsto: number) => 
