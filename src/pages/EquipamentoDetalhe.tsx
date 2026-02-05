@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContratos } from '@/hooks/useContratos';
@@ -35,6 +35,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Activity } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 import { EquipamentoUploads } from '@/components/EquipamentoUploads';
@@ -779,6 +781,15 @@ export default function EquipamentoDetalhe() {
               )}
             </CardContent>
           </Card>
+
+          {/* Gráfico de Progresso do Equipamento */}
+          {!isNew && (
+            <EquipamentoProgressChart
+              formData={formData}
+              sinalizacaoVertical={sinalizacaoVertical}
+              sinalizacaoHorizontal={sinalizacaoHorizontal}
+            />
+          )}
         </TabsContent>
 
         {/* Tab Sinalização Vertical */}
