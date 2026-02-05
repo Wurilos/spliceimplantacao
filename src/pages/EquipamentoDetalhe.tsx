@@ -32,11 +32,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText } from 'lucide-react';
+ import { Wrench } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Activity } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 import { EquipamentoUploads } from '@/components/EquipamentoUploads';
+ import { InfraestruturaTab } from '@/components/InfraestruturaTab';
 
 // Component for equipment progress chart
 interface EquipamentoProgressChartProps {
@@ -267,6 +269,13 @@ export default function EquipamentoDetalhe() {
     prev_postes_horizontal: 0,
     prev_tae_80: 0,
     prev_tae_100: 0,
+     // Previsão Infraestrutura
+     prev_bases: 0,
+     prev_lacos: 0,
+     prev_postes_infra: 0,
+     prev_conectorizacao: 0,
+     prev_ajustes: 0,
+     prev_afericao: 0,
   });
 
   // Dialog states
@@ -333,6 +342,13 @@ export default function EquipamentoDetalhe() {
         prev_postes_horizontal: (equipamento as any).prev_postes_horizontal || 0,
         prev_tae_80: (equipamento as any).prev_tae_80 || 0,
         prev_tae_100: (equipamento as any).prev_tae_100 || 0,
+         // Previsão Infraestrutura
+         prev_bases: (equipamento as any).prev_bases || 0,
+         prev_lacos: (equipamento as any).prev_lacos || 0,
+         prev_postes_infra: (equipamento as any).prev_postes_infra || 0,
+         prev_conectorizacao: (equipamento as any).prev_conectorizacao || 0,
+         prev_ajustes: (equipamento as any).prev_ajustes || 0,
+         prev_afericao: (equipamento as any).prev_afericao || 0,
       });
     }
   }, [equipamento]);
@@ -368,6 +384,13 @@ export default function EquipamentoDetalhe() {
       prev_postes_horizontal: formData.prev_postes_horizontal,
       prev_tae_80: formData.prev_tae_80,
       prev_tae_100: formData.prev_tae_100,
+       // Previsão Infraestrutura
+       prev_bases: formData.prev_bases,
+       prev_lacos: formData.prev_lacos,
+       prev_postes_infra: formData.prev_postes_infra,
+       prev_conectorizacao: formData.prev_conectorizacao,
+       prev_ajustes: formData.prev_ajustes,
+       prev_afericao: formData.prev_afericao,
     };
 
     if (isNew) {
@@ -606,6 +629,12 @@ export default function EquipamentoDetalhe() {
             </TabsTrigger>
           )}
           {!isNew && (
+             <TabsTrigger value="infraestrutura" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+               <Wrench className="h-4 w-4 mr-2" />
+               Infraestrutura
+             </TabsTrigger>
+           )}
+           {!isNew && (
             <TabsTrigger value="uploads" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
               <FileText className="h-4 w-4 mr-2" />
               Upload de Arquivos
@@ -1669,21 +1698,43 @@ export default function EquipamentoDetalhe() {
         {/* Tab Uploads */}
         {!isNew && (
           <TabsContent value="uploads">
-            <EquipamentoUploads
-              equipamentoId={id!}
-              canEdit={canEdit}
-              projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
-              croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
-              estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
-              relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
-              onUpdate={() => {
-                // Trigger refetch of equipamento data
-                window.location.reload();
-              }}
-            />
-          </TabsContent>
-        )}
-      </Tabs>
-    </div>
-  );
-}
+             <EquipamentoUploads
+               equipamentoId={id!}
+               canEdit={canEdit}
+               projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
+               croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
+               estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
+               relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
+               onUpdate={() => {
+                 // Trigger refetch of equipamento data
+                 window.location.reload();
+               }}
+             />
+           </TabsContent>
+         )}
+ 
+         {/* Tab Infraestrutura */}
+         {!isNew && (
+           <TabsContent value="infraestrutura">
+             <InfraestruturaTab
+               equipamentoId={id!}
+               canEdit={canEdit}
+               canDelete={canDelete}
+               formData={{
+                 prev_bases: formData.prev_bases,
+                 prev_lacos: formData.prev_lacos,
+                 prev_postes_infra: formData.prev_postes_infra,
+                 prev_conectorizacao: formData.prev_conectorizacao,
+                 prev_ajustes: formData.prev_ajustes,
+                 prev_afericao: formData.prev_afericao,
+               }}
+               onFormDataChange={(data) => setFormData({ ...formData, ...data })}
+               onSave={handleSave}
+               isSaving={createEquipamento.isPending || updateEquipamento.isPending}
+             />
+           </TabsContent>
+         )}
+       </Tabs>
+     </div>
+   );
+ }
