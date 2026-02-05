@@ -815,7 +815,7 @@ export default function EquipamentoDetalhe() {
                 </div>
                 <div>
                   <CardTitle className="text-lg">Configurações</CardTitle>
-                  <CardDescription>Tipo de sinalização e sentidos associados</CardDescription>
+                  <CardDescription>Tipo de sinalização do equipamento</CardDescription>
                 </div>
               </div>
             </CardHeader>
