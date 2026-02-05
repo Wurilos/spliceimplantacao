@@ -101,8 +101,11 @@ export type Database = {
           projeto_croqui_url: string | null
           quantidade_faixas: number | null
           relatorio_vdm_url: string | null
+          sentido_id: string | null
           tem_sinalizacao_horizontal: boolean | null
           tem_sinalizacao_vertical: boolean | null
+          tipo_conexao: string | null
+          tipo_energia: string | null
           tipo_equipamento: string | null
           updated_at: string
         }
@@ -129,8 +132,11 @@ export type Database = {
           projeto_croqui_url?: string | null
           quantidade_faixas?: number | null
           relatorio_vdm_url?: string | null
+          sentido_id?: string | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
+          tipo_conexao?: string | null
+          tipo_energia?: string | null
           tipo_equipamento?: string | null
           updated_at?: string
         }
@@ -157,8 +163,11 @@ export type Database = {
           projeto_croqui_url?: string | null
           quantidade_faixas?: number | null
           relatorio_vdm_url?: string | null
+          sentido_id?: string | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
+          tipo_conexao?: string | null
+          tipo_energia?: string | null
           tipo_equipamento?: string | null
           updated_at?: string
         }
@@ -168,6 +177,13 @@ export type Database = {
             columns: ["contrato_id"]
             isOneToOne: false
             referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipamentos_sentido_id_fkey"
+            columns: ["sentido_id"]
+            isOneToOne: false
+            referencedRelation: "sentidos"
             referencedColumns: ["id"]
           },
         ]
