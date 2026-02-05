@@ -457,6 +457,119 @@ export default function Dashboard() {
         })}
       </div>
 
+      {/* Gráfico de Status de Documentos */}
+      <Card className="shadow-soft overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-warning via-destructive to-success" />
+        <CardHeader className="flex flex-row items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-warning/20 to-destructive/20 flex items-center justify-center">
+            <FileText className="h-5 w-5 text-warning" />
+          </div>
+          <div>
+            <CardTitle>Status de Documentos</CardTitle>
+            <CardDescription>Arquivos pendentes de upload por tipo</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {equipamentos && equipamentos.length > 0 ? (
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Resumo em Cards */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-success/10 border border-success/20">
+                  <FileCheck className="h-8 w-8 text-success" />
+                  <div>
+                    <p className="text-2xl font-bold text-success">{documentStatus.complete}</p>
+                    <p className="text-sm text-muted-foreground">Documentos Enviados</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+                  <FileX className="h-8 w-8 text-destructive" />
+                  <div>
+                    <p className="text-2xl font-bold text-destructive">{documentStatus.incomplete}</p>
+                    <p className="text-sm text-muted-foreground">Documentos Pendentes</p>
+                  </div>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">
+                    {documentStatus.total > 0 
+                      ? `${Math.round((documentStatus.complete / documentStatus.total) * 100)}% completo`
+                      : '0% completo'
+                    }
+                  </p>
+                </div>
+              </div>
+
+              {/* Gráfico de Barras Horizontais */}
+              <div className="lg:col-span-2 h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={documentStatus.byType} 
+                    layout="vertical"
+                    barGap={4}
+                  >
+                    <defs>
+                      <linearGradient id="gradEnviados" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="hsl(160, 84%, 50%)" stopOpacity={0.7} />
+                      </linearGradient>
+                      <linearGradient id="gradPendentes" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="hsl(0, 72%, 60%)" stopOpacity={0.7} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                    <XAxis 
+                      type="number"
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                      axisLine={{ stroke: 'hsl(var(--border))' }}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name" 
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={130}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '10px',
+                        boxShadow: '0 8px 30px hsl(var(--foreground) / 0.1)',
+                        fontSize: '12px',
+                      }}
+                      cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+                    />
+                    <Legend iconType="circle" iconSize={8} />
+                    <Bar 
+                      dataKey="enviados" 
+                      fill="url(#gradEnviados)" 
+                      name="Enviados" 
+                      radius={[0, 4, 4, 0]}
+                      maxBarSize={25}
+                    />
+                    <Bar 
+                      dataKey="pendentes" 
+                      fill="url(#gradPendentes)" 
+                      name="Pendentes" 
+                      radius={[0, 4, 4, 0]}
+                      maxBarSize={25}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          ) : (
+            <div className="h-64 flex flex-col items-center justify-center text-muted-foreground">
+              <FileText className="h-12 w-12 mb-3 opacity-30" />
+              <p>Nenhum equipamento cadastrado</p>
+              <p className="text-sm opacity-70">Cadastre equipamentos para acompanhar os documentos</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Gráfico Geral Consolidado */}
       <Card className="shadow-soft overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-warning" />
