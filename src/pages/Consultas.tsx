@@ -302,6 +302,7 @@ export default function Consultas() {
                         <TableHead className="font-semibold">Tipo</TableHead>
                         <TableHead className="font-semibold">Subtipo</TableHead>
                         <TableHead className="font-semibold">Sentido</TableHead>
+                         <TableHead className="font-semibold">Categoria</TableHead>
                         <TableHead className="font-semibold text-center">Pontaletes</TableHead>
                         <TableHead className="font-semibold text-center">Perfis</TableHead>
                         <TableHead className="font-semibold text-center">Postes Col.</TableHead>
@@ -319,6 +320,21 @@ export default function Consultas() {
                           <TableCell>{sv.tipo}</TableCell>
                           <TableCell className="text-muted-foreground">{sv.subtipo}</TableCell>
                           <TableCell>{sv.sentidos?.nome || '-'}</TableCell>
+                           <TableCell>
+                             <Badge 
+                               variant="secondary" 
+                               className={
+                                 sv.categoria === 'braco_projetado' 
+                                   ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                                   : sv.categoria === 'semi_portico'
+                                   ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                   : 'bg-muted text-muted-foreground'
+                               }
+                             >
+                               {sv.categoria === 'braco_projetado' ? 'Braço Projetado' : 
+                                sv.categoria === 'semi_portico' ? 'Semi Pórtico' : 'Placas'}
+                             </Badge>
+                           </TableCell>
                           <TableCell className="text-center font-medium">{sv.qtd_pontaletes}</TableCell>
                           <TableCell className="text-center font-medium">{sv.qtd_perfis_metalicos}</TableCell>
                           <TableCell className="text-center font-medium">{sv.qtd_postes_colapsiveis}</TableCell>
