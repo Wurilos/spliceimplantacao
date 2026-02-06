@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Radio, ArrowUpDown, ArrowLeftRight, FileText } from 'lucide-react';
+import { Search, Radio, ArrowUpDown, ArrowLeftRight, FileText, Wrench } from 'lucide-react';
 import { ConsultaDocumentos } from '@/components/ConsultaDocumentos';
+import { ImageThumbnail } from '@/components/ImageThumbnail';
 
 export default function Consultas() {
   const { data: contratos } = useContratos();
@@ -29,6 +30,10 @@ export default function Consultas() {
   // Filtros para sinalização horizontal
   const [shContrato, setShContrato] = useState<string>('all');
   const [shTipo, setShTipo] = useState<string>('all');
+
+  // Filtros para infraestrutura
+  const [infraContrato, setInfraContrato] = useState<string>('all');
+  const [infraTipo, setInfraTipo] = useState<string>('all');
 
   // Query equipamentos
   const { data: equipamentos, isLoading: isLoadingEq } = useQuery({
@@ -106,10 +111,48 @@ export default function Consultas() {
     },
   });
 
+  // Query infraestrutura
+  const { data: infraestrutura, isLoading: isLoadingInfra } = useQuery({
+    queryKey: ['consulta-infraestrutura', infraContrato, infraTipo],
+    queryFn: async () => {
+      let query = supabase
+        .from('infraestrutura_itens')
+        .select(`
+          *,
+          equipamentos!inner (
+            numero_serie,
+            municipio,
+            contrato_id,
+            contratos (id_contrato, nome)
+          )
+        `);
+      
+      if (infraContrato !== 'all') {
+        query = query.eq('equipamentos.contrato_id', infraContrato);
+      }
+      if (infraTipo !== 'all') {
+        query = query.eq('tipo', infraTipo);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const tipoHorizontalLabels: Record<string, string> = {
     defensa_metalica: 'Defensa Metálica',
     tae_80: 'TAE 80 km/h',
     tae_100: 'TAE 100 km/h',
+  };
+
+  const tipoInfraLabels: Record<string, string> = {
+    bases: 'Bases',
+    lacos: 'Laços',
+    postes: 'Postes',
+    conectorizacao: 'Conectorização',
+    ajustes: 'Ajustes',
+    afericao: 'Aferição',
   };
 
   return (
@@ -122,28 +165,37 @@ export default function Consultas() {
           </div>
           <div>
             <h1 className="page-title">Consultas</h1>
-            <p className="page-description">Pesquise equipamentos e sinalizações</p>
+            <p className="page-description">Pesquise equipamentos, sinalizações e infraestrutura</p>
           </div>
         </div>
       </div>
 
       <Tabs defaultValue="equipamentos" className="space-y-6">
-        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-4">
-          <TabsTrigger value="equipamentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
+        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-5">
+          <TabsTrigger value="equipamentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
             <Radio className="h-4 w-4" />
-            Equipamentos
+            <span className="hidden sm:inline">Equipamentos</span>
+            <span className="sm:hidden">Equip.</span>
           </TabsTrigger>
-          <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
+          <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
             <ArrowUpDown className="h-4 w-4" />
-            Sinal. Vertical
+            <span className="hidden sm:inline">Sinal. Vertical</span>
+            <span className="sm:hidden">Vert.</span>
           </TabsTrigger>
-          <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
+          <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
             <ArrowLeftRight className="h-4 w-4" />
-            Sinal. Horizontal
+            <span className="hidden sm:inline">Sinal. Horizontal</span>
+            <span className="sm:hidden">Horiz.</span>
           </TabsTrigger>
-          <TabsTrigger value="documentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-4 py-2.5 gap-2">
+          <TabsTrigger value="infraestrutura" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
+            <Wrench className="h-4 w-4" />
+            <span className="hidden sm:inline">Infraestrutura</span>
+            <span className="sm:hidden">Infra.</span>
+          </TabsTrigger>
+          <TabsTrigger value="documentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
             <FileText className="h-4 w-4" />
-            Documentos
+            <span className="hidden sm:inline">Documentos</span>
+            <span className="sm:hidden">Docs.</span>
           </TabsTrigger>
         </TabsList>
 
