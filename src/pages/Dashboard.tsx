@@ -134,6 +134,24 @@ export default function Dashboard() {
     },
   });
 
+  // Query para materiais recebidos
+  const { data: materiaisRecebidos } = useQuery({
+    queryKey: ['dashboard-materiais-recebidos', filtroContrato],
+    queryFn: async () => {
+      let query = supabase
+        .from('materiais_recebidos')
+        .select('*');
+      
+      if (filtroContrato !== 'todos') {
+        query = query.eq('contrato_id', filtroContrato);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const equipamentos = useMemo(() => {
     if (!equipamentosRaw) return [];
     return equipamentosRaw.filter(eq => {
