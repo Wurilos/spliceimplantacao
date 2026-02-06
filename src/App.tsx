@@ -13,6 +13,7 @@ import Equipamentos from "@/pages/Equipamentos";
 import EquipamentoDetalhe from "@/pages/EquipamentoDetalhe";
 import Consultas from "@/pages/Consultas";
 import Relatorios from "@/pages/Relatorios";
+import MateriaisRecebidos from "@/pages/MateriaisRecebidos";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
