@@ -1767,8 +1767,8 @@ export default function EquipamentoDetalhe() {
                }}
              />
            </TabsContent>
-         )}
- 
+        )}
+
          {/* Tab Infraestrutura */}
          {!isNew && (
            <TabsContent value="infraestrutura">
@@ -1776,17 +1776,6 @@ export default function EquipamentoDetalhe() {
                equipamentoId={id!}
                canEdit={canEdit}
                canDelete={canDelete}
-               formData={{
-                 prev_bases: formData.prev_bases,
-                 prev_lacos: formData.prev_lacos,
-                 prev_postes_infra: formData.prev_postes_infra,
-                 prev_conectorizacao: formData.prev_conectorizacao,
-                 prev_ajustes: formData.prev_ajustes,
-                 prev_afericao: formData.prev_afericao,
-               }}
-               onFormDataChange={(data) => setFormData({ ...formData, ...data })}
-               onSave={handleSave}
-               isSaving={createEquipamento.isPending || updateEquipamento.isPending}
              />
            </TabsContent>
          )}
