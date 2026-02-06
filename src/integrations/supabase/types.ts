@@ -167,8 +167,11 @@ export type Database = {
           quantidade_faixas: number | null
           relatorio_vdm_url: string | null
           sentido_id: string | null
+          tem_infraestrutura: boolean | null
+          tem_operacional: boolean | null
           tem_sinalizacao_horizontal: boolean | null
           tem_sinalizacao_vertical: boolean | null
+          tem_upload_arquivos: boolean | null
           tipo_conexao: string | null
           tipo_energia: string | null
           tipo_equipamento: string | null
@@ -204,8 +207,11 @@ export type Database = {
           quantidade_faixas?: number | null
           relatorio_vdm_url?: string | null
           sentido_id?: string | null
+          tem_infraestrutura?: boolean | null
+          tem_operacional?: boolean | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
+          tem_upload_arquivos?: boolean | null
           tipo_conexao?: string | null
           tipo_energia?: string | null
           tipo_equipamento?: string | null
@@ -241,8 +247,11 @@ export type Database = {
           quantidade_faixas?: number | null
           relatorio_vdm_url?: string | null
           sentido_id?: string | null
+          tem_infraestrutura?: boolean | null
+          tem_operacional?: boolean | null
           tem_sinalizacao_horizontal?: boolean | null
           tem_sinalizacao_vertical?: boolean | null
+          tem_upload_arquivos?: boolean | null
           tipo_conexao?: string | null
           tipo_energia?: string | null
           tipo_equipamento?: string | null
