@@ -247,6 +247,47 @@ export type Database = {
           },
         ]
       }
+      materiais_recebidos: {
+        Row: {
+          contrato_id: string
+          created_at: string
+          data_recebimento: string
+          id: string
+          observacao: string | null
+          quantidade: number
+          tipo_material: string
+          updated_at: string
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string
+          data_recebimento: string
+          id?: string
+          observacao?: string | null
+          quantidade?: number
+          tipo_material: string
+          updated_at?: string
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string
+          data_recebimento?: string
+          id?: string
+          observacao?: string | null
+          quantidade?: number
+          tipo_material?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiais_recebidos_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
