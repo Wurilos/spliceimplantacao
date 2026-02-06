@@ -699,6 +699,148 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Gráfico de Materiais Recebidos */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="shadow-soft overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-warning to-success" />
+          <CardHeader className="flex flex-row items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-warning/20 flex items-center justify-center">
+              <Package className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle>Materiais Recebidos</CardTitle>
+              <CardDescription>Distribuição por categoria</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {materiaisChartData.byCategory.length > 0 ? (
+              <div className="grid lg:grid-cols-2 gap-6">
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={materiaisChartData.byCategory}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        labelLine={false}
+                      >
+                        {materiaisChartData.byCategory.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))', 
+                          border: '1px solid hsl(var(--border))', 
+                          borderRadius: '10px',
+                          boxShadow: '0 8px 30px hsl(var(--foreground) / 0.1)'
+                        }} 
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="space-y-3">
+                  <div className="text-center p-4 rounded-xl bg-primary/10 border border-primary/20">
+                    <p className="text-3xl font-bold text-primary">{materiaisChartData.total}</p>
+                    <p className="text-sm text-muted-foreground">Total de Itens Recebidos</p>
+                  </div>
+                  <div className="space-y-2">
+                    {materiaisChartData.byCategory.map((cat) => (
+                      <div key={cat.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                          <span className="text-sm font-medium">{cat.name}</span>
+                        </div>
+                        <Badge variant="secondary">{cat.value}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="h-64 flex flex-col items-center justify-center text-muted-foreground">
+                <Package className="h-12 w-12 mb-3 opacity-30" />
+                <p>Nenhum material registrado</p>
+                <p className="text-sm opacity-70">Registre materiais recebidos para visualizar</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Gráfico Comparativo: Recebido vs Instalado */}
+        <Card className="shadow-soft overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-success to-primary" />
+          <CardHeader className="flex flex-row items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-success/20 flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-accent" />
+            </div>
+            <div>
+              <CardTitle>Recebido vs Instalado</CardTitle>
+              <CardDescription>Comparativo de materiais por tipo</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {comparativoData.length > 0 ? (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={comparativoData} layout="vertical" barGap={4}>
+                    <defs>
+                      <linearGradient id="gradRecebido" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(262, 83%, 58%)" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="hsl(262, 83%, 68%)" stopOpacity={0.7} />
+                      </linearGradient>
+                      <linearGradient id="gradInstaladoComp" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="hsl(160, 84%, 50%)" stopOpacity={0.7} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                    <XAxis 
+                      type="number" 
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                      axisLine={{ stroke: 'hsl(var(--border))' }} 
+                      tickLine={false} 
+                    />
+                    <YAxis 
+                      type="category" 
+                      dataKey="name" 
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      width={100} 
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))', 
+                        borderRadius: '10px',
+                        boxShadow: '0 8px 30px hsl(var(--foreground) / 0.1)',
+                        fontSize: '12px'
+                      }} 
+                      cursor={{ fill: 'hsl(var(--muted) / 0.3)' }} 
+                    />
+                    <Legend iconType="circle" iconSize={8} />
+                    <Bar dataKey="recebido" fill="url(#gradRecebido)" name="Recebido" radius={[0, 4, 4, 0]} maxBarSize={20} />
+                    <Bar dataKey="instalado" fill="url(#gradInstaladoComp)" name="Instalado" radius={[0, 4, 4, 0]} maxBarSize={20} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-72 flex flex-col items-center justify-center text-muted-foreground">
+                <BarChart3 className="h-12 w-12 mb-3 opacity-30" />
+                <p>Sem dados para comparar</p>
+                <p className="text-sm opacity-70">Registre materiais e instalações</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
