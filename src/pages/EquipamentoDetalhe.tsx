@@ -311,6 +311,9 @@ export default function EquipamentoDetalhe() {
     longitude: '',
     tem_sinalizacao_vertical: false,
     tem_sinalizacao_horizontal: false,
+    tem_infraestrutura: false,
+    tem_operacional: false,
+    tem_upload_arquivos: false,
     tipo_equipamento: '',
     quantidade_faixas: 1,
     sentido_id: '',
@@ -383,8 +386,11 @@ export default function EquipamentoDetalhe() {
         endereco: equipamento.endereco,
         latitude: equipamento.latitude?.toString() || '',
         longitude: equipamento.longitude?.toString() || '',
-        tem_sinalizacao_vertical: equipamento.tem_sinalizacao_vertical,
-        tem_sinalizacao_horizontal: equipamento.tem_sinalizacao_horizontal,
+        tem_sinalizacao_vertical: equipamento.tem_sinalizacao_vertical ?? false,
+        tem_sinalizacao_horizontal: equipamento.tem_sinalizacao_horizontal ?? false,
+        tem_infraestrutura: (equipamento as any).tem_infraestrutura ?? false,
+        tem_operacional: (equipamento as any).tem_operacional ?? false,
+        tem_upload_arquivos: (equipamento as any).tem_upload_arquivos ?? false,
         tipo_equipamento: equipamento.tipo_equipamento || '',
         quantidade_faixas: equipamento.quantidade_faixas || 1,
         sentido_id: (equipamento as any).sentido_id || '',
@@ -427,6 +433,9 @@ export default function EquipamentoDetalhe() {
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       tem_sinalizacao_vertical: formData.tem_sinalizacao_vertical,
       tem_sinalizacao_horizontal: formData.tem_sinalizacao_horizontal,
+      tem_infraestrutura: formData.tem_infraestrutura,
+      tem_operacional: formData.tem_operacional,
+      tem_upload_arquivos: formData.tem_upload_arquivos,
       tipo_equipamento: formData.tipo_equipamento || null,
       quantidade_faixas: formData.quantidade_faixas,
       sentido_id: formData.sentido_id || null,
@@ -691,19 +700,19 @@ export default function EquipamentoDetalhe() {
               Sinalização Horizontal
             </TabsTrigger>
           )}
-          {!isNew && (
+          {!isNew && formData.tem_infraestrutura && (
              <TabsTrigger value="infraestrutura" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
                <Wrench className="h-4 w-4 mr-2" />
                Infraestrutura
              </TabsTrigger>
            )}
-           {!isNew && (
+           {!isNew && formData.tem_operacional && (
              <TabsTrigger value="operacional" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
                <Settings2 className="h-4 w-4 mr-2" />
                Operacional
              </TabsTrigger>
            )}
-           {!isNew && (
+           {!isNew && formData.tem_upload_arquivos && (
             <TabsTrigger value="uploads" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
               <FileText className="h-4 w-4 mr-2" />
               Upload de Arquivos
@@ -943,6 +952,45 @@ export default function EquipamentoDetalhe() {
                   <div className="flex items-center gap-2">
                     <ArrowLeftRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                     <span className="text-sm font-medium group-hover:text-foreground transition-colors">Possui Sinalização Horizontal</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <Checkbox
+                    id="infraestrutura"
+                    checked={formData.tem_infraestrutura}
+                    onCheckedChange={(v) => setFormData({ ...formData, tem_infraestrutura: !!v })}
+                    disabled={!canEdit}
+                    className="h-5 w-5"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Wrench className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium group-hover:text-foreground transition-colors">Possui Infraestrutura</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <Checkbox
+                    id="operacional"
+                    checked={formData.tem_operacional}
+                    onCheckedChange={(v) => setFormData({ ...formData, tem_operacional: !!v })}
+                    disabled={!canEdit}
+                    className="h-5 w-5"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium group-hover:text-foreground transition-colors">Possui Operacional</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <Checkbox
+                    id="uploads"
+                    checked={formData.tem_upload_arquivos}
+                    onCheckedChange={(v) => setFormData({ ...formData, tem_upload_arquivos: !!v })}
+                    disabled={!canEdit}
+                    className="h-5 w-5"
+                  />
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-sm font-medium group-hover:text-foreground transition-colors">Possui Upload de Arquivos</span>
                   </div>
                 </label>
               </div>
