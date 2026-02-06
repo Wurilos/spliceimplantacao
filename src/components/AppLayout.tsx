@@ -30,6 +30,7 @@ const menuItems = [
   { path: '/contratos', icon: FileText, label: 'Contratos' },
   { path: '/sentidos', icon: Compass, label: 'Sentidos' },
   { path: '/equipamentos', icon: Radio, label: 'Equipamentos' },
+  { path: '/materiais-recebidos', icon: Package, label: 'Materiais Recebidos' },
   { path: '/consultas', icon: Search, label: 'Consultas' },
   { path: '/relatorios', icon: BarChart3, label: 'Relatórios' },
 ];
