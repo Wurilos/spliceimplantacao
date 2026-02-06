@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
-import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle, Package, BarChart3 } from 'lucide-react';
+import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle, Package, BarChart3, Settings2, Upload } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -56,7 +56,8 @@ export default function Dashboard() {
           relatorio_vdm_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
-          infraestrutura_itens (tipo, quantidade)
+          infraestrutura_itens (tipo, quantidade),
+          operacional_itens (tipo, quantidade)
         `);
       
       if (eqError) throw eqError;
@@ -99,13 +100,23 @@ export default function Dashboard() {
         let instalado_afericao = 0;
 
         eq.infraestrutura_itens?.forEach((inf: any) => {
-          switch (inf.tipo) {
+          switch (inf.tipo?.toLowerCase()) {
             case 'bases': instalado_bases += inf.quantidade || 0; break;
-            case 'lacos': instalado_lacos += inf.quantidade || 0; break;
+            case 'lacos': 
+            case 'laços': instalado_lacos += inf.quantidade || 0; break;
             case 'postes': instalado_postes_infra += inf.quantidade || 0; break;
-            case 'conectorizacao': instalado_conectorizacao += inf.quantidade || 0; break;
-            case 'ajustes': instalado_ajustes += inf.quantidade || 0; break;
-            case 'afericao': instalado_afericao += inf.quantidade || 0; break;
+            case 'conectorizacao': 
+            case 'conectorização': instalado_conectorizacao += inf.quantidade || 0; break;
+          }
+        });
+
+        // Processar itens operacionais
+        eq.operacional_itens?.forEach((op: any) => {
+          const tipoLower = op.tipo?.toLowerCase() || '';
+          if (tipoLower.includes('ajuste')) {
+            instalado_ajustes += op.quantidade || 0;
+          } else if (tipoLower.includes('aferi') || tipoLower.includes('aferição')) {
+            instalado_afericao += op.quantidade || 0;
           }
         });
 
@@ -224,11 +235,22 @@ export default function Dashboard() {
       { name: 'Laços', previsto: totaisPrev.lacos, instalado: totaisInst.lacos, percentual: calcPercent(totaisInst.lacos, totaisPrev.lacos) },
       { name: 'Postes Infra', previsto: totaisPrev.postesInfra, instalado: totaisInst.postesInfra, percentual: calcPercent(totaisInst.postesInfra, totaisPrev.postesInfra) },
       { name: 'Conectorização', previsto: totaisPrev.conectorizacao, instalado: totaisInst.conectorizacao, percentual: calcPercent(totaisInst.conectorizacao, totaisPrev.conectorizacao) },
+    ];
+
+    const operacionalProgress: ProgressItem[] = [
       { name: 'Ajustes', previsto: totaisPrev.ajustes, instalado: totaisInst.ajustes, percentual: calcPercent(totaisInst.ajustes, totaisPrev.ajustes) },
       { name: 'Aferição', previsto: totaisPrev.afericao, instalado: totaisInst.afericao, percentual: calcPercent(totaisInst.afericao, totaisPrev.afericao) },
     ];
 
-    const todosItens = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress];
+    // Calcular progresso de upload de arquivos
+    const uploadProgress: ProgressItem[] = [
+      { name: 'Projeto (Croqui)', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.projeto_croqui_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.projeto_croqui_url).length, equipamentos.length) },
+      { name: 'Croqui Caracterização', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.croqui_caracterizacao_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.croqui_caracterizacao_url).length, equipamentos.length) },
+      { name: 'Estudo Viabilidade', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.estudo_viabilidade_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.estudo_viabilidade_url).length, equipamentos.length) },
+      { name: 'Relatório VDM', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, equipamentos.length) },
+    ];
+
+    const todosItens = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress, ...operacionalProgress];
     const todosPrevisto = todosItens.reduce((acc, item) => acc + item.previsto, 0);
     const todosInstalado = todosItens.reduce((acc, item) => acc + item.instalado, 0);
     const progressoGeral = calcPercent(todosInstalado, todosPrevisto);
@@ -243,6 +265,8 @@ export default function Dashboard() {
       sinalizacaoVerticalProgress,
       sinalizacaoHorizontalProgress,
       infraestruturaProgress,
+      operacionalProgress,
+      uploadProgress,
       progressoGeral,
       todosItensConcluidos,
       totaisPrev,
@@ -257,6 +281,7 @@ export default function Dashboard() {
       ...progressData.sinalizacaoVerticalProgress,
       ...progressData.sinalizacaoHorizontalProgress,
       ...progressData.infraestruturaProgress,
+      ...progressData.operacionalProgress,
     ].filter(item => item.previsto > 0 || item.instalado > 0)
      .map(item => ({ name: item.name, previsto: item.previsto, instalado: item.instalado }));
   }, [progressData]);
@@ -557,7 +582,7 @@ export default function Dashboard() {
 
       {/* Cards de Progresso por Categoria */}
       {progressData && (
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           <ProgressCard 
             title="Sinalização Vertical" 
             icon={ArrowUpDown}
@@ -575,6 +600,18 @@ export default function Dashboard() {
             icon={Wrench}
             items={progressData.infraestruturaProgress}
             color="bg-success"
+          />
+          <ProgressCard 
+            title="Operacional" 
+            icon={Settings2}
+            items={progressData.operacionalProgress}
+            color="bg-accent"
+          />
+          <ProgressCard 
+            title="Upload de Arquivos" 
+            icon={Upload}
+            items={progressData.uploadProgress}
+            color="bg-destructive"
           />
         </div>
       )}
