@@ -40,7 +40,24 @@ export function useSinalizacaoVerticalCategoria() {
       
       if (itensError) throw itensError;
       
-      return itens as SinalizacaoVerticalCategoriaItem[];
+      // Itens de suporte que são campos de quantidade nas placas - não devem aparecer como categorias
+      const ITENS_SUPORTE_PLACA = [
+        'pontalete',
+        'perfil metálico', 
+        'perfil metalico',
+        'postes colapsíveis',
+        'postes colapsiveis',
+        'poste colapsível',
+        'poste colapsivel'
+      ];
+
+      // Filtrar itens de suporte
+      const itensFiltrados = itens.filter(item => {
+        const nomeNormalizado = item.nome.toLowerCase();
+        return !ITENS_SUPORTE_PLACA.some(termo => nomeNormalizado.includes(termo));
+      });
+      
+      return itensFiltrados as SinalizacaoVerticalCategoriaItem[];
     },
   });
 }
