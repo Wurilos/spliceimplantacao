@@ -12,6 +12,7 @@ import Sentidos from "@/pages/Sentidos";
 import Equipamentos from "@/pages/Equipamentos";
 import EquipamentoDetalhe from "@/pages/EquipamentoDetalhe";
 import Consultas from "@/pages/Consultas";
+import Relatorios from "@/pages/Relatorios";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
