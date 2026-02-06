@@ -2,65 +2,26 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
-import { Radio, Sparkles, Activity, ChevronRight, MapPin, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useContratos } from '@/hooks/useContratos';
 
-interface EquipamentoComPrevisao {
-  id: string;
-  numero_serie: string;
-  municipio: string;
-  endereco: string;
-  tipo_equipamento: string | null;
-  contrato_id: string;
-  // Previsão Vertical
-  prev_placas: number;
-  prev_pontaletes: number;
-  prev_postes_colapsiveis: number;
-  prev_bracos_projetados: number;
-  prev_semi_porticos: number;
-  // Previsão Horizontal
-  prev_defensas: number;
-  prev_postes_horizontal: number;
-  prev_tae_80: number;
-  prev_tae_100: number;
-  // Previsão Infraestrutura
-  prev_bases: number;
-  prev_lacos: number;
-  prev_postes_infra: number;
-  prev_conectorizacao: number;
-  prev_ajustes: number;
-  prev_afericao: number;
-  // Instalado Vertical (cada bloco = 1 placa)
-  instalado_placas: number;
-  instalado_pontaletes: number;
-  instalado_perfis: number;
-  instalado_postes_colapsiveis: number;
-  // Instalado Horizontal
-  instalado_laminas: number;
-  instalado_postes: number;
-  instalado_tae_80: number;
-  instalado_tae_100: number;
-  // Instalado Infraestrutura
-  instalado_bases: number;
-  instalado_lacos: number;
-  instalado_postes_infra: number;
-  instalado_conectorizacao: number;
-  instalado_ajustes: number;
-  instalado_afericao: number;
+interface ProgressItem {
+  name: string;
+  previsto: number;
+  instalado: number;
+  percentual: number;
 }
 
 export default function Dashboard() {
   const [filtroContrato, setFiltroContrato] = useState<string>('todos');
   const [filtroEquipamento, setFiltroEquipamento] = useState<string>('todos');
 
-  // Buscar contratos para o filtro
   const { data: contratos } = useContratos();
 
-  // Query para buscar equipamentos com previsão e totais instalados
   const { data: equipamentosRaw, isLoading } = useQuery({
     queryKey: ['dashboard-equipamentos-previsao'],
     queryFn: async () => {
@@ -92,20 +53,20 @@ export default function Dashboard() {
           croqui_caracterizacao_url,
           estudo_viabilidade_url,
           relatorio_vdm_url,
-          sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis),
+          sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
           infraestrutura_itens (tipo, quantidade)
         `);
       
       if (eqError) throw eqError;
 
-      // Processar os dados para calcular totais instalados
       const processedData = (eqData || []).map((eq: any) => {
-        // Totais verticais (cada bloco = 1 placa instalada)
-        let instalado_placas = eq.sinalizacao_vertical_blocos?.length || 0;
+        let instalado_placas = eq.sinalizacao_vertical_blocos?.filter((sv: any) => sv.categoria === 'placas').length || 0;
         let instalado_pontaletes = 0;
         let instalado_perfis = 0;
         let instalado_postes_colapsiveis = 0;
+        let instalado_bracos_projetados = eq.sinalizacao_vertical_blocos?.filter((sv: any) => sv.categoria === 'braco_projetado').length || 0;
+        let instalado_semi_porticos = eq.sinalizacao_vertical_blocos?.filter((sv: any) => sv.categoria === 'semi_portico').length || 0;
         
         eq.sinalizacao_vertical_blocos?.forEach((sv: any) => {
           instalado_pontaletes += sv.qtd_pontaletes || 0;
@@ -113,7 +74,6 @@ export default function Dashboard() {
           instalado_postes_colapsiveis += sv.qtd_postes_colapsiveis || 0;
         });
 
-        // Totais horizontais
         let instalado_laminas = 0;
         let instalado_postes = 0;
         let instalado_tae_80 = 0;
@@ -130,63 +90,32 @@ export default function Dashboard() {
           }
         });
 
-      // Totais infraestrutura
-      let instalado_bases = 0;
-      let instalado_lacos = 0;
-      let instalado_postes_infra = 0;
-      let instalado_conectorizacao = 0;
-      let instalado_ajustes = 0;
-      let instalado_afericao = 0;
+        let instalado_bases = 0;
+        let instalado_lacos = 0;
+        let instalado_postes_infra = 0;
+        let instalado_conectorizacao = 0;
+        let instalado_ajustes = 0;
+        let instalado_afericao = 0;
 
-      eq.infraestrutura_itens?.forEach((inf: any) => {
-        switch (inf.tipo) {
-          case 'bases':
-            instalado_bases += inf.quantidade || 0;
-            break;
-          case 'lacos':
-            instalado_lacos += inf.quantidade || 0;
-            break;
-          case 'postes':
-            instalado_postes_infra += inf.quantidade || 0;
-            break;
-          case 'conectorizacao':
-            instalado_conectorizacao += inf.quantidade || 0;
-            break;
-          case 'ajustes':
-            instalado_ajustes += inf.quantidade || 0;
-            break;
-          case 'afericao':
-            instalado_afericao += inf.quantidade || 0;
-            break;
-        }
-      });
+        eq.infraestrutura_itens?.forEach((inf: any) => {
+          switch (inf.tipo) {
+            case 'bases': instalado_bases += inf.quantidade || 0; break;
+            case 'lacos': instalado_lacos += inf.quantidade || 0; break;
+            case 'postes': instalado_postes_infra += inf.quantidade || 0; break;
+            case 'conectorizacao': instalado_conectorizacao += inf.quantidade || 0; break;
+            case 'ajustes': instalado_ajustes += inf.quantidade || 0; break;
+            case 'afericao': instalado_afericao += inf.quantidade || 0; break;
+          }
+        });
 
         return {
-          id: eq.id,
-          numero_serie: eq.numero_serie,
-          municipio: eq.municipio,
-          endereco: eq.endereco,
-          tipo_equipamento: eq.tipo_equipamento,
-          contrato_id: eq.contrato_id,
-          prev_placas: eq.prev_placas || 0,
-          prev_pontaletes: eq.prev_pontaletes || 0,
-          prev_postes_colapsiveis: eq.prev_postes_colapsiveis || 0,
-          prev_bracos_projetados: eq.prev_bracos_projetados || 0,
-          prev_semi_porticos: eq.prev_semi_porticos || 0,
-          prev_defensas: eq.prev_defensas || 0,
-          prev_postes_horizontal: eq.prev_postes_horizontal || 0,
-          prev_tae_80: eq.prev_tae_80 || 0,
-          prev_tae_100: eq.prev_tae_100 || 0,
-          prev_bases: eq.prev_bases || 0,
-          prev_lacos: eq.prev_lacos || 0,
-          prev_postes_infra: eq.prev_postes_infra || 0,
-          prev_conectorizacao: eq.prev_conectorizacao || 0,
-          prev_ajustes: eq.prev_ajustes || 0,
-          prev_afericao: eq.prev_afericao || 0,
+          ...eq,
           instalado_placas,
           instalado_pontaletes,
           instalado_perfis,
           instalado_postes_colapsiveis,
+          instalado_bracos_projetados,
+          instalado_semi_porticos,
           instalado_laminas,
           instalado_postes,
           instalado_tae_80,
@@ -197,10 +126,6 @@ export default function Dashboard() {
           instalado_conectorizacao,
           instalado_ajustes,
           instalado_afericao,
-          projeto_croqui_url: eq.projeto_croqui_url,
-          croqui_caracterizacao_url: eq.croqui_caracterizacao_url,
-          estudo_viabilidade_url: eq.estudo_viabilidade_url,
-          relatorio_vdm_url: eq.relatorio_vdm_url,
         };
       });
 
@@ -208,10 +133,8 @@ export default function Dashboard() {
     },
   });
 
-  // Filtrar equipamentos com base nos filtros selecionados
   const equipamentos = useMemo(() => {
     if (!equipamentosRaw) return [];
-    
     return equipamentosRaw.filter(eq => {
       const matchContrato = filtroContrato === 'todos' || eq.contrato_id === filtroContrato;
       const matchEquipamento = filtroEquipamento === 'todos' || eq.id === filtroEquipamento;
@@ -219,136 +142,106 @@ export default function Dashboard() {
     });
   }, [equipamentosRaw, filtroContrato, filtroEquipamento]);
 
-  // Calcular totais gerais para o gráfico consolidado
-  const totaisGerais = equipamentos?.reduce((acc, eq) => ({
-    totalEquipamentos: acc.totalEquipamentos + 1,
-    // Verticais
-    prevPlacas: acc.prevPlacas + eq.prev_placas,
-    instPlacas: acc.instPlacas + eq.instalado_placas,
-    prevPontaletes: acc.prevPontaletes + eq.prev_pontaletes,
-    instPontaletes: acc.instPontaletes + eq.instalado_pontaletes,
-    prevPostesCol: acc.prevPostesCol + eq.prev_postes_colapsiveis,
-    instPostesCol: acc.instPostesCol + eq.instalado_postes_colapsiveis,
-    prevBracosProj: acc.prevBracosProj + eq.prev_bracos_projetados,
-    prevSemiPorticos: acc.prevSemiPorticos + eq.prev_semi_porticos,
-    // Horizontais
-    prevDefensas: acc.prevDefensas + eq.prev_defensas,
-    instDefensas: acc.instDefensas + eq.instalado_laminas,
-    prevPostesHor: acc.prevPostesHor + eq.prev_postes_horizontal,
-    instPostesHor: acc.instPostesHor + eq.instalado_postes,
-    prevTae80: acc.prevTae80 + eq.prev_tae_80,
-    instTae80: acc.instTae80 + eq.instalado_tae_80,
-    prevTae100: acc.prevTae100 + eq.prev_tae_100,
-    instTae100: acc.instTae100 + eq.instalado_tae_100,
-    // Infraestrutura
-    prevBases: acc.prevBases + eq.prev_bases,
-    instBases: acc.instBases + eq.instalado_bases,
-    prevLacos: acc.prevLacos + eq.prev_lacos,
-    instLacos: acc.instLacos + eq.instalado_lacos,
-    prevPostesInfra: acc.prevPostesInfra + eq.prev_postes_infra,
-    instPostesInfra: acc.instPostesInfra + eq.instalado_postes_infra,
-    prevConectorizacao: acc.prevConectorizacao + eq.prev_conectorizacao,
-    instConectorizacao: acc.instConectorizacao + eq.instalado_conectorizacao,
-    prevAjustes: acc.prevAjustes + eq.prev_ajustes,
-    instAjustes: acc.instAjustes + eq.instalado_ajustes,
-    prevAfericao: acc.prevAfericao + eq.prev_afericao,
-    instAfericao: acc.instAfericao + eq.instalado_afericao,
-  }), {
-    totalEquipamentos: 0,
-    prevPlacas: 0,
-    instPlacas: 0,
-    prevPontaletes: 0,
-    instPontaletes: 0,
-    prevPostesCol: 0,
-    instPostesCol: 0,
-    prevBracosProj: 0,
-    prevSemiPorticos: 0,
-    prevDefensas: 0,
-    instDefensas: 0,
-    prevPostesHor: 0,
-    instPostesHor: 0,
-    prevTae80: 0,
-    instTae80: 0,
-    prevTae100: 0,
-    instTae100: 0,
-    prevBases: 0,
-    instBases: 0,
-    prevLacos: 0,
-    instLacos: 0,
-    prevPostesInfra: 0,
-    instPostesInfra: 0,
-    prevConectorizacao: 0,
-    instConectorizacao: 0,
-    prevAjustes: 0,
-    instAjustes: 0,
-    prevAfericao: 0,
-    instAfericao: 0,
-  });
+  const calcPercent = (instalado: number, previsto: number) => 
+    previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
 
-  // Dados para o gráfico geral consolidado
-  const chartDataGeral = [
-    { name: 'Placas', previsto: totaisGerais?.prevPlacas || 0, instalado: totaisGerais?.instPlacas || 0 },
-    { name: 'Pontaletes', previsto: totaisGerais?.prevPontaletes || 0, instalado: totaisGerais?.instPontaletes || 0 },
-    { name: 'Postes Col.', previsto: totaisGerais?.prevPostesCol || 0, instalado: totaisGerais?.instPostesCol || 0 },
-    { name: 'Braço Proj.', previsto: totaisGerais?.prevBracosProj || 0, instalado: 0 },
-    { name: 'Semi Pórtico', previsto: totaisGerais?.prevSemiPorticos || 0, instalado: 0 },
-    { name: 'Defensas', previsto: totaisGerais?.prevDefensas || 0, instalado: totaisGerais?.instDefensas || 0 },
-    { name: 'Postes Hor.', previsto: totaisGerais?.prevPostesHor || 0, instalado: totaisGerais?.instPostesHor || 0 },
-    { name: 'TAE 80', previsto: totaisGerais?.prevTae80 || 0, instalado: totaisGerais?.instTae80 || 0 },
-    { name: 'TAE 100', previsto: totaisGerais?.prevTae100 || 0, instalado: totaisGerais?.instTae100 || 0 },
-    // Infraestrutura
-    { name: 'Bases', previsto: totaisGerais?.prevBases || 0, instalado: totaisGerais?.instBases || 0 },
-    { name: 'Laços', previsto: totaisGerais?.prevLacos || 0, instalado: totaisGerais?.instLacos || 0 },
-    { name: 'Postes Infra', previsto: totaisGerais?.prevPostesInfra || 0, instalado: totaisGerais?.instPostesInfra || 0 },
-    { name: 'Conect.', previsto: totaisGerais?.prevConectorizacao || 0, instalado: totaisGerais?.instConectorizacao || 0 },
-    { name: 'Ajustes', previsto: totaisGerais?.prevAjustes || 0, instalado: totaisGerais?.instAjustes || 0 },
-    { name: 'Aferição', previsto: totaisGerais?.prevAfericao || 0, instalado: totaisGerais?.instAfericao || 0 },
-  ].filter(item => item.previsto > 0 || item.instalado > 0);
+  // Calcular totais e progresso por categoria
+  const progressData = useMemo(() => {
+    if (!equipamentos || equipamentos.length === 0) return null;
 
-  // Gerar dados para gráfico de um equipamento (incluindo TODOS os itens)
-  const getChartData = (eq: EquipamentoComPrevisao) => [
-    { name: 'Placas', previsto: eq.prev_placas, instalado: eq.instalado_placas },
-    { name: 'Pontaletes', previsto: eq.prev_pontaletes, instalado: eq.instalado_pontaletes },
-    { name: 'Postes Col.', previsto: eq.prev_postes_colapsiveis, instalado: eq.instalado_postes_colapsiveis },
-    { name: 'Braço Proj.', previsto: eq.prev_bracos_projetados, instalado: 0 },
-    { name: 'Semi Pórtico', previsto: eq.prev_semi_porticos, instalado: 0 },
-    { name: 'Defensas', previsto: eq.prev_defensas, instalado: eq.instalado_laminas },
-    { name: 'Postes Hor.', previsto: eq.prev_postes_horizontal, instalado: eq.instalado_postes },
-    { name: 'TAE 80', previsto: eq.prev_tae_80, instalado: eq.instalado_tae_80 },
-    { name: 'TAE 100', previsto: eq.prev_tae_100, instalado: eq.instalado_tae_100 },
-    // Infraestrutura
-    { name: 'Bases', previsto: eq.prev_bases, instalado: eq.instalado_bases },
-    { name: 'Laços', previsto: eq.prev_lacos, instalado: eq.instalado_lacos },
-    { name: 'Postes Infra', previsto: eq.prev_postes_infra, instalado: eq.instalado_postes_infra },
-    { name: 'Conect.', previsto: eq.prev_conectorizacao, instalado: eq.instalado_conectorizacao },
-    { name: 'Ajustes', previsto: eq.prev_ajustes, instalado: eq.instalado_ajustes },
-    { name: 'Aferição', previsto: eq.prev_afericao, instalado: eq.instalado_afericao },
-  ].filter(item => item.previsto > 0 || item.instalado > 0);
+    const totaisPrev = {
+      placas: equipamentos.reduce((acc, eq) => acc + (eq.prev_placas || 0), 0),
+      pontaletes: equipamentos.reduce((acc, eq) => acc + (eq.prev_pontaletes || 0), 0),
+      postesColapsiveis: equipamentos.reduce((acc, eq) => acc + (eq.prev_postes_colapsiveis || 0), 0),
+      bracosProjetados: equipamentos.reduce((acc, eq) => acc + (eq.prev_bracos_projetados || 0), 0),
+      semiPorticos: equipamentos.reduce((acc, eq) => acc + (eq.prev_semi_porticos || 0), 0),
+      defensas: equipamentos.reduce((acc, eq) => acc + (eq.prev_defensas || 0), 0),
+      postesHorizontal: equipamentos.reduce((acc, eq) => acc + (eq.prev_postes_horizontal || 0), 0),
+      tae80: equipamentos.reduce((acc, eq) => acc + (eq.prev_tae_80 || 0), 0),
+      tae100: equipamentos.reduce((acc, eq) => acc + (eq.prev_tae_100 || 0), 0),
+      bases: equipamentos.reduce((acc, eq) => acc + (eq.prev_bases || 0), 0),
+      lacos: equipamentos.reduce((acc, eq) => acc + (eq.prev_lacos || 0), 0),
+      postesInfra: equipamentos.reduce((acc, eq) => acc + (eq.prev_postes_infra || 0), 0),
+      conectorizacao: equipamentos.reduce((acc, eq) => acc + (eq.prev_conectorizacao || 0), 0),
+      ajustes: equipamentos.reduce((acc, eq) => acc + (eq.prev_ajustes || 0), 0),
+      afericao: equipamentos.reduce((acc, eq) => acc + (eq.prev_afericao || 0), 0),
+    };
 
-  // Calcular total geral previsto e instalado
-  const totalPrevisto = (totaisGerais?.prevPlacas || 0) + (totaisGerais?.prevPontaletes || 0) + 
-    (totaisGerais?.prevPostesCol || 0) + (totaisGerais?.prevBracosProj || 0) + 
-    (totaisGerais?.prevSemiPorticos || 0) + (totaisGerais?.prevDefensas || 0) + 
-    (totaisGerais?.prevPostesHor || 0) + (totaisGerais?.prevTae80 || 0) + (totaisGerais?.prevTae100 || 0) +
-    (totaisGerais?.prevBases || 0) + (totaisGerais?.prevLacos || 0) + (totaisGerais?.prevPostesInfra || 0) +
-    (totaisGerais?.prevConectorizacao || 0) + (totaisGerais?.prevAjustes || 0) + (totaisGerais?.prevAfericao || 0);
-  
-  const totalInstalado = (totaisGerais?.instPlacas || 0) + (totaisGerais?.instPontaletes || 0) + 
-    (totaisGerais?.instPostesCol || 0) + (totaisGerais?.instDefensas || 0) + 
-    (totaisGerais?.instPostesHor || 0) + (totaisGerais?.instTae80 || 0) + (totaisGerais?.instTae100 || 0) +
-    (totaisGerais?.instBases || 0) + (totaisGerais?.instLacos || 0) + (totaisGerais?.instPostesInfra || 0) +
-    (totaisGerais?.instConectorizacao || 0) + (totaisGerais?.instAjustes || 0) + (totaisGerais?.instAfericao || 0);
+    const totaisInst = {
+      placas: equipamentos.reduce((acc, eq) => acc + (eq.instalado_placas || 0), 0),
+      pontaletes: equipamentos.reduce((acc, eq) => acc + (eq.instalado_pontaletes || 0), 0),
+      postesColapsiveis: equipamentos.reduce((acc, eq) => acc + (eq.instalado_postes_colapsiveis || 0), 0),
+      bracosProjetados: equipamentos.reduce((acc, eq) => acc + (eq.instalado_bracos_projetados || 0), 0),
+      semiPorticos: equipamentos.reduce((acc, eq) => acc + (eq.instalado_semi_porticos || 0), 0),
+      defensas: equipamentos.reduce((acc, eq) => acc + (eq.instalado_laminas || 0), 0),
+      postesHorizontal: equipamentos.reduce((acc, eq) => acc + (eq.instalado_postes || 0), 0),
+      tae80: equipamentos.reduce((acc, eq) => acc + (eq.instalado_tae_80 || 0), 0),
+      tae100: equipamentos.reduce((acc, eq) => acc + (eq.instalado_tae_100 || 0), 0),
+      bases: equipamentos.reduce((acc, eq) => acc + (eq.instalado_bases || 0), 0),
+      lacos: equipamentos.reduce((acc, eq) => acc + (eq.instalado_lacos || 0), 0),
+      postesInfra: equipamentos.reduce((acc, eq) => acc + (eq.instalado_postes_infra || 0), 0),
+      conectorizacao: equipamentos.reduce((acc, eq) => acc + (eq.instalado_conectorizacao || 0), 0),
+      ajustes: equipamentos.reduce((acc, eq) => acc + (eq.instalado_ajustes || 0), 0),
+      afericao: equipamentos.reduce((acc, eq) => acc + (eq.instalado_afericao || 0), 0),
+    };
 
-  const percentualConcluido = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
+    const sinalizacaoVerticalProgress: ProgressItem[] = [
+      { name: 'Placas', previsto: totaisPrev.placas, instalado: totaisInst.placas, percentual: calcPercent(totaisInst.placas, totaisPrev.placas) },
+      { name: 'Pontaletes', previsto: totaisPrev.pontaletes, instalado: totaisInst.pontaletes, percentual: calcPercent(totaisInst.pontaletes, totaisPrev.pontaletes) },
+      { name: 'Postes Colapsíveis', previsto: totaisPrev.postesColapsiveis, instalado: totaisInst.postesColapsiveis, percentual: calcPercent(totaisInst.postesColapsiveis, totaisPrev.postesColapsiveis) },
+      { name: 'Braços Projetados', previsto: totaisPrev.bracosProjetados, instalado: totaisInst.bracosProjetados, percentual: calcPercent(totaisInst.bracosProjetados, totaisPrev.bracosProjetados) },
+      { name: 'Semi Pórticos', previsto: totaisPrev.semiPorticos, instalado: totaisInst.semiPorticos, percentual: calcPercent(totaisInst.semiPorticos, totaisPrev.semiPorticos) },
+    ];
 
-  // Calcular status de documentos
+    const sinalizacaoHorizontalProgress: ProgressItem[] = [
+      { name: 'Defensas', previsto: totaisPrev.defensas, instalado: totaisInst.defensas, percentual: calcPercent(totaisInst.defensas, totaisPrev.defensas) },
+      { name: 'Postes', previsto: totaisPrev.postesHorizontal, instalado: totaisInst.postesHorizontal, percentual: calcPercent(totaisInst.postesHorizontal, totaisPrev.postesHorizontal) },
+      { name: 'TAE 80 km/h', previsto: totaisPrev.tae80, instalado: totaisInst.tae80, percentual: calcPercent(totaisInst.tae80, totaisPrev.tae80) },
+      { name: 'TAE 100 km/h', previsto: totaisPrev.tae100, instalado: totaisInst.tae100, percentual: calcPercent(totaisInst.tae100, totaisPrev.tae100) },
+    ];
+
+    const infraestruturaProgress: ProgressItem[] = [
+      { name: 'Bases', previsto: totaisPrev.bases, instalado: totaisInst.bases, percentual: calcPercent(totaisInst.bases, totaisPrev.bases) },
+      { name: 'Laços', previsto: totaisPrev.lacos, instalado: totaisInst.lacos, percentual: calcPercent(totaisInst.lacos, totaisPrev.lacos) },
+      { name: 'Postes Infra', previsto: totaisPrev.postesInfra, instalado: totaisInst.postesInfra, percentual: calcPercent(totaisInst.postesInfra, totaisPrev.postesInfra) },
+      { name: 'Conectorização', previsto: totaisPrev.conectorizacao, instalado: totaisInst.conectorizacao, percentual: calcPercent(totaisInst.conectorizacao, totaisPrev.conectorizacao) },
+      { name: 'Ajustes', previsto: totaisPrev.ajustes, instalado: totaisInst.ajustes, percentual: calcPercent(totaisInst.ajustes, totaisPrev.ajustes) },
+      { name: 'Aferição', previsto: totaisPrev.afericao, instalado: totaisInst.afericao, percentual: calcPercent(totaisInst.afericao, totaisPrev.afericao) },
+    ];
+
+    const todosPrevisto = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress]
+      .reduce((acc, item) => acc + item.previsto, 0);
+    const todosInstalado = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress]
+      .reduce((acc, item) => acc + item.instalado, 0);
+    const progressoGeral = calcPercent(todosInstalado, todosPrevisto);
+
+    return {
+      totalEquipamentos: equipamentos.length,
+      sinalizacaoVerticalProgress,
+      sinalizacaoHorizontalProgress,
+      infraestruturaProgress,
+      progressoGeral,
+      totaisPrev,
+      totaisInst,
+    };
+  }, [equipamentos]);
+
+  // Dados para gráfico consolidado
+  const chartDataGeral = useMemo(() => {
+    if (!progressData) return [];
+    return [
+      ...progressData.sinalizacaoVerticalProgress,
+      ...progressData.sinalizacaoHorizontalProgress,
+      ...progressData.infraestruturaProgress,
+    ].filter(item => item.previsto > 0 || item.instalado > 0)
+     .map(item => ({ name: item.name, previsto: item.previsto, instalado: item.instalado }));
+  }, [progressData]);
+
+  // Status de documentos
   const documentStatus = useMemo(() => {
-    if (!equipamentos) return { complete: 0, incomplete: 0, total: 0, byType: [], pieData: [] };
+    if (!equipamentos) return { complete: 0, incomplete: 0, total: 0, byType: [] };
     
-    let projetoCroqui = 0;
-    let croquiCaracterizacao = 0;
-    let estudoViabilidade = 0;
-    let relatorioVdm = 0;
+    let projetoCroqui = 0, croquiCaracterizacao = 0, estudoViabilidade = 0, relatorioVdm = 0;
     
     equipamentos.forEach((eq: any) => {
       if (eq.projeto_croqui_url) projetoCroqui++;
@@ -368,123 +261,51 @@ export default function Dashboard() {
     const totalDocs = total * 4;
     const completeDocs = projetoCroqui + croquiCaracterizacao + estudoViabilidade + relatorioVdm;
     
-    return {
-      complete: completeDocs,
-      incomplete: totalDocs - completeDocs,
-      total: totalDocs,
-      byType,
-      pieData: [
-        { name: 'Enviados', value: completeDocs, color: 'hsl(160, 84%, 39%)' },
-        { name: 'Pendentes', value: totalDocs - completeDocs, color: 'hsl(var(--destructive))' },
-      ]
-    };
+    return { complete: completeDocs, incomplete: totalDocs - completeDocs, total: totalDocs, byType };
   }, [equipamentos]);
 
-  // Função para calcular percentual
-  const calcPercent = (instalado: number, previsto: number) => 
-    previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
-
-  const materialCards = [
-    {
-      title: 'Defensas',
-      previsto: totaisGerais?.prevDefensas || 0,
-      instalado: totaisGerais?.instDefensas || 0,
-      icon: Activity,
-      gradient: 'from-warning to-destructive',
-    },
-    {
-      title: 'TAE 80',
-      previsto: totaisGerais?.prevTae80 || 0,
-      instalado: totaisGerais?.instTae80 || 0,
-      icon: Activity,
-      gradient: 'from-info to-primary',
-    },
-    {
-      title: 'TAE 100',
-      previsto: totaisGerais?.prevTae100 || 0,
-      instalado: totaisGerais?.instTae100 || 0,
-      icon: Activity,
-      gradient: 'from-accent to-info',
-    },
-    {
-      title: 'Placas',
-      previsto: totaisGerais?.prevPlacas || 0,
-      instalado: totaisGerais?.instPlacas || 0,
-      icon: Radio,
-      gradient: 'from-primary to-accent',
-    },
-    {
-      title: 'Pontaletes',
-      previsto: totaisGerais?.prevPontaletes || 0,
-      instalado: totaisGerais?.instPontaletes || 0,
-      icon: TrendingUp,
-      gradient: 'from-success to-info',
-    },
-    {
-      title: 'Postes Colapsíveis',
-      previsto: totaisGerais?.prevPostesCol || 0,
-      instalado: totaisGerais?.instPostesCol || 0,
-      icon: MapPin,
-      gradient: 'from-destructive to-warning',
-    },
-    {
-      title: 'Braço Projetado',
-      previsto: totaisGerais?.prevBracosProj || 0,
-      instalado: 0, // Não há campo instalado ainda
-      icon: Sparkles,
-      gradient: 'from-primary to-success',
-    },
-    {
-      title: 'Semi Pórtico',
-      previsto: totaisGerais?.prevSemiPorticos || 0,
-      instalado: 0, // Não há campo instalado ainda
-      icon: Filter,
-      gradient: 'from-info to-accent',
-    },
-    // Infraestrutura
-    {
-      title: 'Bases',
-      previsto: totaisGerais?.prevBases || 0,
-      instalado: totaisGerais?.instBases || 0,
-      icon: Wrench,
-      gradient: 'from-violet-500 to-purple-600',
-    },
-    {
-      title: 'Laços',
-      previsto: totaisGerais?.prevLacos || 0,
-      instalado: totaisGerais?.instLacos || 0,
-      icon: Wrench,
-      gradient: 'from-cyan-500 to-blue-600',
-    },
-    {
-      title: 'Postes Infra',
-      previsto: totaisGerais?.prevPostesInfra || 0,
-      instalado: totaisGerais?.instPostesInfra || 0,
-      icon: Wrench,
-      gradient: 'from-emerald-500 to-teal-600',
-    },
-    {
-      title: 'Conectorizacao',
-      previsto: totaisGerais?.prevConectorizacao || 0,
-      instalado: totaisGerais?.instConectorizacao || 0,
-      icon: Wrench,
-      gradient: 'from-amber-500 to-orange-600',
-    },
-    {
-      title: 'Ajustes',
-      previsto: totaisGerais?.prevAjustes || 0,
-      instalado: totaisGerais?.instAjustes || 0,
-      icon: Wrench,
-      gradient: 'from-rose-500 to-pink-600',
-    },
-    {
-      title: 'Aferição',
-      previsto: totaisGerais?.prevAfericao || 0,
-      instalado: totaisGerais?.instAfericao || 0,
-      icon: Wrench,
-      gradient: 'from-slate-500 to-gray-600',
-    },
-  ];
+  const ProgressCard = ({ title, icon: Icon, items, color }: { 
+    title: string; 
+    icon: React.ElementType; 
+    items: ProgressItem[];
+    color: string;
+  }) => (
+    <Card className="shadow-soft">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center`}>
+            <Icon className="h-4 w-4 text-white" />
+          </div>
+          <CardTitle className="text-lg">{title}</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {items.filter(item => item.previsto > 0 || item.instalado > 0).length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">Nenhum item previsto</p>
+        ) : (
+          items.filter(item => item.previsto > 0 || item.instalado > 0).map((item) => (
+            <div key={item.name} className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {item.instalado}/{item.previsto}
+                  </span>
+                  <Badge 
+                    variant={item.percentual >= 100 ? 'default' : 'secondary'}
+                    className={item.percentual >= 100 ? 'bg-success' : ''}
+                  >
+                    {item.percentual}%
+                  </Badge>
+                </div>
+              </div>
+              <Progress value={Math.min(item.percentual, 100)} className="h-2" />
+            </div>
+          ))
+        )}
+      </CardContent>
+    </Card>
+  );
 
   if (isLoading) {
     return (
@@ -568,44 +389,101 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Cards de Materiais */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        {materialCards.map((mat, index) => {
-          const percent = calcPercent(mat.instalado, mat.previsto);
-          return (
-            <Card 
-              key={mat.title} 
-              className="stat-card group overflow-hidden"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${mat.gradient}`} />
-              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{mat.title}</CardTitle>
-                <div className="icon-container w-8 h-8 bg-primary/10 group-hover:scale-110 transition-all duration-300">
-                  <mat.icon className="h-4 w-4 text-primary" />
+      {/* Cards de Resumo */}
+      {progressData && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="shadow-soft border-l-4 border-l-primary">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Radio className="h-6 w-6 text-primary" />
                 </div>
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-2xl font-bold bg-gradient-to-r ${mat.gradient} bg-clip-text text-transparent`}>
-                    {mat.instalado}
-                  </span>
-                  <span className="text-sm text-muted-foreground">/ {mat.previsto}</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Equipamentos</p>
+                  <p className="text-2xl font-bold">{progressData.totalEquipamentos}</p>
                 </div>
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full bg-gradient-to-r ${mat.gradient} transition-all duration-500`}
-                      style={{ width: `${Math.min(percent, 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">{percent}%</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-soft border-l-4 border-l-success">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-success" />
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Progresso Geral</p>
+                  <p className="text-2xl font-bold">{progressData.progressoGeral}%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-soft border-l-4 border-l-warning">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
+                  {progressData.progressoGeral >= 100 ? (
+                    <CheckCircle2 className="h-6 w-6 text-warning" />
+                  ) : (
+                    <AlertCircle className="h-6 w-6 text-warning" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-lg font-semibold">
+                    {progressData.progressoGeral >= 100 ? 'Concluído' : 'Em Andamento'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-soft border-l-4 border-l-accent">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-accent" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Documentos</p>
+                  <p className="text-lg font-semibold">
+                    {documentStatus.total > 0 
+                      ? `${Math.round((documentStatus.complete / documentStatus.total) * 100)}%`
+                      : '0%'
+                    }
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Cards de Progresso por Categoria */}
+      {progressData && (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <ProgressCard 
+            title="Sinalização Vertical" 
+            icon={ArrowUpDown}
+            items={progressData.sinalizacaoVerticalProgress}
+            color="bg-primary"
+          />
+          <ProgressCard 
+            title="Sinalização Horizontal" 
+            icon={ArrowLeftRight}
+            items={progressData.sinalizacaoHorizontalProgress}
+            color="bg-warning"
+          />
+          <ProgressCard 
+            title="Infraestrutura" 
+            icon={Wrench}
+            items={progressData.infraestruturaProgress}
+            color="bg-success"
+          />
+        </div>
+      )}
 
       {/* Gráfico de Status de Documentos */}
       <Card className="shadow-soft overflow-hidden">
@@ -622,7 +500,6 @@ export default function Dashboard() {
         <CardContent>
           {equipamentos && equipamentos.length > 0 ? (
             <div className="grid lg:grid-cols-3 gap-6">
-              {/* Resumo em Cards */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-success/10 border border-success/20">
                   <FileCheck className="h-8 w-8 text-success" />
@@ -648,14 +525,9 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Gráfico de Barras Horizontais */}
               <div className="lg:col-span-2 h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={documentStatus.byType} 
-                    layout="vertical"
-                    barGap={4}
-                  >
+                  <BarChart data={documentStatus.byType} layout="vertical" barGap={4}>
                     <defs>
                       <linearGradient id="gradEnviados" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.9} />
@@ -667,45 +539,12 @@ export default function Dashboard() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                    <XAxis 
-                      type="number"
-                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                      tickLine={false}
-                    />
-                    <YAxis 
-                      type="category"
-                      dataKey="name" 
-                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={130}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '10px',
-                        boxShadow: '0 8px 30px hsl(var(--foreground) / 0.1)',
-                        fontSize: '12px',
-                      }}
-                      cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
-                    />
+                    <XAxis type="number" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={{ stroke: 'hsl(var(--border))' }} tickLine={false} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={false} tickLine={false} width={130} />
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', boxShadow: '0 8px 30px hsl(var(--foreground) / 0.1)', fontSize: '12px' }} cursor={{ fill: 'hsl(var(--muted) / 0.3)' }} />
                     <Legend iconType="circle" iconSize={8} />
-                    <Bar 
-                      dataKey="enviados" 
-                      fill="url(#gradEnviados)" 
-                      name="Enviados" 
-                      radius={[0, 4, 4, 0]}
-                      maxBarSize={25}
-                    />
-                    <Bar 
-                      dataKey="pendentes" 
-                      fill="url(#gradPendentes)" 
-                      name="Pendentes" 
-                      radius={[0, 4, 4, 0]}
-                      maxBarSize={25}
-                    />
+                    <Bar dataKey="enviados" fill="url(#gradEnviados)" name="Enviados" radius={[0, 4, 4, 0]} maxBarSize={25} />
+                    <Bar dataKey="pendentes" fill="url(#gradPendentes)" name="Pendentes" radius={[0, 4, 4, 0]} maxBarSize={25} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -748,41 +587,12 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                    tickLine={false}
-                  />
-                  <YAxis 
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 40px hsl(var(--foreground) / 0.15)',
-                    }}
-                    cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
-                  />
+                  <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} axisLine={{ stroke: 'hsl(var(--border))' }} tickLine={false} />
+                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 10px 40px hsl(var(--foreground) / 0.15)' }} cursor={{ fill: 'hsl(var(--muted) / 0.3)' }} />
                   <Legend iconType="circle" iconSize={10} />
-                  <Bar 
-                    dataKey="previsto" 
-                    fill="url(#gradPrevistoGeral)" 
-                    name="Previsto" 
-                    radius={[6, 6, 0, 0]}
-                    maxBarSize={50}
-                  />
-                  <Bar 
-                    dataKey="instalado" 
-                    fill="url(#gradInstaladoGeral)" 
-                    name="Instalado" 
-                    radius={[6, 6, 0, 0]}
-                    maxBarSize={50}
-                  />
+                  <Bar dataKey="previsto" fill="url(#gradPrevistoGeral)" name="Previsto" radius={[6, 6, 0, 0]} maxBarSize={50} />
+                  <Bar dataKey="instalado" fill="url(#gradInstaladoGeral)" name="Instalado" radius={[6, 6, 0, 0]} maxBarSize={50} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
