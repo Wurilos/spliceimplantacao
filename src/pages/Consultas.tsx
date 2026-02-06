@@ -496,6 +496,105 @@ export default function Consultas() {
           </Card>
         </TabsContent>
 
+        {/* Tab Infraestrutura */}
+        <TabsContent value="infraestrutura">
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Contrato</Label>
+                  <Select value={infraContrato} onValueChange={setInfraContrato}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os contratos</SelectItem>
+                      {contratos?.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.id_contrato} - {c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Tipo</Label>
+                  <Select value={infraTipo} onValueChange={setInfraTipo}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os tipos</SelectItem>
+                      <SelectItem value="bases">Bases</SelectItem>
+                      <SelectItem value="lacos">Laços</SelectItem>
+                      <SelectItem value="postes">Postes</SelectItem>
+                      <SelectItem value="conectorizacao">Conectorização</SelectItem>
+                      <SelectItem value="ajustes">Ajustes</SelectItem>
+                      <SelectItem value="afericao">Aferição</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoadingInfra ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  Carregando...
+                </div>
+              ) : infraestrutura?.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Wrench className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhum item de infraestrutura encontrado</p>
+                </div>
+              ) : (
+                <div className="rounded-lg border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="font-semibold">Equipamento</TableHead>
+                        <TableHead className="font-semibold">Contrato</TableHead>
+                        <TableHead className="font-semibold">Município</TableHead>
+                        <TableHead className="font-semibold">Tipo</TableHead>
+                        <TableHead className="font-semibold text-center">Quantidade</TableHead>
+                        <TableHead className="font-semibold">Data</TableHead>
+                        <TableHead className="font-semibold">Foto</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {infraestrutura?.map((item: any) => (
+                        <TableRow key={item.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono font-medium">{item.equipamentos?.numero_serie}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-normal">
+                              {item.equipamentos?.contratos?.id_contrato}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{item.equipamentos?.municipio}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="font-normal">
+                              {tipoInfraLabels[item.tipo] || item.tipo}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center font-medium">{item.quantidade}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {item.foto_url ? (
+                              <ImageThumbnail src={item.foto_url} alt="Foto infraestrutura" className="h-10 w-10" />
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Tab Documentos */}
         <TabsContent value="documentos">
           <ConsultaDocumentos />
