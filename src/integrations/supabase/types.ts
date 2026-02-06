@@ -347,6 +347,60 @@ export type Database = {
           },
         ]
       }
+      operacional_itens: {
+        Row: {
+          categoria_item_id: string | null
+          created_at: string
+          data: string | null
+          equipamento_id: string
+          foto_url: string | null
+          id: string
+          observacao: string | null
+          quantidade: number
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          categoria_item_id?: string | null
+          created_at?: string
+          data?: string | null
+          equipamento_id: string
+          foto_url?: string | null
+          id?: string
+          observacao?: string | null
+          quantidade?: number
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          categoria_item_id?: string | null
+          created_at?: string
+          data?: string | null
+          equipamento_id?: string
+          foto_url?: string | null
+          id?: string
+          observacao?: string | null
+          quantidade?: number
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operacional_itens_categoria_item_id_fkey"
+            columns: ["categoria_item_id"]
+            isOneToOne: false
+            referencedRelation: "categoria_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operacional_itens_equipamento_id_fkey"
+            columns: ["equipamento_id"]
+            isOneToOne: false
+            referencedRelation: "equipamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
