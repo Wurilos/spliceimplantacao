@@ -288,6 +288,76 @@ export default function Dashboard() {
     return { complete: completeDocs, incomplete: totalDocs - completeDocs, total: totalDocs, byType };
   }, [equipamentos]);
 
+  // Dados de materiais recebidos por categoria
+  const materiaisChartData = useMemo(() => {
+    if (!materiaisRecebidos || materiaisRecebidos.length === 0) return { byCategory: [], byType: [], total: 0 };
+
+    const byTypeMap: Record<string, number> = {};
+    const byCategoryMap: Record<string, number> = {};
+    let total = 0;
+
+    materiaisRecebidos.forEach((mat) => {
+      const tipoInfo = TIPOS_MATERIAIS.find(t => t.value === mat.tipo_material);
+      const label = tipoInfo?.label || mat.tipo_material;
+      const categoria = tipoInfo?.categoria || 'Outros';
+      
+      byTypeMap[label] = (byTypeMap[label] || 0) + mat.quantidade;
+      byCategoryMap[categoria] = (byCategoryMap[categoria] || 0) + mat.quantidade;
+      total += mat.quantidade;
+    });
+
+    const byType = Object.entries(byTypeMap)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+
+    const categoryColors: Record<string, string> = {
+      'Sinalização Vertical': 'hsl(221, 83%, 53%)',
+      'Sinalização Horizontal': 'hsl(38, 92%, 50%)',
+      'Infraestrutura': 'hsl(160, 84%, 39%)',
+      'Equipamento': 'hsl(262, 83%, 58%)',
+    };
+
+    const byCategory = Object.entries(byCategoryMap).map(([name, value]) => ({ 
+      name, 
+      value,
+      color: categoryColors[name] || 'hsl(var(--muted-foreground))'
+    }));
+
+    return { byCategory, byType, total };
+  }, [materiaisRecebidos]);
+
+  // Comparativo Recebido vs Instalado
+  const comparativoData = useMemo(() => {
+    if (!materiaisRecebidos || !progressData) return [];
+
+    // Mapear materiais recebidos para categorias
+    const recebidoMap: Record<string, number> = {};
+    materiaisRecebidos.forEach((mat) => {
+      recebidoMap[mat.tipo_material] = (recebidoMap[mat.tipo_material] || 0) + mat.quantidade;
+    });
+
+    const items = [
+      // Sinalização Vertical
+      { name: 'Placas', recebido: recebidoMap['placas'] || 0, instalado: progressData.totaisInst.placas },
+      { name: 'Pontaletes', recebido: recebidoMap['pontaletes'] || 0, instalado: progressData.totaisInst.pontaletes },
+      { name: 'Postes Colapsíveis', recebido: recebidoMap['postes_colapsiveis'] || 0, instalado: progressData.totaisInst.postesColapsiveis },
+      { name: 'Braços Projetados', recebido: recebidoMap['bracos_projetados'] || 0, instalado: progressData.totaisInst.bracosProjetados },
+      { name: 'Semi Pórticos', recebido: recebidoMap['semi_porticos'] || 0, instalado: progressData.totaisInst.semiPorticos },
+      // Sinalização Horizontal
+      { name: 'Defensas', recebido: recebidoMap['defensas'] || 0, instalado: progressData.totaisInst.defensas },
+      { name: 'TAE 80', recebido: recebidoMap['tae_80'] || 0, instalado: progressData.totaisInst.tae80 },
+      { name: 'TAE 100', recebido: recebidoMap['tae_100'] || 0, instalado: progressData.totaisInst.tae100 },
+      // Infraestrutura
+      { name: 'Bases', recebido: recebidoMap['bases'] || 0, instalado: progressData.totaisInst.bases },
+      { name: 'Laços', recebido: recebidoMap['lacos'] || 0, instalado: progressData.totaisInst.lacos },
+      { name: 'Postes Infra', recebido: recebidoMap['postes_infra'] || 0, instalado: progressData.totaisInst.postesInfra },
+      { name: 'Conectorização', recebido: recebidoMap['conectorizacao'] || 0, instalado: progressData.totaisInst.conectorizacao },
+    ];
+
+    return items.filter(item => item.recebido > 0 || item.instalado > 0);
+  }, [materiaisRecebidos, progressData]);
+
   const ProgressCard = ({ title, icon: Icon, items, color }: { 
     title: string; 
     icon: React.ElementType; 
