@@ -461,6 +461,7 @@ export type Database = {
       sinalizacao_vertical_blocos: {
         Row: {
           categoria: string
+          categoria_item_id: string | null
           created_at: string
           data: string | null
           endereco: string
@@ -482,6 +483,7 @@ export type Database = {
         }
         Insert: {
           categoria?: string
+          categoria_item_id?: string | null
           created_at?: string
           data?: string | null
           endereco: string
@@ -503,6 +505,7 @@ export type Database = {
         }
         Update: {
           categoria?: string
+          categoria_item_id?: string | null
           created_at?: string
           data?: string | null
           endereco?: string
@@ -523,6 +526,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sinalizacao_vertical_blocos_categoria_item_id_fkey"
+            columns: ["categoria_item_id"]
+            isOneToOne: false
+            referencedRelation: "categoria_itens"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sinalizacao_vertical_blocos_equipamento_id_fkey"
             columns: ["equipamento_id"]
