@@ -6,6 +6,7 @@ export interface SinalizacaoVertical {
   id: string;
   equipamento_id: string;
   sentido_id: string | null;
+  categoria_item_id: string | null;
   endereco: string;
   tipo: string;
   subtipo: string;
@@ -23,6 +24,10 @@ export interface SinalizacaoVertical {
   created_at: string;
   updated_at: string;
   sentidos?: {
+    nome: string;
+  };
+  categoria_itens?: {
+    id: string;
     nome: string;
   };
 }
@@ -55,12 +60,16 @@ export function useSinalizacaoVertical(equipamentoId: string | undefined) {
       
       const { data, error } = await supabase
         .from('sinalizacao_vertical_blocos')
-        .select(`*, sentidos (nome)`)
+        .select(`
+          *,
+          sentidos (nome),
+          categoria_itens:categoria_item_id (id, nome)
+        `)
         .eq('equipamento_id', equipamentoId)
         .order('created_at');
       
       if (error) throw error;
-      return data as SinalizacaoVertical[];
+      return (data || []) as unknown as SinalizacaoVertical[];
     },
     enabled: !!equipamentoId,
   });
@@ -90,10 +99,10 @@ export function useCreateSinalizacaoVertical() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: Omit<SinalizacaoVertical, 'id' | 'created_at' | 'updated_at' | 'sentidos'>) => {
+    mutationFn: async (data: Omit<SinalizacaoVertical, 'id' | 'created_at' | 'updated_at' | 'sentidos' | 'categoria_itens'>) => {
       const { data: result, error } = await supabase
         .from('sinalizacao_vertical_blocos')
-        .insert(data)
+        .insert(data as any)
         .select()
         .single();
       
@@ -115,10 +124,10 @@ export function useUpdateSinalizacaoVertical() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, ...data }: Partial<SinalizacaoVertical> & { id: string }) => {
+    mutationFn: async ({ id, ...data }: Partial<Omit<SinalizacaoVertical, 'sentidos' | 'categoria_itens'>> & { id: string }) => {
       const { data: result, error } = await supabase
         .from('sinalizacao_vertical_blocos')
-        .update(data)
+        .update(data as any)
         .eq('id', id)
         .select()
         .single();

@@ -20,6 +20,7 @@ import {
   SinalizacaoVertical,
   SinalizacaoHorizontal,
 } from '@/hooks/useSinalizacao';
+import { useSinalizacaoVerticalCategoria } from '@/hooks/useSinalizacaoVerticalCategoria';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -287,6 +288,7 @@ export default function EquipamentoDetalhe() {
   const { data: sinalizacaoVertical } = useSinalizacaoVertical(isNew ? undefined : id);
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
   const { data: infraestruturaItens } = useInfraestruturaItens(isNew ? undefined : id);
+  const { data: svCategoriaItens } = useSinalizacaoVerticalCategoria();
 
   const createEquipamento = useCreateEquipamento();
   const updateEquipamento = useUpdateEquipamento();
@@ -337,7 +339,8 @@ export default function EquipamentoDetalhe() {
   const [svDialogOpen, setSvDialogOpen] = useState(false);
   const [editingSV, setEditingSV] = useState<SinalizacaoVertical | null>(null);
   const [svForm, setSvForm] = useState({
-    categoria: 'placas' as 'placas' | 'braco_projetado' | 'semi_portico',
+    categoria: 'placas' as string,
+    categoria_item_id: '' as string,
     sentido_id: '',
     endereco: '',
     tipo: '',
@@ -461,7 +464,8 @@ export default function EquipamentoDetalhe() {
     if (sv) {
       setEditingSV(sv);
       setSvForm({
-        categoria: (sv.categoria as 'placas' | 'braco_projetado' | 'semi_portico') || 'placas',
+        categoria: sv.categoria || 'placas',
+        categoria_item_id: sv.categoria_item_id || '',
         sentido_id: sv.sentido_id || '',
         endereco: sv.endereco,
         tipo: sv.tipo,
@@ -479,8 +483,10 @@ export default function EquipamentoDetalhe() {
       });
     } else {
       setEditingSV(null);
+      const defaultCategoriaItem = svCategoriaItens?.[0];
       setSvForm({
-        categoria: 'placas',
+        categoria: defaultCategoriaItem?.nome || 'placas',
+        categoria_item_id: defaultCategoriaItem?.id || '',
         sentido_id: '',
         endereco: '',
         tipo: '',
@@ -501,7 +507,7 @@ export default function EquipamentoDetalhe() {
   };
 
   const handleSaveSV = async () => {
-    const isPlacas = svForm.categoria === 'placas';
+    const isPlacas = svForm.categoria.toLowerCase().includes('placa');
     
     // Validação: tipo obrigatório apenas para placas
     if (!id || !svForm.endereco || (isPlacas && !svForm.tipo)) {
@@ -512,9 +518,10 @@ export default function EquipamentoDetalhe() {
     const data = {
       equipamento_id: id,
       categoria: svForm.categoria,
+      categoria_item_id: svForm.categoria_item_id || null,
       sentido_id: svForm.sentido_id || null,
       endereco: svForm.endereco,
-      tipo: svForm.tipo || svForm.categoria, // usa categoria como tipo se vazio
+      tipo: svForm.tipo || svForm.categoria,
       subtipo: svForm.subtipo,
       instalacao: svForm.instalacao,
       lado: svForm.lado,
@@ -1184,19 +1191,32 @@ export default function EquipamentoDetalhe() {
                 {/* Categoria - primeiro campo */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Categoria <span className="text-destructive">*</span></Label>
-                  <Select 
-                    value={svForm.categoria} 
-                    onValueChange={(v: 'placas' | 'braco_projetado' | 'semi_portico') => setSvForm({ ...svForm, categoria: v })}
-                  >
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Selecione a categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="placas">Placas</SelectItem>
-                      <SelectItem value="braco_projetado">Braço Projetado</SelectItem>
-                      <SelectItem value="semi_portico">Semi Pórtico</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {svCategoriaItens && svCategoriaItens.length > 0 ? (
+                    <Select 
+                      value={svForm.categoria_item_id} 
+                      onValueChange={(v) => {
+                        const selectedItem = svCategoriaItens.find(item => item.id === v);
+                        setSvForm({ 
+                          ...svForm, 
+                          categoria_item_id: v,
+                          categoria: selectedItem?.nome || 'outros'
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Selecione a categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {svCategoriaItens.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>{item.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="p-3 bg-muted/50 rounded-lg border border-dashed text-sm text-muted-foreground">
+                      Nenhuma categoria cadastrada. Cadastre uma categoria com nome "Sinalização Vertical" em <span className="font-medium text-primary">Categorias</span>.
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1215,14 +1235,14 @@ export default function EquipamentoDetalhe() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">
-                      Tipo {svForm.categoria === 'placas' && <span className="text-destructive">*</span>}
+                      Tipo {svForm.categoria.toLowerCase().includes('placa') && <span className="text-destructive">*</span>}
                     </Label>
                     <Input
                       value={svForm.tipo}
                       onChange={(e) => setSvForm({ ...svForm, tipo: e.target.value })}
                       placeholder="Ex: R-19, A-25..."
                       className="h-10"
-                      disabled={svForm.categoria !== 'placas'}
+                      disabled={!svForm.categoria.toLowerCase().includes('placa')}
                     />
                   </div>
                   <div className="space-y-2">
@@ -1230,7 +1250,7 @@ export default function EquipamentoDetalhe() {
                     <Select 
                       value={svForm.subtipo} 
                       onValueChange={(v) => setSvForm({ ...svForm, subtipo: v })}
-                      disabled={svForm.categoria !== 'placas'}
+                      disabled={!svForm.categoria.toLowerCase().includes('placa')}
                     >
                       <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -1273,7 +1293,7 @@ export default function EquipamentoDetalhe() {
                 </div>
 
                 {/* Total m² - apenas para Placas */}
-                {svForm.categoria === 'placas' && (
+                {svForm.categoria.toLowerCase().includes('placa') && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Total m²</Label>
                     <Input
@@ -1328,7 +1348,7 @@ export default function EquipamentoDetalhe() {
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                    <Label className={`text-sm font-medium ${!svForm.categoria.toLowerCase().includes('placa') ? 'text-muted-foreground' : ''}`}>
                       Qtd. Pontaletes
                     </Label>
                     <Input
@@ -1336,11 +1356,11 @@ export default function EquipamentoDetalhe() {
                       value={svForm.qtd_pontaletes}
                       onChange={(e) => setSvForm({ ...svForm, qtd_pontaletes: parseInt(e.target.value) || 0 })}
                       className="h-10"
-                      disabled={svForm.categoria !== 'placas'}
+                      disabled={!svForm.categoria.toLowerCase().includes('placa')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                    <Label className={`text-sm font-medium ${!svForm.categoria.toLowerCase().includes('placa') ? 'text-muted-foreground' : ''}`}>
                       Qtd. Perfis Metálicos
                     </Label>
                     <Input
@@ -1348,11 +1368,11 @@ export default function EquipamentoDetalhe() {
                       value={svForm.qtd_perfis_metalicos}
                       onChange={(e) => setSvForm({ ...svForm, qtd_perfis_metalicos: parseInt(e.target.value) || 0 })}
                       className="h-10"
-                      disabled={svForm.categoria !== 'placas'}
+                      disabled={!svForm.categoria.toLowerCase().includes('placa')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className={`text-sm font-medium ${svForm.categoria !== 'placas' ? 'text-muted-foreground' : ''}`}>
+                    <Label className={`text-sm font-medium ${!svForm.categoria.toLowerCase().includes('placa') ? 'text-muted-foreground' : ''}`}>
                       Qtd. Postes Colapsíveis
                     </Label>
                     <Input
@@ -1360,7 +1380,7 @@ export default function EquipamentoDetalhe() {
                       value={svForm.qtd_postes_colapsiveis}
                       onChange={(e) => setSvForm({ ...svForm, qtd_postes_colapsiveis: parseInt(e.target.value) || 0 })}
                       className="h-10"
-                      disabled={svForm.categoria !== 'placas'}
+                      disabled={!svForm.categoria.toLowerCase().includes('placa')}
                     />
                   </div>
                 </div>
