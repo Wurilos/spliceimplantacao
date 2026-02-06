@@ -209,11 +209,15 @@ export default function Dashboard() {
       { name: 'Aferição', previsto: totaisPrev.afericao, instalado: totaisInst.afericao, percentual: calcPercent(totaisInst.afericao, totaisPrev.afericao) },
     ];
 
-    const todosPrevisto = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress]
-      .reduce((acc, item) => acc + item.previsto, 0);
-    const todosInstalado = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress]
-      .reduce((acc, item) => acc + item.instalado, 0);
+    const todosItens = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress];
+    const todosPrevisto = todosItens.reduce((acc, item) => acc + item.previsto, 0);
+    const todosInstalado = todosItens.reduce((acc, item) => acc + item.instalado, 0);
     const progressoGeral = calcPercent(todosInstalado, todosPrevisto);
+
+    // Verificar se TODOS os itens com previsão > 0 foram 100% concluídos
+    const itensComPrevisao = todosItens.filter(item => item.previsto > 0);
+    const todosItensConcluidos = itensComPrevisao.length > 0 && 
+      itensComPrevisao.every(item => item.instalado >= item.previsto);
 
     return {
       totalEquipamentos: equipamentos.length,
@@ -221,6 +225,7 @@ export default function Dashboard() {
       sinalizacaoHorizontalProgress,
       infraestruturaProgress,
       progressoGeral,
+      todosItensConcluidos,
       totaisPrev,
       totaisInst,
     };
