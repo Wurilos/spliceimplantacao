@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Sparkles,
   BarChart3,
+  Package,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
