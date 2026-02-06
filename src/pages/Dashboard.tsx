@@ -425,20 +425,20 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-soft border-l-4 border-l-warning">
+          <Card className={`shadow-soft border-l-4 ${progressData.todosItensConcluidos ? 'border-l-success' : 'border-l-warning'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
-                  {progressData.progressoGeral >= 100 ? (
-                    <CheckCircle2 className="h-6 w-6 text-warning" />
+                <div className={`w-12 h-12 rounded-xl ${progressData.todosItensConcluidos ? 'bg-success/10' : 'bg-warning/10'} flex items-center justify-center`}>
+                  {progressData.todosItensConcluidos ? (
+                    <CheckCircle2 className="h-6 w-6 text-success" />
                   ) : (
                     <AlertCircle className="h-6 w-6 text-warning" />
                   )}
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <p className="text-lg font-semibold">
-                    {progressData.progressoGeral >= 100 ? 'Concluído' : 'Em Andamento'}
+                  <p className={`text-lg font-semibold ${progressData.todosItensConcluidos ? 'text-success' : ''}`}>
+                    {progressData.todosItensConcluidos ? 'Concluído' : 'Em Andamento'}
                   </p>
                 </div>
               </div>
