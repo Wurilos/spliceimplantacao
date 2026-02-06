@@ -1066,6 +1066,82 @@ export default function EquipamentoDetalhe() {
             </CardContent>
           </Card>
 
+          {/* Card de Resumo de Execução - Sinalização Vertical */}
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ArrowUpDown className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Resumo de Execução</CardTitle>
+                  <CardDescription>Comparativo entre previsto e executado</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                {(() => {
+                  const svResumo = [
+                    { 
+                      nome: 'Placas', 
+                      previsto: formData.prev_placas, 
+                      executado: sinalizacaoVertical?.length || 0 
+                    },
+                    { 
+                      nome: 'Pontaletes', 
+                      previsto: formData.prev_pontaletes, 
+                      executado: sinalizacaoVertical?.reduce((acc, sv) => acc + (sv.qtd_pontaletes || 0), 0) || 0 
+                    },
+                    { 
+                      nome: 'Postes Colapsíveis', 
+                      previsto: formData.prev_postes_colapsiveis, 
+                      executado: sinalizacaoVertical?.reduce((acc, sv) => acc + (sv.qtd_postes_colapsiveis || 0), 0) || 0 
+                    },
+                    { 
+                      nome: 'Braços Projetados', 
+                      previsto: formData.prev_bracos_projetados, 
+                      executado: 0 
+                    },
+                    { 
+                      nome: 'Semi Pórticos', 
+                      previsto: formData.prev_semi_porticos, 
+                      executado: 0 
+                    },
+                  ].filter(item => item.previsto > 0 || item.executado > 0);
+
+                  if (svResumo.length === 0) {
+                    return (
+                      <div className="col-span-full text-center py-6 text-muted-foreground">
+                        <ArrowUpDown className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                        <p className="text-sm">Configure a previsão acima para visualizar o resumo</p>
+                      </div>
+                    );
+                  }
+
+                  return svResumo.map((item) => {
+                    const percentual = item.previsto > 0 ? Math.round((item.executado / item.previsto) * 100) : 0;
+                    return (
+                      <div key={item.nome} className="p-3 rounded-lg border bg-card">
+                        <div className="text-sm font-medium text-muted-foreground">{item.nome}</div>
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-2xl font-bold">{item.executado}</span>
+                          <span className="text-sm text-muted-foreground">/ {item.previsto}</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
+                          <div 
+                            className={`h-full transition-all ${percentual >= 100 ? 'bg-success' : 'bg-primary'}`}
+                            style={{ width: `${Math.min(percentual, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Card de Blocos */}
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
@@ -1506,6 +1582,67 @@ export default function EquipamentoDetalhe() {
                   </Button>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Card de Resumo de Execução - Sinalização Horizontal */}
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ArrowLeftRight className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Resumo de Execução</CardTitle>
+                  <CardDescription>Comparativo entre previsto e executado</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {(() => {
+                  // Calculate installed values for horizontal signage
+                  const defensasInstaladas = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0;
+                  const postesInstalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0;
+                  const tae80Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_80').length || 0;
+                  const tae100Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_100').length || 0;
+
+                  const shResumo = [
+                    { nome: 'Defensas', previsto: formData.prev_defensas, executado: defensasInstaladas },
+                    { nome: 'Postes', previsto: formData.prev_postes_horizontal, executado: postesInstalados },
+                    { nome: 'TAE 80 Km/h', previsto: formData.prev_tae_80, executado: tae80Instalados },
+                    { nome: 'TAE 100 Km/h', previsto: formData.prev_tae_100, executado: tae100Instalados },
+                  ].filter(item => item.previsto > 0 || item.executado > 0);
+
+                  if (shResumo.length === 0) {
+                    return (
+                      <div className="col-span-full text-center py-6 text-muted-foreground">
+                        <ArrowLeftRight className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                        <p className="text-sm">Configure a previsão acima para visualizar o resumo</p>
+                      </div>
+                    );
+                  }
+
+                  return shResumo.map((item) => {
+                    const percentual = item.previsto > 0 ? Math.round((item.executado / item.previsto) * 100) : 0;
+                    return (
+                      <div key={item.nome} className="p-3 rounded-lg border bg-card">
+                        <div className="text-sm font-medium text-muted-foreground">{item.nome}</div>
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-2xl font-bold">{item.executado}</span>
+                          <span className="text-sm text-muted-foreground">/ {item.previsto}</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
+                          <div 
+                            className={`h-full transition-all ${percentual >= 100 ? 'bg-success' : 'bg-info'}`}
+                            style={{ width: `${Math.min(percentual, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </CardContent>
           </Card>
 
