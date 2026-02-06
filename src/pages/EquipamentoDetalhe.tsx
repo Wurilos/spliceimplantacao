@@ -32,14 +32,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText } from 'lucide-react';
- import { Wrench } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, Trash2, Edit, Upload, Radio, MapPin, Settings, ArrowUpDown, ArrowLeftRight, Calendar, Image, TrendingUp, FileText, Settings2 } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Activity } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 import { EquipamentoUploads } from '@/components/EquipamentoUploads';
- import { InfraestruturaTab } from '@/components/InfraestruturaTab';
+import { InfraestruturaTab } from '@/components/InfraestruturaTab';
+import { OperacionalTab } from '@/components/OperacionalTab';
 import { useInfraestruturaItens, InfraestruturaItem } from '@/hooks/useInfraestrutura';
 
 // Component for equipment progress chart
@@ -694,6 +695,12 @@ export default function EquipamentoDetalhe() {
              <TabsTrigger value="infraestrutura" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
                <Wrench className="h-4 w-4 mr-2" />
                Infraestrutura
+             </TabsTrigger>
+           )}
+           {!isNew && (
+             <TabsTrigger value="operacional" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2.5">
+               <Settings2 className="h-4 w-4 mr-2" />
+               Operacional
              </TabsTrigger>
            )}
            {!isNew && (
@@ -1793,6 +1800,17 @@ export default function EquipamentoDetalhe() {
          {!isNew && (
            <TabsContent value="infraestrutura">
              <InfraestruturaTab
+               equipamentoId={id!}
+               canEdit={canEdit}
+               canDelete={canDelete}
+             />
+           </TabsContent>
+         )}
+
+         {/* Tab Operacional */}
+         {!isNew && (
+           <TabsContent value="operacional">
+             <OperacionalTab
                equipamentoId={id!}
                canEdit={canEdit}
                canDelete={canDelete}
