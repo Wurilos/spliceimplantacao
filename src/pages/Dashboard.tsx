@@ -2,12 +2,13 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
+import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle, Package, BarChart3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useContratos } from '@/hooks/useContratos';
+import { TIPOS_MATERIAIS } from '@/hooks/useMateriaisRecebidos';
 
 interface ProgressItem {
   name: string;
