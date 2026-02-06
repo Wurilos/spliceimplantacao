@@ -275,11 +275,25 @@ export default function Categorias() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {itens?.map((item) => (
+                      {itens?.map((item, index) => {
+                        const categoryColors = [
+                          'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+                          'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700',
+                          'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700',
+                          'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700',
+                          'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700',
+                          'bg-cyan-100 text-cyan-700 border-cyan-300 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-700',
+                          'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700',
+                          'bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700',
+                        ];
+                        const categoryIndex = categorias?.findIndex(c => c.id === item.categoria_id) ?? 0;
+                        const colorClass = categoryColors[categoryIndex % categoryColors.length];
+                        
+                        return (
                         <TableRow key={item.id} className="hover:bg-muted/30">
                           <TableCell className="font-medium">{item.nome}</TableCell>
                           <TableCell>
-                            <Badge variant="outline">{item.categorias?.nome}</Badge>
+                            <Badge variant="outline" className={colorClass}>{item.categorias?.nome}</Badge>
                           </TableCell>
                           <TableCell className="text-muted-foreground">{item.descricao || '-'}</TableCell>
                           <TableCell>
@@ -318,7 +332,8 @@ export default function Categorias() {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
