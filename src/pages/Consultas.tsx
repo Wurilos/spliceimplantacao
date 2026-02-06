@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Radio, ArrowUpDown, ArrowLeftRight, FileText, Wrench } from 'lucide-react';
+import { Search, Radio, ArrowUpDown, ArrowLeftRight, FileText, Wrench, Settings2 } from 'lucide-react';
 import { ConsultaDocumentos } from '@/components/ConsultaDocumentos';
 import { ImageThumbnail } from '@/components/ImageThumbnail';
 
@@ -34,6 +34,10 @@ export default function Consultas() {
   // Filtros para infraestrutura
   const [infraContrato, setInfraContrato] = useState<string>('all');
   const [infraTipo, setInfraTipo] = useState<string>('all');
+
+  // Filtros para operacional
+  const [opContrato, setOpContrato] = useState<string>('all');
+  const [opTipo, setOpTipo] = useState<string>('all');
 
   // Query equipamentos
   const { data: equipamentos, isLoading: isLoadingEq } = useQuery({
@@ -140,6 +144,35 @@ export default function Consultas() {
     },
   });
 
+  // Query operacional
+  const { data: operacional, isLoading: isLoadingOp } = useQuery({
+    queryKey: ['consulta-operacional', opContrato, opTipo],
+    queryFn: async () => {
+      let query = supabase
+        .from('operacional_itens')
+        .select(`
+          *,
+          equipamentos!inner (
+            numero_serie,
+            municipio,
+            contrato_id,
+            contratos (id_contrato, nome)
+          )
+        `);
+      
+      if (opContrato !== 'all') {
+        query = query.eq('equipamentos.contrato_id', opContrato);
+      }
+      if (opTipo !== 'all') {
+        query = query.eq('tipo', opTipo);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const tipoHorizontalLabels: Record<string, string> = {
     defensa_metalica: 'Defensa Metálica',
     tae_80: 'TAE 80 km/h',
@@ -171,28 +204,33 @@ export default function Consultas() {
       </div>
 
       <Tabs defaultValue="equipamentos" className="space-y-6">
-        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-5">
-          <TabsTrigger value="equipamentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
+        <TabsList className="bg-muted/50 p-1 h-auto grid w-full grid-cols-6">
+          <TabsTrigger value="equipamentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-2 py-2.5 gap-1.5">
             <Radio className="h-4 w-4" />
             <span className="hidden sm:inline">Equipamentos</span>
             <span className="sm:hidden">Equip.</span>
           </TabsTrigger>
-          <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
+          <TabsTrigger value="vertical" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-2 py-2.5 gap-1.5">
             <ArrowUpDown className="h-4 w-4" />
             <span className="hidden sm:inline">Sinal. Vertical</span>
             <span className="sm:hidden">Vert.</span>
           </TabsTrigger>
-          <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
+          <TabsTrigger value="horizontal" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-2 py-2.5 gap-1.5">
             <ArrowLeftRight className="h-4 w-4" />
             <span className="hidden sm:inline">Sinal. Horizontal</span>
             <span className="sm:hidden">Horiz.</span>
           </TabsTrigger>
-          <TabsTrigger value="infraestrutura" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
+          <TabsTrigger value="infraestrutura" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-2 py-2.5 gap-1.5">
             <Wrench className="h-4 w-4" />
             <span className="hidden sm:inline">Infraestrutura</span>
             <span className="sm:hidden">Infra.</span>
           </TabsTrigger>
-          <TabsTrigger value="documentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2.5 gap-2">
+          <TabsTrigger value="operacional" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-2 py-2.5 gap-1.5">
+            <Settings2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Operacional</span>
+            <span className="sm:hidden">Oper.</span>
+          </TabsTrigger>
+          <TabsTrigger value="documentos" className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-2 py-2.5 gap-1.5">
             <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">Documentos</span>
             <span className="sm:hidden">Docs.</span>
@@ -581,6 +619,103 @@ export default function Consultas() {
                           <TableCell>
                             {item.foto_url ? (
                               <ImageThumbnail src={item.foto_url} alt="Foto infraestrutura" className="h-10 w-10" />
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab Operacional */}
+        <TabsContent value="operacional">
+          <Card className="shadow-soft">
+            <CardHeader className="pb-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Contrato</Label>
+                  <Select value={opContrato} onValueChange={setOpContrato}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os contratos</SelectItem>
+                      {contratos?.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.id_contrato} - {c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Tipo</Label>
+                  <Select value={opTipo} onValueChange={setOpTipo}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Todos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os tipos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoadingOp ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  Carregando...
+                </div>
+              ) : operacional?.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Settings2 className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>Nenhum item operacional encontrado</p>
+                </div>
+              ) : (
+                <div className="rounded-lg border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="font-semibold">Equipamento</TableHead>
+                        <TableHead className="font-semibold">Contrato</TableHead>
+                        <TableHead className="font-semibold">Município</TableHead>
+                        <TableHead className="font-semibold">Tipo</TableHead>
+                        <TableHead className="font-semibold text-center">Quantidade</TableHead>
+                        <TableHead className="font-semibold">Data</TableHead>
+                        <TableHead className="font-semibold">Observação</TableHead>
+                        <TableHead className="font-semibold">Foto</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {operacional?.map((item: any) => (
+                        <TableRow key={item.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono font-medium">{item.equipamentos?.numero_serie}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-normal">
+                              {item.equipamentos?.contratos?.id_contrato}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{item.equipamentos?.municipio}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="font-normal">
+                              {item.tipo}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center font-medium">{item.quantidade}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {item.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate text-muted-foreground">
+                            {item.observacao || '-'}
+                          </TableCell>
+                          <TableCell>
+                            {item.foto_url ? (
+                              <ImageThumbnail src={item.foto_url} alt="Foto operacional" className="h-10 w-10" />
                             ) : (
                               <span className="text-muted-foreground">-</span>
                             )}
