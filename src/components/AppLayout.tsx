@@ -14,27 +14,56 @@ import {
   User,
   Shield,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   BarChart3,
-  Package,
   FolderTree,
+  ClipboardList,
+  FileBarChart,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-const menuItems = [
+interface MenuItem {
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}
+
+interface MenuGroup {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: MenuItem[];
+}
+
+const singleItems: MenuItem[] = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/contratos', icon: FileText, label: 'Contratos' },
-  { path: '/sentidos', icon: Compass, label: 'Sentidos' },
-  { path: '/equipamentos', icon: Radio, label: 'Equipamentos' },
-  { path: '/materiais-recebidos', icon: Package, label: 'Materiais Recebidos' },
-  { path: '/categorias', icon: FolderTree, label: 'Categorias' },
-  { path: '/consultas', icon: Search, label: 'Consultas' },
-  { path: '/relatorios', icon: BarChart3, label: 'Relatórios' },
+];
+
+const menuGroups: MenuGroup[] = [
+  {
+    label: 'Cadastros',
+    icon: ClipboardList,
+    items: [
+      { path: '/contratos', icon: FileText, label: 'Contratos' },
+      { path: '/sentidos', icon: Compass, label: 'Sentidos' },
+      { path: '/equipamentos', icon: Radio, label: 'Equipamentos' },
+      { path: '/categorias', icon: FolderTree, label: 'Categorias' },
+    ],
+  },
+  {
+    label: 'Relatórios',
+    icon: FileBarChart,
+    items: [
+      { path: '/consultas', icon: Search, label: 'Consultas' },
+      { path: '/relatorios', icon: BarChart3, label: 'Relatórios' },
+    ],
+  },
 ];
 
 const roleLabels = {
@@ -111,11 +140,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="relative flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin">
-            <p className="text-[10px] font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3 mb-4">
-              Menu Principal
-            </p>
-            {menuItems.map((item, index) => {
+          <nav className="relative flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
+            {/* Single Items (Dashboard) */}
+            {singleItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
@@ -123,14 +150,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 group',
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group',
                     isActive
                       ? 'bg-sidebar-accent text-sidebar-foreground'
                       : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
                   )}
-                  style={{
-                    animationDelay: `${index * 50}ms`,
-                  }}
                 >
                   <div className={cn(
                     'w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300',
@@ -149,6 +173,57 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <ChevronRight className="h-4 w-4 opacity-70" />
                   )}
                 </Link>
+              );
+            })}
+
+            {/* Menu Groups */}
+            {menuGroups.map((group) => {
+              const isGroupActive = group.items.some(item => location.pathname === item.path);
+              return (
+                <Collapsible key={group.label} defaultOpen={isGroupActive} className="mt-2">
+                  <CollapsibleTrigger className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 w-full text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 group">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-sidebar-accent/50 group-hover:bg-sidebar-accent">
+                      <group.icon className="h-5 w-5 transition-all duration-300 text-sidebar-foreground/70 group-hover:text-sidebar-foreground group-hover:scale-110" />
+                    </div>
+                    <span className="flex-1 text-left">{group.label}</span>
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                    {group.items.map((item) => {
+                      const isActive = location.pathname === item.path;
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setSidebarOpen(false)}
+                          className={cn(
+                            'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group',
+                            isActive
+                              ? 'bg-sidebar-accent text-sidebar-foreground'
+                              : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                          )}
+                        >
+                          <div className={cn(
+                            'w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300',
+                            isActive 
+                              ? 'bg-sidebar-foreground/10' 
+                              : 'bg-sidebar-accent/30 group-hover:bg-sidebar-accent'
+                          )}>
+                            <item.icon className={cn(
+                              "h-4 w-4 transition-all duration-300",
+                              isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
+                              !isActive && "group-hover:scale-110"
+                            )} />
+                          </div>
+                          <span className="flex-1">{item.label}</span>
+                          {isActive && (
+                            <ChevronRight className="h-3 w-3 opacity-70" />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </CollapsibleContent>
+                </Collapsible>
               );
             })}
           </nav>
