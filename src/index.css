@@ -356,3 +356,79 @@
     box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
   }
 }
+
+/* Print styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: white !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  /* Hide sidebar and navigation on print */
+  aside,
+  nav,
+  header,
+  [data-sidebar],
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Full width content on print */
+  main {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Break control */
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  .break-before-page {
+    break-before: page;
+  }
+
+  .break-after-page {
+    break-after: page;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .shadow-soft,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
+
+  /* Ensure images print correctly */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Links styling for print */
+  a {
+    text-decoration: none;
+  }
+
+  /* Preserve background colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
