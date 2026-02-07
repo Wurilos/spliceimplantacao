@@ -641,7 +641,7 @@ export default function Dashboard() {
             title="Conexão e Energia" 
             icon={Zap}
             items={progressData.conexaoEnergiaProgress}
-            color="bg-secondary"
+            color="bg-amber-500"
           />
         </div>
       )}
