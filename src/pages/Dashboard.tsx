@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
-import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle, Package, BarChart3, Settings2, Upload } from 'lucide-react';
+import { Radio, Sparkles, Activity, TrendingUp, Filter, FileText, FileCheck, FileX, Wrench, ArrowUpDown, ArrowLeftRight, CheckCircle2, AlertCircle, Package, BarChart3, Settings2, Upload, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,6 +35,10 @@ export default function Dashboard() {
           endereco,
           tipo_equipamento,
           contrato_id,
+          tipo_conexao,
+          tipo_energia,
+          conexao_instalada,
+          energia_instalada,
           prev_placas,
           prev_pontaletes,
           prev_postes_colapsiveis,
@@ -250,6 +254,24 @@ export default function Dashboard() {
       { name: 'Relatório VDM', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, equipamentos.length) },
     ];
 
+    // Calcular progresso de conexão e energia
+    const eqsComConexao = equipamentos.filter((eq: any) => eq.tipo_conexao);
+    const eqsComEnergia = equipamentos.filter((eq: any) => eq.tipo_energia);
+    const conexaoEnergiaProgress: ProgressItem[] = [
+      { 
+        name: 'Conexão', 
+        previsto: eqsComConexao.length, 
+        instalado: equipamentos.filter((eq: any) => eq.conexao_instalada).length, 
+        percentual: calcPercent(equipamentos.filter((eq: any) => eq.conexao_instalada).length, eqsComConexao.length) 
+      },
+      { 
+        name: 'Energia', 
+        previsto: eqsComEnergia.length, 
+        instalado: equipamentos.filter((eq: any) => eq.energia_instalada).length, 
+        percentual: calcPercent(equipamentos.filter((eq: any) => eq.energia_instalada).length, eqsComEnergia.length) 
+      },
+    ];
+
     const todosItens = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress, ...operacionalProgress];
     const todosPrevisto = todosItens.reduce((acc, item) => acc + item.previsto, 0);
     const todosInstalado = todosItens.reduce((acc, item) => acc + item.instalado, 0);
@@ -267,6 +289,7 @@ export default function Dashboard() {
       infraestruturaProgress,
       operacionalProgress,
       uploadProgress,
+      conexaoEnergiaProgress,
       progressoGeral,
       todosItensConcluidos,
       totaisPrev,
@@ -612,6 +635,12 @@ export default function Dashboard() {
             icon={Upload}
             items={progressData.uploadProgress}
             color="bg-destructive"
+          />
+          <ProgressCard 
+            title="Conexão e Energia" 
+            icon={Zap}
+            items={progressData.conexaoEnergiaProgress}
+            color="bg-secondary"
           />
         </div>
       )}

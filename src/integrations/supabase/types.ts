@@ -138,10 +138,12 @@ export type Database = {
       }
       equipamentos: {
         Row: {
+          conexao_instalada: boolean | null
           contrato_id: string
           created_at: string
           croqui_caracterizacao_url: string | null
           endereco: string
+          energia_instalada: boolean | null
           estudo_viabilidade_url: string | null
           id: string
           latitude: number | null
@@ -178,10 +180,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          conexao_instalada?: boolean | null
           contrato_id: string
           created_at?: string
           croqui_caracterizacao_url?: string | null
           endereco: string
+          energia_instalada?: boolean | null
           estudo_viabilidade_url?: string | null
           id?: string
           latitude?: number | null
@@ -218,10 +222,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          conexao_instalada?: boolean | null
           contrato_id?: string
           created_at?: string
           croqui_caracterizacao_url?: string | null
           endereco?: string
+          energia_instalada?: boolean | null
           estudo_viabilidade_url?: string | null
           id?: string
           latitude?: number | null

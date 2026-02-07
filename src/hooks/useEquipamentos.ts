@@ -14,6 +14,10 @@ export interface Equipamento {
   tem_sinalizacao_horizontal: boolean;
   tipo_equipamento: string | null;
   quantidade_faixas: number | null;
+  tipo_conexao: string | null;
+  tipo_energia: string | null;
+  conexao_instalada: boolean | null;
+  energia_instalada: boolean | null;
   // Previsão Sinalização Vertical
   prev_placas?: number;
   prev_pontaletes?: number;

@@ -319,6 +319,8 @@ export default function EquipamentoDetalhe() {
     sentido_id: '',
     tipo_conexao: '',
     tipo_energia: '',
+    conexao_instalada: false,
+    energia_instalada: false,
     // Previsão Sinalização Vertical
     prev_placas: 0,
     prev_pontaletes: 0,
@@ -396,6 +398,8 @@ export default function EquipamentoDetalhe() {
         sentido_id: (equipamento as any).sentido_id || '',
         tipo_conexao: (equipamento as any).tipo_conexao || '',
         tipo_energia: (equipamento as any).tipo_energia || '',
+        conexao_instalada: (equipamento as any).conexao_instalada ?? false,
+        energia_instalada: (equipamento as any).energia_instalada ?? false,
         // Previsão Sinalização Vertical
         prev_placas: (equipamento as any).prev_placas || 0,
         prev_pontaletes: (equipamento as any).prev_pontaletes || 0,
@@ -838,37 +842,59 @@ export default function EquipamentoDetalhe() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Tipo de Conexão</Label>
-                  <Select 
-                    value={formData.tipo_conexao} 
-                    onValueChange={(v) => setFormData({ ...formData, tipo_conexao: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Modem">Modem</SelectItem>
-                      <SelectItem value="Rádio">Rádio</SelectItem>
-                      <SelectItem value="Fibra">Fibra</SelectItem>
-                      <SelectItem value="Satélite">Satélite</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-3">
+                    <Select 
+                      value={formData.tipo_conexao} 
+                      onValueChange={(v) => setFormData({ ...formData, tipo_conexao: v })}
+                      disabled={!canEdit}
+                    >
+                      <SelectTrigger className="h-11 flex-1">
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Modem">Modem</SelectItem>
+                        <SelectItem value="Rádio">Rádio</SelectItem>
+                        <SelectItem value="Fibra">Fibra</SelectItem>
+                        <SelectItem value="Satélite">Satélite</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                      <Checkbox
+                        checked={formData.conexao_instalada}
+                        onCheckedChange={(v) => setFormData({ ...formData, conexao_instalada: !!v })}
+                        disabled={!canEdit}
+                        className="h-5 w-5"
+                      />
+                      <span className="text-sm font-medium text-muted-foreground">Instalado</span>
+                    </label>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Tipo de Energia</Label>
-                  <Select 
-                    value={formData.tipo_energia} 
-                    onValueChange={(v) => setFormData({ ...formData, tipo_energia: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Convencional">Convencional</SelectItem>
-                      <SelectItem value="Solar">Solar</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-3">
+                    <Select 
+                      value={formData.tipo_energia} 
+                      onValueChange={(v) => setFormData({ ...formData, tipo_energia: v })}
+                      disabled={!canEdit}
+                    >
+                      <SelectTrigger className="h-11 flex-1">
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Convencional">Convencional</SelectItem>
+                        <SelectItem value="Solar">Solar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                      <Checkbox
+                        checked={formData.energia_instalada}
+                        onCheckedChange={(v) => setFormData({ ...formData, energia_instalada: !!v })}
+                        disabled={!canEdit}
+                        className="h-5 w-5"
+                      />
+                      <span className="text-sm font-medium text-muted-foreground">Instalado</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </CardContent>
