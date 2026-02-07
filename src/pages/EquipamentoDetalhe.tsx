@@ -315,6 +315,7 @@ export default function EquipamentoDetalhe() {
     tem_operacional: false,
     tem_upload_arquivos: false,
     tipo_equipamento: '',
+    velocidade: null as number | null,
     quantidade_faixas: 1,
     sentido_id: '',
     tipo_conexao: '',
@@ -394,6 +395,7 @@ export default function EquipamentoDetalhe() {
         tem_operacional: (equipamento as any).tem_operacional ?? false,
         tem_upload_arquivos: (equipamento as any).tem_upload_arquivos ?? false,
         tipo_equipamento: equipamento.tipo_equipamento || '',
+        velocidade: (equipamento as any).velocidade || null,
         quantidade_faixas: equipamento.quantidade_faixas || 1,
         sentido_id: (equipamento as any).sentido_id || '',
         tipo_conexao: (equipamento as any).tipo_conexao || '',
@@ -441,6 +443,7 @@ export default function EquipamentoDetalhe() {
       tem_operacional: formData.tem_operacional,
       tem_upload_arquivos: formData.tem_upload_arquivos,
       tipo_equipamento: formData.tipo_equipamento || null,
+      velocidade: formData.velocidade || null,
       quantidade_faixas: formData.quantidade_faixas,
       sentido_id: formData.sentido_id || null,
       tipo_conexao: formData.tipo_conexao || null,
@@ -787,6 +790,18 @@ export default function EquipamentoDetalhe() {
                       <SelectItem value="CEC">CEC</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Velocidade (km/h)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={formData.velocidade ?? ''}
+                    onChange={(e) => setFormData({ ...formData, velocidade: e.target.value ? parseInt(e.target.value) : null })}
+                    placeholder="Ex: 60"
+                    disabled={!canEdit}
+                    className="h-11"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Quantidade de Faixas</Label>

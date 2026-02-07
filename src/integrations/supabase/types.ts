@@ -178,6 +178,7 @@ export type Database = {
           tipo_energia: string | null
           tipo_equipamento: string | null
           updated_at: string
+          velocidade: number | null
         }
         Insert: {
           conexao_instalada?: boolean | null
@@ -220,6 +221,7 @@ export type Database = {
           tipo_energia?: string | null
           tipo_equipamento?: string | null
           updated_at?: string
+          velocidade?: number | null
         }
         Update: {
           conexao_instalada?: boolean | null
@@ -262,6 +264,7 @@ export type Database = {
           tipo_energia?: string | null
           tipo_equipamento?: string | null
           updated_at?: string
+          velocidade?: number | null
         }
         Relationships: [
           {
