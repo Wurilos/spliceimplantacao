@@ -255,20 +255,21 @@ export default function Dashboard() {
     ];
 
     // Calcular progresso de conexão e energia
-    const eqsComConexao = equipamentos.filter((eq: any) => eq.tipo_conexao);
-    const eqsComEnergia = equipamentos.filter((eq: any) => eq.tipo_energia);
+    const totalEquipamentos = equipamentos.length;
+    const conexaoInstalada = equipamentos.filter((eq: any) => eq.conexao_instalada).length;
+    const energiaInstalada = equipamentos.filter((eq: any) => eq.energia_instalada).length;
     const conexaoEnergiaProgress: ProgressItem[] = [
       { 
         name: 'Conexão', 
-        previsto: eqsComConexao.length, 
-        instalado: equipamentos.filter((eq: any) => eq.conexao_instalada).length, 
-        percentual: calcPercent(equipamentos.filter((eq: any) => eq.conexao_instalada).length, eqsComConexao.length) 
+        previsto: totalEquipamentos, 
+        instalado: conexaoInstalada, 
+        percentual: calcPercent(conexaoInstalada, totalEquipamentos) 
       },
       { 
         name: 'Energia', 
-        previsto: eqsComEnergia.length, 
-        instalado: equipamentos.filter((eq: any) => eq.energia_instalada).length, 
-        percentual: calcPercent(equipamentos.filter((eq: any) => eq.energia_instalada).length, eqsComEnergia.length) 
+        previsto: totalEquipamentos, 
+        instalado: energiaInstalada, 
+        percentual: calcPercent(energiaInstalada, totalEquipamentos) 
       },
     ];
 
