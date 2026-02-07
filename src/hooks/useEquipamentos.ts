@@ -153,6 +153,7 @@ export function useUpdateEquipamento() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['equipamentos'] });
       queryClient.invalidateQueries({ queryKey: ['equipamento'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-equipamentos-previsao'] });
       toast({ title: 'Equipamento atualizado com sucesso!' });
     },
     onError: (error: Error) => {
