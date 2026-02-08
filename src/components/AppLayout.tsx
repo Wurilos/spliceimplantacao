@@ -16,6 +16,7 @@ import {
   ChevronRight,
   ChevronDown,
   Sparkles,
+  Package,
   BarChart3,
   FolderTree,
   ClipboardList,
@@ -54,6 +55,7 @@ const menuGroups: MenuGroup[] = [
       { path: '/sentidos', icon: Compass, label: 'Sentidos' },
       { path: '/equipamentos', icon: Radio, label: 'Equipamentos' },
       { path: '/categorias', icon: FolderTree, label: 'Categorias' },
+      { path: '/materiais-recebidos', icon: Package, label: 'Materiais Recebidos' },
     ],
   },
   {
