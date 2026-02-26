@@ -41,6 +41,16 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
+    if (!email.trim().toLowerCase().endsWith('@splice.com.br')) {
+      toast({
+        title: 'Domínio não permitido',
+        description: 'Apenas e-mails @splice.com.br são aceitos para cadastro.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await signUp(email, password, fullName);
 
     if (error) {
