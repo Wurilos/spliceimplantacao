@@ -18,7 +18,7 @@ export interface Equipamento {
   tipo_energia: string | null;
   conexao_instalada: boolean | null;
   energia_instalada: boolean | null;
-  velocidade: number | null;
+  velocidade: string | null;
   // Previsão Sinalização Vertical
   prev_placas?: number;
   prev_pontaletes?: number;
