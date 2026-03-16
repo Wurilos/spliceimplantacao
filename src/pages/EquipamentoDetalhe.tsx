@@ -8,6 +8,7 @@ import {
   useEquipamento,
   useCreateEquipamento,
   useUpdateEquipamento,
+  useEquipamentoSentidos,
 } from '@/hooks/useEquipamentos';
 import {
   useSinalizacaoVertical,
@@ -292,6 +293,7 @@ export default function EquipamentoDetalhe() {
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
   const { data: infraestruturaItens } = useInfraestruturaItens(isNew ? undefined : id);
   const { data: svCategoriaItens } = useSinalizacaoVerticalCategoria();
+  const { data: equipamentoSentidos } = useEquipamentoSentidos(isNew ? undefined : id);
 
   const createEquipamento = useCreateEquipamento();
   const updateEquipamento = useUpdateEquipamento();
@@ -343,6 +345,9 @@ export default function EquipamentoDetalhe() {
      prev_ajustes: 0,
      prev_afericao: 0,
   });
+
+  // Faixa sentidos state: { 1: 'sentido-id-1', 2: 'sentido-id-2', ... }
+  const [faixaSentidos, setFaixaSentidos] = useState<Record<number, string>>({});
 
   // Dialog states
   const [svDialogOpen, setSvDialogOpen] = useState(false);
@@ -426,6 +431,17 @@ export default function EquipamentoDetalhe() {
     }
   }, [equipamento]);
 
+  // Load faixa sentidos from equipamento_sentidos
+  useEffect(() => {
+    if (equipamentoSentidos) {
+      const mapping: Record<number, string> = {};
+      equipamentoSentidos.forEach((es) => {
+        mapping[es.faixa_numero] = es.sentido_id;
+      });
+      setFaixaSentidos(mapping);
+    }
+  }, [equipamentoSentidos]);
+
   const handleSave = async () => {
     if (!formData.contrato_id || !formData.numero_serie || !formData.municipio || !formData.endereco) {
       toast({ title: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
@@ -470,11 +486,44 @@ export default function EquipamentoDetalhe() {
        prev_afericao: formData.prev_afericao,
     };
 
+    let equipamentoId = id;
     if (isNew) {
       const result = await createEquipamento.mutateAsync(data as any);
+      equipamentoId = result.id;
       navigate(`/equipamentos/${result.id}`);
     } else {
       await updateEquipamento.mutateAsync({ id: id!, ...data } as any);
+    }
+
+    // Save faixa sentidos
+    if (equipamentoId && equipamentoId !== 'novo') {
+      try {
+        // Delete existing sentidos for this equipamento
+        await supabase
+          .from('equipamento_sentidos')
+          .delete()
+          .eq('equipamento_id', equipamentoId);
+
+        // Insert new sentidos per faixa
+        const sentidosToInsert = Object.entries(faixaSentidos)
+          .filter(([_, sentidoId]) => sentidoId)
+          .map(([faixaNum, sentidoId]) => ({
+            equipamento_id: equipamentoId!,
+            sentido_id: sentidoId,
+            faixa_numero: parseInt(faixaNum),
+            is_principal: parseInt(faixaNum) === 1,
+          }));
+
+        if (sentidosToInsert.length > 0) {
+          await supabase
+            .from('equipamento_sentidos')
+            .insert(sentidosToInsert);
+        }
+
+        queryClient.invalidateQueries({ queryKey: ['equipamento_sentidos'] });
+      } catch (error: any) {
+        toast({ title: 'Erro ao salvar sentidos', description: error.message, variant: 'destructive' });
+      }
     }
   };
 
@@ -838,24 +887,32 @@ export default function EquipamentoDetalhe() {
                   />
                 </div>
               </div>
-              <div className="grid gap-5 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Sentido</Label>
-                  <Select 
-                    value={formData.sentido_id} 
-                    onValueChange={(v) => setFormData({ ...formData, sentido_id: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o sentido" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sentidos?.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Sentidos por Faixa */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Sentidos por Faixa</Label>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: formData.quantidade_faixas }, (_, i) => i + 1).map((faixaNum) => (
+                    <div key={faixaNum} className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Faixa {faixaNum}</Label>
+                      <Select
+                        value={faixaSentidos[faixaNum] || ''}
+                        onValueChange={(v) => setFaixaSentidos({ ...faixaSentidos, [faixaNum]: v })}
+                        disabled={!canEdit}
+                      >
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Selecione o sentido" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sentidos?.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
                 </div>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Tipo de Conexão</Label>
                   <div className="flex items-center gap-3">

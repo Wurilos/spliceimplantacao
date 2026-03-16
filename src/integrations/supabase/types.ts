@@ -143,6 +143,7 @@ export type Database = {
         Row: {
           created_at: string
           equipamento_id: string
+          faixa_numero: number
           id: string
           is_principal: boolean | null
           sentido_id: string
@@ -150,6 +151,7 @@ export type Database = {
         Insert: {
           created_at?: string
           equipamento_id: string
+          faixa_numero?: number
           id?: string
           is_principal?: boolean | null
           sentido_id: string
@@ -157,6 +159,7 @@ export type Database = {
         Update: {
           created_at?: string
           equipamento_id?: string
+          faixa_numero?: number
           id?: string
           is_principal?: boolean | null
           sentido_id?: string
