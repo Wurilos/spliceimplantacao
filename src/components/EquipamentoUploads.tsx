@@ -13,6 +13,7 @@ interface EquipamentoUploadsProps {
   croquiCaracterizacaoUrl: string | null;
   estudoViabilidadeUrl: string | null;
   relatorioVdmUrl: string | null;
+  declaracaoConformidadeUrl: string | null;
   onUpdate: (field: string, url: string | null) => void;
 }
 
