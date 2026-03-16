@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContratos } from '@/hooks/useContratos';
 import { useSentidos } from '@/hooks/useSentidos';
@@ -279,6 +280,7 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
 export default function EquipamentoDetalhe() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { canEdit, canDelete } = useAuth();
   const { toast } = useToast();
   const isNew = id === 'novo';
@@ -2014,9 +2016,10 @@ export default function EquipamentoDetalhe() {
                croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
                estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
                relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
+               declaracaoConformidadeUrl={(equipamento as any)?.declaracao_conformidade_url || null}
                onUpdate={() => {
-                 // Trigger refetch of equipamento data
-                 window.location.reload();
+                 // Refetch equipamento data without reloading the page
+                 queryClient.invalidateQueries({ queryKey: ['equipamento', id] });
                }}
              />
            </TabsContent>

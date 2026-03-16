@@ -142,6 +142,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           croqui_caracterizacao_url: string | null
+          declaracao_conformidade_url: string | null
           endereco: string
           energia_instalada: boolean | null
           estudo_viabilidade_url: string | null
@@ -185,6 +186,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           croqui_caracterizacao_url?: string | null
+          declaracao_conformidade_url?: string | null
           endereco: string
           energia_instalada?: boolean | null
           estudo_viabilidade_url?: string | null
@@ -228,6 +230,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           croqui_caracterizacao_url?: string | null
+          declaracao_conformidade_url?: string | null
           endereco?: string
           energia_instalada?: boolean | null
           estudo_viabilidade_url?: string | null

@@ -13,6 +13,7 @@ interface EquipamentoUploadsProps {
   croquiCaracterizacaoUrl: string | null;
   estudoViabilidadeUrl: string | null;
   relatorioVdmUrl: string | null;
+  declaracaoConformidadeUrl: string | null;
   onUpdate: (field: string, url: string | null) => void;
 }
 
@@ -118,6 +119,7 @@ export function EquipamentoUploads({
   croquiCaracterizacaoUrl,
   estudoViabilidadeUrl,
   relatorioVdmUrl,
+  declaracaoConformidadeUrl,
   onUpdate,
 }: EquipamentoUploadsProps) {
   const { toast } = useToast();
@@ -186,6 +188,7 @@ export function EquipamentoUploads({
     { key: 'croquiCaracterizacao', label: 'Croqui de Caracterização', value: croquiCaracterizacaoUrl },
     { key: 'estudoViabilidade', label: 'Estudo de Viabilidade', value: estudoViabilidadeUrl },
     { key: 'relatorioVdm', label: 'Relatório de VDM', value: relatorioVdmUrl },
+    { key: 'declaracaoConformidade', label: 'Declaração de Conformidade', value: declaracaoConformidadeUrl },
   ];
 
   return (

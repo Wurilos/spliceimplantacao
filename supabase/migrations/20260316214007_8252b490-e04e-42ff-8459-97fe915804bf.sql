@@ -1,0 +1,1 @@
+ALTER TABLE public.equipamentos ADD COLUMN declaracao_conformidade_url text DEFAULT NULL;
