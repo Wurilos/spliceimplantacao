@@ -97,6 +97,48 @@ export type Database = {
         }
         Relationships: []
       }
+      equipamento_previsoes: {
+        Row: {
+          categoria_item_id: string
+          created_at: string
+          equipamento_id: string
+          id: string
+          quantidade_prevista: number
+          updated_at: string
+        }
+        Insert: {
+          categoria_item_id: string
+          created_at?: string
+          equipamento_id: string
+          id?: string
+          quantidade_prevista?: number
+          updated_at?: string
+        }
+        Update: {
+          categoria_item_id?: string
+          created_at?: string
+          equipamento_id?: string
+          id?: string
+          quantidade_prevista?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipamento_previsoes_categoria_item_id_fkey"
+            columns: ["categoria_item_id"]
+            isOneToOne: false
+            referencedRelation: "categoria_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipamento_previsoes_equipamento_id_fkey"
+            columns: ["equipamento_id"]
+            isOneToOne: false
+            referencedRelation: "equipamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipamento_sentidos: {
         Row: {
           created_at: string
@@ -179,7 +221,7 @@ export type Database = {
           tipo_energia: string | null
           tipo_equipamento: string | null
           updated_at: string
-          velocidade: number | null
+          velocidade: string | null
         }
         Insert: {
           conexao_instalada?: boolean | null
@@ -223,7 +265,7 @@ export type Database = {
           tipo_energia?: string | null
           tipo_equipamento?: string | null
           updated_at?: string
-          velocidade?: number | null
+          velocidade?: string | null
         }
         Update: {
           conexao_instalada?: boolean | null
@@ -267,7 +309,7 @@ export type Database = {
           tipo_energia?: string | null
           tipo_equipamento?: string | null
           updated_at?: string
-          velocidade?: number | null
+          velocidade?: string | null
         }
         Relationships: [
           {
