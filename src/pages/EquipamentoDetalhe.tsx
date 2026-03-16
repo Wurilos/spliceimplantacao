@@ -890,9 +890,9 @@ export default function EquipamentoDetalhe() {
               {/* Sentidos por Faixa */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Sentidos por Faixa</Label>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="flex gap-3">
                   {Array.from({ length: formData.quantidade_faixas }, (_, i) => i + 1).map((faixaNum) => (
-                    <div key={faixaNum} className="space-y-1.5">
+                    <div key={faixaNum} className="flex-1 min-w-0 space-y-1.5">
                       <Label className="text-xs text-muted-foreground">Faixa {faixaNum}</Label>
                       <Select
                         value={faixaSentidos[faixaNum] || ''}
@@ -900,7 +900,7 @@ export default function EquipamentoDetalhe() {
                         disabled={!canEdit}
                       >
                         <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Selecione o sentido" />
+                          <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                         <SelectContent>
                           {sentidos?.map((s) => (
