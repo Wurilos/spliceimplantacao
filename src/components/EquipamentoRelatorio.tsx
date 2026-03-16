@@ -97,7 +97,7 @@ interface EquipamentoRelatorioProps {
 }
 
 const EquipamentoRelatorio = forwardRef<HTMLDivElement, EquipamentoRelatorioProps>(
-  ({ equipamento, sinalizacaoVertical, sinalizacaoHorizontal, infraestrutura, operacional }, ref) => {
+  ({ equipamento, sinalizacaoVertical, sinalizacaoHorizontal, infraestrutura, operacional, equipamentoSentidos = [] }, ref) => {
     const formatDate = (date: string | null) => {
       if (!date) return '-';
       return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR });
