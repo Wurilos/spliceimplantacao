@@ -1,0 +1,1 @@
+ALTER TABLE public.equipamento_sentidos ADD COLUMN faixa_numero integer NOT NULL DEFAULT 1;
