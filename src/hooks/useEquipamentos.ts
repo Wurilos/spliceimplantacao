@@ -43,6 +43,7 @@ export interface EquipamentoSentido {
   equipamento_id: string;
   sentido_id: string;
   is_principal: boolean;
+  faixa_numero: number;
   created_at: string;
   sentidos?: {
     nome: string;
