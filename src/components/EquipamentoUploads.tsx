@@ -119,6 +119,7 @@ export function EquipamentoUploads({
   croquiCaracterizacaoUrl,
   estudoViabilidadeUrl,
   relatorioVdmUrl,
+  declaracaoConformidadeUrl,
   onUpdate,
 }: EquipamentoUploadsProps) {
   const { toast } = useToast();
