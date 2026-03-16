@@ -912,6 +912,7 @@ export default function EquipamentoDetalhe() {
                   ))}
                 </div>
               </div>
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Tipo de Conexão</Label>
                   <div className="flex items-center gap-3">
