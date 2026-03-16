@@ -346,6 +346,9 @@ export default function EquipamentoDetalhe() {
      prev_afericao: 0,
   });
 
+  // Faixa sentidos state: { 1: 'sentido-id-1', 2: 'sentido-id-2', ... }
+  const [faixaSentidos, setFaixaSentidos] = useState<Record<number, string>>({});
+
   // Dialog states
   const [svDialogOpen, setSvDialogOpen] = useState(false);
   const [editingSV, setEditingSV] = useState<SinalizacaoVertical | null>(null);
