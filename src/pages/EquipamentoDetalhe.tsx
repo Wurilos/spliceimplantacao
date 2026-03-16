@@ -317,7 +317,7 @@ export default function EquipamentoDetalhe() {
     tem_operacional: false,
     tem_upload_arquivos: false,
     tipo_equipamento: '',
-    velocidade: null as number | null,
+    velocidade: '' as string,
     quantidade_faixas: 1,
     sentido_id: '',
     tipo_conexao: '',
