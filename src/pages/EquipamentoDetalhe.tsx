@@ -442,6 +442,7 @@ export default function EquipamentoDetalhe() {
     }
   }, [equipamentoSentidos]);
 
+  const handleSave = async () => {
     if (!formData.contrato_id || !formData.numero_serie || !formData.municipio || !formData.endereco) {
       toast({ title: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
