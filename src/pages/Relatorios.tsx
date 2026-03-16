@@ -723,6 +723,7 @@ export default function Relatorios() {
                   sinalizacaoHorizontal={equipamentoData.sinalizacaoHorizontal}
                   infraestrutura={equipamentoData.infraestrutura}
                   operacional={equipamentoData.operacional}
+                  equipamentoSentidos={equipamentoData.equipamentoSentidos}
                 />
               </CardContent>
             </Card>
