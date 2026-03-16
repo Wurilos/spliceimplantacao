@@ -69,7 +69,7 @@ interface Equipamento {
   endereco: string;
   municipio: string;
   tipo_equipamento: string | null;
-  velocidade: number | null;
+  velocidade: string | null;
   quantidade_faixas: number | null;
   tipo_conexao: string | null;
   tipo_energia: string | null;
