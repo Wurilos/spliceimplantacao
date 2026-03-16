@@ -8,6 +8,7 @@ import {
   useEquipamento,
   useCreateEquipamento,
   useUpdateEquipamento,
+  useEquipamentoSentidos,
 } from '@/hooks/useEquipamentos';
 import {
   useSinalizacaoVertical,
