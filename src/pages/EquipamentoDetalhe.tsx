@@ -2014,9 +2014,10 @@ export default function EquipamentoDetalhe() {
                croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
                estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
                relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
+               declaracaoConformidadeUrl={(equipamento as any)?.declaracao_conformidade_url || null}
                onUpdate={() => {
-                 // Trigger refetch of equipamento data
-                 window.location.reload();
+                 // Refetch equipamento data without reloading the page
+                 queryClient.invalidateQueries({ queryKey: ['equipamento', id] });
                }}
              />
            </TabsContent>
