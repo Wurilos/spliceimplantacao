@@ -431,7 +431,17 @@ export default function EquipamentoDetalhe() {
     }
   }, [equipamento]);
 
-  const handleSave = async () => {
+  // Load faixa sentidos from equipamento_sentidos
+  useEffect(() => {
+    if (equipamentoSentidos) {
+      const mapping: Record<number, string> = {};
+      equipamentoSentidos.forEach((es) => {
+        mapping[es.faixa_numero] = es.sentido_id;
+      });
+      setFaixaSentidos(mapping);
+    }
+  }, [equipamentoSentidos]);
+
     if (!formData.contrato_id || !formData.numero_serie || !formData.municipio || !formData.endereco) {
       toast({ title: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
