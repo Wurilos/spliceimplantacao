@@ -796,11 +796,10 @@ export default function EquipamentoDetalhe() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Velocidade (km/h)</Label>
                   <Input
-                    type="number"
-                    min={0}
+                    type="text"
                     value={formData.velocidade ?? ''}
-                    onChange={(e) => setFormData({ ...formData, velocidade: e.target.value ? parseInt(e.target.value) : null })}
-                    placeholder="Ex: 60"
+                    onChange={(e) => setFormData({ ...formData, velocidade: e.target.value })}
+                    placeholder="Ex: 60 ou 100/80"
                     disabled={!canEdit}
                     className="h-11"
                   />
