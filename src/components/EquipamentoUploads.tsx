@@ -188,6 +188,7 @@ export function EquipamentoUploads({
     { key: 'croquiCaracterizacao', label: 'Croqui de Caracterização', value: croquiCaracterizacaoUrl },
     { key: 'estudoViabilidade', label: 'Estudo de Viabilidade', value: estudoViabilidadeUrl },
     { key: 'relatorioVdm', label: 'Relatório de VDM', value: relatorioVdmUrl },
+    { key: 'declaracaoConformidade', label: 'Declaração de Conformidade', value: declaracaoConformidadeUrl },
   ];
 
   return (
