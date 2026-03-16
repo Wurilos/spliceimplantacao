@@ -486,11 +486,44 @@ export default function EquipamentoDetalhe() {
        prev_afericao: formData.prev_afericao,
     };
 
+    let equipamentoId = id;
     if (isNew) {
       const result = await createEquipamento.mutateAsync(data as any);
+      equipamentoId = result.id;
       navigate(`/equipamentos/${result.id}`);
     } else {
       await updateEquipamento.mutateAsync({ id: id!, ...data } as any);
+    }
+
+    // Save faixa sentidos
+    if (equipamentoId && equipamentoId !== 'novo') {
+      try {
+        // Delete existing sentidos for this equipamento
+        await supabase
+          .from('equipamento_sentidos')
+          .delete()
+          .eq('equipamento_id', equipamentoId);
+
+        // Insert new sentidos per faixa
+        const sentidosToInsert = Object.entries(faixaSentidos)
+          .filter(([_, sentidoId]) => sentidoId)
+          .map(([faixaNum, sentidoId]) => ({
+            equipamento_id: equipamentoId!,
+            sentido_id: sentidoId,
+            faixa_numero: parseInt(faixaNum),
+            is_principal: parseInt(faixaNum) === 1,
+          }));
+
+        if (sentidosToInsert.length > 0) {
+          await supabase
+            .from('equipamento_sentidos')
+            .insert(sentidosToInsert);
+        }
+
+        queryClient.invalidateQueries({ queryKey: ['equipamento_sentidos'] });
+      } catch (error: any) {
+        toast({ title: 'Erro ao salvar sentidos', description: error.message, variant: 'destructive' });
+      }
     }
   };
 
