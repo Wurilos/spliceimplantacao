@@ -280,6 +280,7 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
 export default function EquipamentoDetalhe() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { canEdit, canDelete } = useAuth();
   const { toast } = useToast();
   const isNew = id === 'novo';
