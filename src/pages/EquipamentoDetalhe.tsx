@@ -397,7 +397,7 @@ export default function EquipamentoDetalhe() {
         tem_operacional: (equipamento as any).tem_operacional ?? false,
         tem_upload_arquivos: (equipamento as any).tem_upload_arquivos ?? false,
         tipo_equipamento: equipamento.tipo_equipamento || '',
-        velocidade: (equipamento as any).velocidade || null,
+        velocidade: (equipamento as any).velocidade || '',
         quantidade_faixas: equipamento.quantidade_faixas || 1,
         sentido_id: (equipamento as any).sentido_id || '',
         tipo_conexao: (equipamento as any).tipo_conexao || '',
