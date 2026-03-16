@@ -887,24 +887,31 @@ export default function EquipamentoDetalhe() {
                   />
                 </div>
               </div>
-              <div className="grid gap-5 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Sentido</Label>
-                  <Select 
-                    value={formData.sentido_id} 
-                    onValueChange={(v) => setFormData({ ...formData, sentido_id: v })}
-                    disabled={!canEdit}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Selecione o sentido" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sentidos?.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Sentidos por Faixa */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Sentidos por Faixa</Label>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: formData.quantidade_faixas }, (_, i) => i + 1).map((faixaNum) => (
+                    <div key={faixaNum} className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Faixa {faixaNum}</Label>
+                      <Select
+                        value={faixaSentidos[faixaNum] || ''}
+                        onValueChange={(v) => setFaixaSentidos({ ...faixaSentidos, [faixaNum]: v })}
+                        disabled={!canEdit}
+                      >
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Selecione o sentido" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sentidos?.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
                 </div>
+              </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Tipo de Conexão</Label>
                   <div className="flex items-center gap-3">
