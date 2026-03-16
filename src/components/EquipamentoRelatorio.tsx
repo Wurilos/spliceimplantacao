@@ -188,10 +188,18 @@ const EquipamentoRelatorio = forwardRef<HTMLDivElement, EquipamentoRelatorioProp
                 <p className="text-sm font-semibold">{equipamento.quantidade_faixas || '-'}</p>
               </div>
 
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sentido</p>
-                <p className="text-sm font-semibold">{equipamento.sentido?.nome || '-'}</p>
-              </div>
+              {equipamentoSentidos.length > 0 && (
+                <div className="space-y-1 col-span-2 md:col-span-3">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sentidos por Faixa</p>
+                  <div className="flex flex-wrap gap-2">
+                    {equipamentoSentidos.map((es) => (
+                      <Badge key={es.faixa_numero} variant="outline" className="text-xs">
+                        Faixa {es.faixa_numero}: {es.sentido?.nome || '-'}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
