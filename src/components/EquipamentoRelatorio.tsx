@@ -63,6 +63,11 @@ interface OperacionalItem {
   observacao: string | null;
 }
 
+interface EquipamentoSentidoRelatorio {
+  faixa_numero: number;
+  sentido: { nome: string } | null;
+}
+
 interface Equipamento {
   id: string;
   numero_serie: string;
@@ -88,6 +93,7 @@ interface EquipamentoRelatorioProps {
   sinalizacaoHorizontal: SinalizacaoHorizontal[];
   infraestrutura: InfraestruturaItem[];
   operacional: OperacionalItem[];
+  equipamentoSentidos?: EquipamentoSentidoRelatorio[];
 }
 
 const EquipamentoRelatorio = forwardRef<HTMLDivElement, EquipamentoRelatorioProps>(
