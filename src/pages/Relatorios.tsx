@@ -157,12 +157,22 @@ export default function Relatorios() {
 
       if (opError) throw opError;
 
+      // Fetch equipamento_sentidos with sentido names
+      const { data: equipamentoSentidos, error: esError } = await supabase
+        .from('equipamento_sentidos')
+        .select('*, sentido:sentidos(nome)')
+        .eq('equipamento_id', selectedEquipamento)
+        .order('faixa_numero', { ascending: true });
+
+      if (esError) throw esError;
+
       return {
         equipamento,
         sinalizacaoVertical: sinalizacaoVertical || [],
         sinalizacaoHorizontal: sinalizacaoHorizontal || [],
         infraestrutura: infraestrutura || [],
         operacional: operacional || [],
+        equipamentoSentidos: equipamentoSentidos || [],
       };
     },
     enabled: !!selectedEquipamento,
