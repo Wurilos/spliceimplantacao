@@ -1508,6 +1508,7 @@ export default function EquipamentoDetalhe() {
                       <SelectContent>
                         <SelectItem value="D">Direito</SelectItem>
                         <SelectItem value="E">Esquerdo</SelectItem>
+                        <SelectItem value="A">Acima</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
