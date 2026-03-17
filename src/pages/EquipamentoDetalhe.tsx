@@ -516,10 +516,12 @@ export default function EquipamentoDetalhe() {
     if (equipamentoId && equipamentoId !== 'novo') {
       try {
         // Delete existing sentidos for this equipamento
-        await supabase
+        const { error: deleteError } = await supabase
           .from('equipamento_sentidos')
           .delete()
           .eq('equipamento_id', equipamentoId);
+
+        if (deleteError) throw deleteError;
 
         // Insert new sentidos per faixa
         const sentidosToInsert = Object.entries(faixaSentidos)
@@ -532,11 +534,14 @@ export default function EquipamentoDetalhe() {
           }));
 
         if (sentidosToInsert.length > 0) {
-          await supabase
+          const { error: insertError } = await supabase
             .from('equipamento_sentidos')
             .insert(sentidosToInsert);
+          
+          if (insertError) throw insertError;
         }
 
+        queryClient.invalidateQueries({ queryKey: ['equipamento_sentidos', equipamentoId] });
         queryClient.invalidateQueries({ queryKey: ['equipamento_sentidos'] });
       } catch (error: any) {
         toast({ title: 'Erro ao salvar sentidos', description: error.message, variant: 'destructive' });
