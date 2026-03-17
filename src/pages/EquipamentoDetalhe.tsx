@@ -442,6 +442,21 @@ export default function EquipamentoDetalhe() {
     }
   }, [equipamentoSentidos]);
 
+  // Computed list of faixa-sentido options for SV/SH forms (uses local state, always up-to-date)
+  const faixaSentidoOptions = useMemo(() => {
+    return Object.entries(faixaSentidos)
+      .filter(([_, sentidoId]) => sentidoId)
+      .map(([faixaNum, sentidoId]) => {
+        const sentido = sentidos?.find((s) => s.id === sentidoId);
+        return {
+          value: sentidoId,
+          label: `Faixa ${faixaNum} - ${sentido?.nome || 'Sem nome'}`,
+          faixaNum: parseInt(faixaNum),
+        };
+      })
+      .sort((a, b) => a.faixaNum - b.faixaNum);
+  }, [faixaSentidos, sentidos]);
+
   const handleSave = async () => {
     if (!formData.contrato_id || !formData.numero_serie || !formData.municipio || !formData.endereco) {
       toast({ title: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
@@ -1457,9 +1472,9 @@ export default function EquipamentoDetalhe() {
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
-                        {equipamentoSentidos?.map((es) => (
-                          <SelectItem key={es.id} value={es.sentido_id}>
-                            Faixa {es.faixa_numero} - {es.sentidos?.nome || 'Sem nome'}
+                        {faixaSentidoOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -1940,9 +1955,9 @@ export default function EquipamentoDetalhe() {
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
-                        {equipamentoSentidos?.map((es) => (
-                          <SelectItem key={es.id} value={es.sentido_id}>
-                            Faixa {es.faixa_numero} - {es.sentidos?.nome || 'Sem nome'}
+                        {faixaSentidoOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
