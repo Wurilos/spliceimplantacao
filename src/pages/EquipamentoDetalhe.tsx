@@ -1457,8 +1457,10 @@ export default function EquipamentoDetalhe() {
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sentidos?.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                        {equipamentoSentidos?.map((es) => (
+                          <SelectItem key={es.id} value={es.sentido_id}>
+                            Faixa {es.faixa_numero} - {es.sentidos?.nome || 'Sem nome'}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -1506,6 +1508,7 @@ export default function EquipamentoDetalhe() {
                       <SelectContent>
                         <SelectItem value="D">Direito</SelectItem>
                         <SelectItem value="E">Esquerdo</SelectItem>
+                        <SelectItem value="A">Acima</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1937,8 +1940,10 @@ export default function EquipamentoDetalhe() {
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sentidos?.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                        {equipamentoSentidos?.map((es) => (
+                          <SelectItem key={es.id} value={es.sentido_id}>
+                            Faixa {es.faixa_numero} - {es.sentidos?.nome || 'Sem nome'}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -1950,6 +1955,7 @@ export default function EquipamentoDetalhe() {
                       <SelectContent>
                         <SelectItem value="D">Direito</SelectItem>
                         <SelectItem value="E">Esquerdo</SelectItem>
+                        <SelectItem value="A">Acima</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
