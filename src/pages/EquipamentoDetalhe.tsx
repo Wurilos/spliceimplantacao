@@ -1940,8 +1940,10 @@ export default function EquipamentoDetalhe() {
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
-                        {sentidos?.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                        {equipamentoSentidos?.map((es) => (
+                          <SelectItem key={es.id} value={es.sentido_id}>
+                            Faixa {es.faixa_numero} - {es.sentidos?.nome || 'Sem nome'}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
