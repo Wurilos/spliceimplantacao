@@ -1472,9 +1472,9 @@ export default function EquipamentoDetalhe() {
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
-                        {equipamentoSentidos?.map((es) => (
-                          <SelectItem key={es.id} value={es.sentido_id}>
-                            Faixa {es.faixa_numero} - {es.sentidos?.nome || 'Sem nome'}
+                        {faixaSentidoOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
