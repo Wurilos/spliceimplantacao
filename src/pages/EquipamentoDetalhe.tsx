@@ -481,6 +481,8 @@ export default function EquipamentoDetalhe() {
       sentido_id: formData.sentido_id || null,
       tipo_conexao: formData.tipo_conexao || null,
       tipo_energia: formData.tipo_energia || null,
+      conexao_instalada: formData.conexao_instalada,
+      energia_instalada: formData.energia_instalada,
       // Previsão Sinalização Vertical
       prev_placas: formData.prev_placas,
       prev_pontaletes: formData.prev_pontaletes,
