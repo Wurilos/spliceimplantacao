@@ -53,6 +53,33 @@ export function InfraestruturaTab({
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [previsoesForm, setPrevisoesForm] = useState<Record<string, number>>({});
   const [isSavingPrevisoes, setIsSavingPrevisoes] = useState(false);
+  const [naoIntrusivo, setNaoIntrusivo] = useState(false);
+
+  // Load nao_intrusivo from equipamento
+  useEffect(() => {
+    const loadNaoIntrusivo = async () => {
+      const { data } = await supabase
+        .from('equipamentos')
+        .select('nao_intrusivo')
+        .eq('id', equipamentoId)
+        .single();
+      if (data) setNaoIntrusivo(data.nao_intrusivo || false);
+    };
+    loadNaoIntrusivo();
+  }, [equipamentoId]);
+
+  const handleNaoIntrusivoChange = async (checked: boolean) => {
+    setNaoIntrusivo(checked);
+    await supabase
+      .from('equipamentos')
+      .update({ nao_intrusivo: checked } as any)
+      .eq('id', equipamentoId);
+  };
+
+  // Helper to check if a category item is "Laços"
+  const isLacos = (itemNome: string) => {
+    return itemNome.toLowerCase().includes('laço') || itemNome.toLowerCase().includes('laco');
+  };
 
   // Initialize previsoes form when data loads
   useEffect(() => {
