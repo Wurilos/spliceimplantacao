@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useContratos } from '@/hooks/useContratos';
 import { useSentidos } from '@/hooks/useSentidos';
+import { useSinalizacaoHorizontalCategoria } from '@/hooks/useSinalizacaoHorizontalCategoria';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
