@@ -259,11 +259,22 @@ export function InfraestruturaTab({
                     ...previsoesForm,
                     [item.id]: parseInt(e.target.value) || 0
                   })}
-                  disabled={!canEdit}
+                  disabled={!canEdit || (naoIntrusivo && isLacos(item.nome))}
                   className="h-10"
                 />
               </div>
             ))}
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Checkbox
+              id="nao-intrusivo"
+              checked={naoIntrusivo}
+              onCheckedChange={(checked) => handleNaoIntrusivoChange(!!checked)}
+              disabled={!canEdit}
+            />
+            <Label htmlFor="nao-intrusivo" className="text-sm font-medium cursor-pointer">
+              Equipamento não intrusivo
+            </Label>
           </div>
           {canEdit && (
             <div className="flex justify-end mt-4">
