@@ -308,21 +308,22 @@ export function InfraestruturaTab({
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {categoriaItens.map((item) => {
+              const isDisabled = naoIntrusivo && isLacos(item.nome);
               const previsto = previsoesForm[item.id] || 0;
               const instalado = instaladoPorCategoria[item.id] || 0;
               const percentual = previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
               
               return (
-                <div key={item.id} className="p-3 rounded-lg border bg-card">
+                <div key={item.id} className={`p-3 rounded-lg border bg-card ${isDisabled ? 'opacity-50' : ''}`}>
                   <div className="text-sm font-medium text-muted-foreground">{item.nome}</div>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-bold">{instalado}</span>
-                    <span className="text-sm text-muted-foreground">/ {previsto}</span>
+                    <span className="text-2xl font-bold">{isDisabled ? '-' : instalado}</span>
+                    <span className="text-sm text-muted-foreground">/ {isDisabled ? '-' : previsto}</span>
                   </div>
                   <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
                     <div 
                       className={`h-full transition-all ${percentual >= 100 ? 'bg-success' : 'bg-primary'}`}
-                      style={{ width: `${Math.min(percentual, 100)}%` }}
+                      style={{ width: isDisabled ? '0%' : `${Math.min(percentual, 100)}%` }}
                     />
                   </div>
                 </div>
