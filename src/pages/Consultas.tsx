@@ -515,7 +515,7 @@ export default function Consultas() {
                           </TableCell>
                           <TableCell>
                             <Badge variant="secondary" className="font-normal">
-                              {tipoHorizontalLabels[sh.tipo]}
+                              {getTipoHorizontalLabel(sh.tipo)}
                             </Badge>
                           </TableCell>
                           <TableCell>{sh.sentidos?.nome || '-'}</TableCell>
