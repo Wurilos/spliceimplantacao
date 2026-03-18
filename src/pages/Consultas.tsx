@@ -18,6 +18,7 @@ import { ImageThumbnail } from '@/components/ImageThumbnail';
 export default function Consultas() {
   const { data: contratos } = useContratos();
   const { data: sentidos } = useSentidos();
+  const { data: shCategoriaItens } = useSinalizacaoHorizontalCategoria();
 
   // Filtros para equipamentos
   const [eqContrato, setEqContrato] = useState<string>('all');
