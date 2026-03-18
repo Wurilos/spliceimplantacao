@@ -377,7 +377,8 @@ export default function EquipamentoDetalhe() {
   const [editingSH, setEditingSH] = useState<SinalizacaoHorizontal | null>(null);
   const [shForm, setShForm] = useState({
     sentido_id: '',
-    tipo: 'defensa_metalica' as 'defensa_metalica' | 'tae_80' | 'tae_100',
+    tipo: '',
+    categoria_item_id: '',
     endereco: '',
     lado: 'D',
     latitude: '',
