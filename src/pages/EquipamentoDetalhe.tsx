@@ -1778,10 +1778,10 @@ export default function EquipamentoDetalhe() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {(() => {
                   // Calculate installed values for horizontal signage
-                  const defensasInstaladas = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0;
-                  const postesInstalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0;
-                  const tae80Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_80').length || 0;
-                  const tae100Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_100').length || 0;
+                  const defensasInstaladas = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('defensa')).reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0;
+                  const postesInstalados = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('defensa')).reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0;
+                  const tae80Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('tae 80') || sh.tipo?.toLowerCase().includes('tae_80')).length || 0;
+                  const tae100Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('tae 100') || sh.tipo?.toLowerCase().includes('tae_100')).length || 0;
 
                   const shResumo = [
                     { nome: 'Defensas', previsto: formData.prev_defensas, executado: defensasInstaladas },
