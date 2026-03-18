@@ -1945,14 +1945,17 @@ export default function EquipamentoDetalhe() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Tipo <span className="text-destructive">*</span></Label>
                     <Select
-                      value={shForm.tipo}
-                      onValueChange={(v) => setShForm({ ...shForm, tipo: v as typeof shForm.tipo })}
+                      value={shForm.categoria_item_id}
+                      onValueChange={(v) => {
+                        const item = shCategoriaItens?.find(i => i.id === v);
+                        setShForm({ ...shForm, categoria_item_id: v, tipo: item?.nome || v });
+                      }}
                     >
-                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-10"><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
-                        <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
-                        <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
+                        {shCategoriaItens?.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>{item.nome}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
