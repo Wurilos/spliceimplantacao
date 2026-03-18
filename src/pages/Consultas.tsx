@@ -106,7 +106,7 @@ export default function Consultas() {
         query = query.eq('equipamentos.contrato_id', shContrato);
       }
       if (shTipo !== 'all') {
-        query = query.eq('tipo', shTipo as 'defensa_metalica' | 'tae_80' | 'tae_100');
+        query = query.ilike('tipo', `%${shTipo}%`);
       }
       
       const { data, error } = await query.order('created_at', { ascending: false });
