@@ -203,10 +203,10 @@ export function useUpdateSinalizacaoHorizontal() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, ...data }: Partial<SinalizacaoHorizontal> & { id: string }) => {
+    mutationFn: async ({ id, ...data }: Partial<Omit<SinalizacaoHorizontal, 'sentidos' | 'categoria_itens'>> & { id: string }) => {
       const { data: result, error } = await supabase
         .from('sinalizacao_horizontal_itens')
-        .update(data)
+        .update(data as any)
         .eq('id', id)
         .select()
         .single();
