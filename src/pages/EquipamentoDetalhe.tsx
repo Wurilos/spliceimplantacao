@@ -673,13 +673,8 @@ export default function EquipamentoDetalhe() {
   };
 
   const handleSaveSH = async () => {
-    if (!id || !shForm.endereco) {
+    if (!id || !shForm.endereco || !shForm.tipo) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
-      return;
-    }
-
-    if ((shForm.tipo === 'tae_80' || shForm.tipo === 'tae_100') && !shForm.sentido_id) {
-      toast({ title: 'Sentido é obrigatório para TAE', variant: 'destructive' });
       return;
     }
 
@@ -687,6 +682,7 @@ export default function EquipamentoDetalhe() {
       equipamento_id: id,
       sentido_id: shForm.sentido_id || null,
       tipo: shForm.tipo,
+      categoria_item_id: shForm.categoria_item_id || null,
       endereco: shForm.endereco,
       lado: shForm.lado,
       latitude: shForm.latitude ? parseFloat(shForm.latitude) : null,
