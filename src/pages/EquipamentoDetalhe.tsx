@@ -23,6 +23,7 @@ import {
   SinalizacaoHorizontal,
 } from '@/hooks/useSinalizacao';
 import { useSinalizacaoVerticalCategoria } from '@/hooks/useSinalizacaoVerticalCategoria';
+import { useSinalizacaoHorizontalCategoria } from '@/hooks/useSinalizacaoHorizontalCategoria';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -87,12 +88,13 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
     let tae_100 = 0;
 
     sinalizacaoHorizontal?.forEach((sh) => {
-      if (sh.tipo === 'defensa_metalica') {
+      const tipoLower = sh.tipo?.toLowerCase() || '';
+      if (tipoLower.includes('defensa')) {
         laminas += sh.qtd_laminas || 0;
         postes += sh.qtd_postes || 0;
-      } else if (sh.tipo === 'tae_80') {
+      } else if (tipoLower.includes('tae 80') || tipoLower.includes('tae_80')) {
         tae_80 += 1;
-      } else if (sh.tipo === 'tae_100') {
+      } else if (tipoLower.includes('tae 100') || tipoLower.includes('tae_100')) {
         tae_100 += 1;
       }
     });
@@ -293,6 +295,7 @@ export default function EquipamentoDetalhe() {
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
   const { data: infraestruturaItens } = useInfraestruturaItens(isNew ? undefined : id);
   const { data: svCategoriaItens } = useSinalizacaoVerticalCategoria();
+  const { data: shCategoriaItens } = useSinalizacaoHorizontalCategoria();
   const { data: equipamentoSentidos } = useEquipamentoSentidos(isNew ? undefined : id);
 
   const createEquipamento = useCreateEquipamento();
@@ -375,7 +378,8 @@ export default function EquipamentoDetalhe() {
   const [editingSH, setEditingSH] = useState<SinalizacaoHorizontal | null>(null);
   const [shForm, setShForm] = useState({
     sentido_id: '',
-    tipo: 'defensa_metalica' as 'defensa_metalica' | 'tae_80' | 'tae_100',
+    tipo: '',
+    categoria_item_id: '',
     endereco: '',
     lado: 'D',
     latitude: '',
@@ -640,6 +644,7 @@ export default function EquipamentoDetalhe() {
       setShForm({
         sentido_id: sh.sentido_id || '',
         tipo: sh.tipo,
+        categoria_item_id: sh.categoria_item_id || '',
         endereco: sh.endereco,
         lado: sh.lado,
         latitude: sh.latitude?.toString() || '',
@@ -653,7 +658,8 @@ export default function EquipamentoDetalhe() {
       setEditingSH(null);
       setShForm({
         sentido_id: '',
-        tipo: 'defensa_metalica',
+        tipo: '',
+        categoria_item_id: '',
         endereco: '',
         lado: 'D',
         latitude: '',
@@ -668,13 +674,8 @@ export default function EquipamentoDetalhe() {
   };
 
   const handleSaveSH = async () => {
-    if (!id || !shForm.endereco) {
+    if (!id || !shForm.endereco || !shForm.tipo) {
       toast({ title: 'Preencha os campos obrigatórios', variant: 'destructive' });
-      return;
-    }
-
-    if ((shForm.tipo === 'tae_80' || shForm.tipo === 'tae_100') && !shForm.sentido_id) {
-      toast({ title: 'Sentido é obrigatório para TAE', variant: 'destructive' });
       return;
     }
 
@@ -682,6 +683,7 @@ export default function EquipamentoDetalhe() {
       equipamento_id: id,
       sentido_id: shForm.sentido_id || null,
       tipo: shForm.tipo,
+      categoria_item_id: shForm.categoria_item_id || null,
       endereco: shForm.endereco,
       lado: shForm.lado,
       latitude: shForm.latitude ? parseFloat(shForm.latitude) : null,
@@ -723,11 +725,13 @@ export default function EquipamentoDetalhe() {
     toast({ title: 'Upload realizado com sucesso!' });
   };
 
-  const tipoHorizontalLabels: Record<string, string> = {
-    defensa_metalica: 'Defensa Metálica',
-    tae_80: 'TAE 80 km/h',
-    tae_100: 'TAE 100 km/h',
-  };
+  const tipoHorizontalLabels: Record<string, string> = useMemo(() => {
+    const labels: Record<string, string> = {};
+    shCategoriaItens?.forEach(item => {
+      labels[item.id] = item.nome;
+    });
+    return labels;
+  }, [shCategoriaItens]);
 
   if (!isNew && isLoading) {
     return (
@@ -1774,10 +1778,10 @@ export default function EquipamentoDetalhe() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {(() => {
                   // Calculate installed values for horizontal signage
-                  const defensasInstaladas = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0;
-                  const postesInstalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0;
-                  const tae80Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_80').length || 0;
-                  const tae100Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_100').length || 0;
+                  const defensasInstaladas = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('defensa')).reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0;
+                  const postesInstalados = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('defensa')).reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0;
+                  const tae80Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('tae 80') || sh.tipo?.toLowerCase().includes('tae_80')).length || 0;
+                  const tae100Instalados = sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('tae 100') || sh.tipo?.toLowerCase().includes('tae_100')).length || 0;
 
                   const shResumo = [
                     { nome: 'Defensas', previsto: formData.prev_defensas, executado: defensasInstaladas },
@@ -1862,7 +1866,7 @@ export default function EquipamentoDetalhe() {
                              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 mb-3">
                                <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo</span>
-                                 <p className="font-semibold text-sm">{tipoHorizontalLabels[sh.tipo]}</p>
+                                 <p className="font-semibold text-sm">{sh.categoria_itens?.nome || sh.tipo}</p>
                               </div>
                                <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sentido</span>
@@ -1942,14 +1946,17 @@ export default function EquipamentoDetalhe() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Tipo <span className="text-destructive">*</span></Label>
                     <Select
-                      value={shForm.tipo}
-                      onValueChange={(v) => setShForm({ ...shForm, tipo: v as typeof shForm.tipo })}
+                      value={shForm.categoria_item_id}
+                      onValueChange={(v) => {
+                        const item = shCategoriaItens?.find(i => i.id === v);
+                        setShForm({ ...shForm, categoria_item_id: v, tipo: item?.nome || v });
+                      }}
                     >
-                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-10"><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
-                        <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
-                        <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
+                        {shCategoriaItens?.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>{item.nome}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

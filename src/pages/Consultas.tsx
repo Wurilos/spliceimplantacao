@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useContratos } from '@/hooks/useContratos';
 import { useSentidos } from '@/hooks/useSentidos';
+import { useSinalizacaoHorizontalCategoria } from '@/hooks/useSinalizacaoHorizontalCategoria';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,7 @@ import { ImageThumbnail } from '@/components/ImageThumbnail';
 export default function Consultas() {
   const { data: contratos } = useContratos();
   const { data: sentidos } = useSentidos();
+  const { data: shCategoriaItens } = useSinalizacaoHorizontalCategoria();
 
   // Filtros para equipamentos
   const [eqContrato, setEqContrato] = useState<string>('all');
@@ -106,7 +108,7 @@ export default function Consultas() {
         query = query.eq('equipamentos.contrato_id', shContrato);
       }
       if (shTipo !== 'all') {
-        query = query.eq('tipo', shTipo as 'defensa_metalica' | 'tae_80' | 'tae_100');
+        query = query.ilike('tipo', `%${shTipo}%`);
       }
       
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -173,10 +175,8 @@ export default function Consultas() {
     },
   });
 
-  const tipoHorizontalLabels: Record<string, string> = {
-    defensa_metalica: 'Defensa Metálica',
-    tae_80: 'TAE 80 km/h',
-    tae_100: 'TAE 100 km/h',
+  const getTipoHorizontalLabel = (tipo: string) => {
+    return tipo || 'Sem tipo';
   };
 
   const tipoInfraLabels: Record<string, string> = {
@@ -473,9 +473,9 @@ export default function Consultas() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os tipos</SelectItem>
-                      <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
-                      <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
-                      <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
+                      {shCategoriaItens?.map((item) => (
+                        <SelectItem key={item.id} value={item.nome}>{item.nome}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -517,7 +517,7 @@ export default function Consultas() {
                           </TableCell>
                           <TableCell>
                             <Badge variant="secondary" className="font-normal">
-                              {tipoHorizontalLabels[sh.tipo]}
+                              {getTipoHorizontalLabel(sh.tipo)}
                             </Badge>
                           </TableCell>
                           <TableCell>{sh.sentidos?.nome || '-'}</TableCell>

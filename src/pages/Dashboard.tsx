@@ -86,12 +86,13 @@ export default function Dashboard() {
         let instalado_tae_100 = 0;
 
         eq.sinalizacao_horizontal_itens?.forEach((sh: any) => {
-          if (sh.tipo === 'defensa_metalica') {
+          const tipoLower = sh.tipo?.toLowerCase() || '';
+          if (tipoLower.includes('defensa')) {
             instalado_laminas += sh.qtd_laminas || 0;
             instalado_postes += sh.qtd_postes || 0;
-          } else if (sh.tipo === 'tae_80') {
+          } else if (tipoLower.includes('tae 80') || tipoLower.includes('tae_80')) {
             instalado_tae_80 += 1;
-          } else if (sh.tipo === 'tae_100') {
+          } else if (tipoLower.includes('tae 100') || tipoLower.includes('tae_100')) {
             instalado_tae_100 += 1;
           }
         });

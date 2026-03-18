@@ -113,12 +113,7 @@ const EquipamentoRelatorio = forwardRef<HTMLDivElement, EquipamentoRelatorioProp
     };
 
     const getTipoHorizontalLabel = (tipo: string) => {
-      const labels: Record<string, string> = {
-        'defensa_metalica': 'Defensa Metálica',
-        'tae_80': 'TAE 80 km/h',
-        'tae_100': 'TAE 100 km/h',
-      };
-      return labels[tipo] || tipo;
+      return tipo || 'Sem tipo';
     };
 
     return (

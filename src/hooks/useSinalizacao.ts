@@ -36,7 +36,8 @@ export interface SinalizacaoHorizontal {
   id: string;
   equipamento_id: string;
   sentido_id: string | null;
-  tipo: 'defensa_metalica' | 'tae_80' | 'tae_100';
+  categoria_item_id: string | null;
+  tipo: string;
   endereco: string;
   lado: string;
   latitude: number | null;
@@ -48,6 +49,10 @@ export interface SinalizacaoHorizontal {
   created_at: string;
   updated_at: string;
   sentidos?: {
+    nome: string;
+  };
+  categoria_itens?: {
+    id: string;
     nome: string;
   };
 }
@@ -83,12 +88,12 @@ export function useSinalizacaoHorizontal(equipamentoId: string | undefined) {
       
       const { data, error } = await supabase
         .from('sinalizacao_horizontal_itens')
-        .select(`*, sentidos (nome)`)
+        .select(`*, sentidos (nome), categoria_itens:categoria_item_id (id, nome)`)
         .eq('equipamento_id', equipamentoId)
         .order('created_at');
       
       if (error) throw error;
-      return data as SinalizacaoHorizontal[];
+      return data as unknown as SinalizacaoHorizontal[];
     },
     enabled: !!equipamentoId,
   });
@@ -173,10 +178,10 @@ export function useCreateSinalizacaoHorizontal() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: Omit<SinalizacaoHorizontal, 'id' | 'created_at' | 'updated_at' | 'sentidos'>) => {
+    mutationFn: async (data: Omit<SinalizacaoHorizontal, 'id' | 'created_at' | 'updated_at' | 'sentidos' | 'categoria_itens'>) => {
       const { data: result, error } = await supabase
         .from('sinalizacao_horizontal_itens')
-        .insert(data)
+        .insert(data as any)
         .select()
         .single();
       
@@ -198,10 +203,10 @@ export function useUpdateSinalizacaoHorizontal() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, ...data }: Partial<SinalizacaoHorizontal> & { id: string }) => {
+    mutationFn: async ({ id, ...data }: Partial<Omit<SinalizacaoHorizontal, 'sentidos' | 'categoria_itens'>> & { id: string }) => {
       const { data: result, error } = await supabase
         .from('sinalizacao_horizontal_itens')
-        .update(data)
+        .update(data as any)
         .eq('id', id)
         .select()
         .single();

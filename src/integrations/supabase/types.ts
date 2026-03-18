@@ -514,6 +514,7 @@ export type Database = {
       }
       sinalizacao_horizontal_itens: {
         Row: {
+          categoria_item_id: string | null
           created_at: string
           data: string | null
           endereco: string
@@ -526,10 +527,11 @@ export type Database = {
           qtd_laminas: number | null
           qtd_postes: number | null
           sentido_id: string | null
-          tipo: Database["public"]["Enums"]["sinalizacao_horizontal_tipo"]
+          tipo: string
           updated_at: string
         }
         Insert: {
+          categoria_item_id?: string | null
           created_at?: string
           data?: string | null
           endereco: string
@@ -542,10 +544,11 @@ export type Database = {
           qtd_laminas?: number | null
           qtd_postes?: number | null
           sentido_id?: string | null
-          tipo: Database["public"]["Enums"]["sinalizacao_horizontal_tipo"]
+          tipo: string
           updated_at?: string
         }
         Update: {
+          categoria_item_id?: string | null
           created_at?: string
           data?: string | null
           endereco?: string
@@ -558,10 +561,17 @@ export type Database = {
           qtd_laminas?: number | null
           qtd_postes?: number | null
           sentido_id?: string | null
-          tipo?: Database["public"]["Enums"]["sinalizacao_horizontal_tipo"]
+          tipo?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sinalizacao_horizontal_itens_categoria_item_id_fkey"
+            columns: ["categoria_item_id"]
+            isOneToOne: false
+            referencedRelation: "categoria_itens"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sinalizacao_horizontal_itens_equipamento_id_fkey"
             columns: ["equipamento_id"]
@@ -707,7 +717,6 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "operador" | "consulta"
-      sinalizacao_horizontal_tipo: "defensa_metalica" | "tae_80" | "tae_100"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -836,7 +845,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "operador", "consulta"],
-      sinalizacao_horizontal_tipo: ["defensa_metalica", "tae_80", "tae_100"],
     },
   },
 } as const
