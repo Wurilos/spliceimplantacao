@@ -36,7 +36,8 @@ export interface SinalizacaoHorizontal {
   id: string;
   equipamento_id: string;
   sentido_id: string | null;
-  tipo: 'defensa_metalica' | 'tae_80' | 'tae_100';
+  categoria_item_id: string | null;
+  tipo: string;
   endereco: string;
   lado: string;
   latitude: number | null;
@@ -48,6 +49,10 @@ export interface SinalizacaoHorizontal {
   created_at: string;
   updated_at: string;
   sentidos?: {
+    nome: string;
+  };
+  categoria_itens?: {
+    id: string;
     nome: string;
   };
 }
