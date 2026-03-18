@@ -88,7 +88,7 @@ export function useSinalizacaoHorizontal(equipamentoId: string | undefined) {
       
       const { data, error } = await supabase
         .from('sinalizacao_horizontal_itens')
-        .select(`*, sentidos (nome)`)
+        .select(`*, sentidos (nome), categoria_itens:categoria_item_id (id, nome)`)
         .eq('equipamento_id', equipamentoId)
         .order('created_at');
       
