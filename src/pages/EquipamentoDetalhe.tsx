@@ -294,6 +294,7 @@ export default function EquipamentoDetalhe() {
   const { data: sinalizacaoHorizontal } = useSinalizacaoHorizontal(isNew ? undefined : id);
   const { data: infraestruturaItens } = useInfraestruturaItens(isNew ? undefined : id);
   const { data: svCategoriaItens } = useSinalizacaoVerticalCategoria();
+  const { data: shCategoriaItens } = useSinalizacaoHorizontalCategoria();
   const { data: equipamentoSentidos } = useEquipamentoSentidos(isNew ? undefined : id);
 
   const createEquipamento = useCreateEquipamento();
