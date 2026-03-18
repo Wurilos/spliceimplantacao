@@ -93,7 +93,7 @@ export function useSinalizacaoHorizontal(equipamentoId: string | undefined) {
         .order('created_at');
       
       if (error) throw error;
-      return data as SinalizacaoHorizontal[];
+      return data as unknown as SinalizacaoHorizontal[];
     },
     enabled: !!equipamentoId,
   });
