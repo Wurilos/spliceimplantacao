@@ -88,12 +88,13 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
     let tae_100 = 0;
 
     sinalizacaoHorizontal?.forEach((sh) => {
-      if (sh.tipo === 'defensa_metalica') {
+      const tipoLower = sh.tipo?.toLowerCase() || '';
+      if (tipoLower.includes('defensa')) {
         laminas += sh.qtd_laminas || 0;
         postes += sh.qtd_postes || 0;
-      } else if (sh.tipo === 'tae_80') {
+      } else if (tipoLower.includes('tae 80') || tipoLower.includes('tae_80')) {
         tae_80 += 1;
-      } else if (sh.tipo === 'tae_100') {
+      } else if (tipoLower.includes('tae 100') || tipoLower.includes('tae_100')) {
         tae_100 += 1;
       }
     });
