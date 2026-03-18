@@ -724,11 +724,13 @@ export default function EquipamentoDetalhe() {
     toast({ title: 'Upload realizado com sucesso!' });
   };
 
-  const tipoHorizontalLabels: Record<string, string> = {
-    defensa_metalica: 'Defensa Metálica',
-    tae_80: 'TAE 80 km/h',
-    tae_100: 'TAE 100 km/h',
-  };
+  const tipoHorizontalLabels: Record<string, string> = useMemo(() => {
+    const labels: Record<string, string> = {};
+    shCategoriaItens?.forEach(item => {
+      labels[item.id] = item.nome;
+    });
+    return labels;
+  }, [shCategoriaItens]);
 
   if (!isNew && isLoading) {
     return (
