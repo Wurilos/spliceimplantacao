@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +53,33 @@ export function InfraestruturaTab({
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [previsoesForm, setPrevisoesForm] = useState<Record<string, number>>({});
   const [isSavingPrevisoes, setIsSavingPrevisoes] = useState(false);
+  const [naoIntrusivo, setNaoIntrusivo] = useState(false);
+
+  // Load nao_intrusivo from equipamento
+  useEffect(() => {
+    const loadNaoIntrusivo = async () => {
+      const { data } = await supabase
+        .from('equipamentos')
+        .select('nao_intrusivo')
+        .eq('id', equipamentoId)
+        .single();
+      if (data) setNaoIntrusivo(data.nao_intrusivo || false);
+    };
+    loadNaoIntrusivo();
+  }, [equipamentoId]);
+
+  const handleNaoIntrusivoChange = async (checked: boolean) => {
+    setNaoIntrusivo(checked);
+    await supabase
+      .from('equipamentos')
+      .update({ nao_intrusivo: checked } as any)
+      .eq('id', equipamentoId);
+  };
+
+  // Helper to check if a category item is "Laços"
+  const isLacos = (itemNome: string) => {
+    return itemNome.toLowerCase().includes('laço') || itemNome.toLowerCase().includes('laco');
+  };
 
   // Initialize previsoes form when data loads
   useEffect(() => {
@@ -231,11 +259,22 @@ export function InfraestruturaTab({
                     ...previsoesForm,
                     [item.id]: parseInt(e.target.value) || 0
                   })}
-                  disabled={!canEdit}
+                  disabled={!canEdit || (naoIntrusivo && isLacos(item.nome))}
                   className="h-10"
                 />
               </div>
             ))}
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <Checkbox
+              id="nao-intrusivo"
+              checked={naoIntrusivo}
+              onCheckedChange={(checked) => handleNaoIntrusivoChange(!!checked)}
+              disabled={!canEdit}
+            />
+            <Label htmlFor="nao-intrusivo" className="text-sm font-medium cursor-pointer">
+              Equipamento não intrusivo
+            </Label>
           </div>
           {canEdit && (
             <div className="flex justify-end mt-4">
@@ -269,21 +308,22 @@ export function InfraestruturaTab({
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {categoriaItens.map((item) => {
+              const isDisabled = naoIntrusivo && isLacos(item.nome);
               const previsto = previsoesForm[item.id] || 0;
               const instalado = instaladoPorCategoria[item.id] || 0;
               const percentual = previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
               
               return (
-                <div key={item.id} className="p-3 rounded-lg border bg-card">
+                <div key={item.id} className={`p-3 rounded-lg border bg-card ${isDisabled ? 'opacity-50' : ''}`}>
                   <div className="text-sm font-medium text-muted-foreground">{item.nome}</div>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-bold">{instalado}</span>
-                    <span className="text-sm text-muted-foreground">/ {previsto}</span>
+                    <span className="text-2xl font-bold">{isDisabled ? '-' : instalado}</span>
+                    <span className="text-sm text-muted-foreground">/ {isDisabled ? '-' : previsto}</span>
                   </div>
                   <div className="w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
                     <div 
                       className={`h-full transition-all ${percentual >= 100 ? 'bg-success' : 'bg-primary'}`}
-                      style={{ width: `${Math.min(percentual, 100)}%` }}
+                      style={{ width: isDisabled ? '0%' : `${Math.min(percentual, 100)}%` }}
                     />
                   </div>
                 </div>

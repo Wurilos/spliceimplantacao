@@ -195,6 +195,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           municipio: string
+          nao_intrusivo: boolean | null
           numero_serie: string
           prev_afericao: number | null
           prev_ajustes: number | null
@@ -239,6 +240,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           municipio: string
+          nao_intrusivo?: boolean | null
           numero_serie: string
           prev_afericao?: number | null
           prev_ajustes?: number | null
@@ -283,6 +285,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           municipio?: string
+          nao_intrusivo?: boolean | null
           numero_serie?: string
           prev_afericao?: number | null
           prev_ajustes?: number | null

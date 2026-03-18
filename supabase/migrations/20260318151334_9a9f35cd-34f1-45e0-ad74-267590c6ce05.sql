@@ -1,0 +1,1 @@
+ALTER TABLE public.equipamentos ADD COLUMN nao_intrusivo boolean DEFAULT false;
