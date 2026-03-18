@@ -473,9 +473,9 @@ export default function Consultas() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os tipos</SelectItem>
-                      <SelectItem value="defensa_metalica">Defensa Metálica</SelectItem>
-                      <SelectItem value="tae_80">TAE 80 km/h</SelectItem>
-                      <SelectItem value="tae_100">TAE 100 km/h</SelectItem>
+                      {shCategoriaItens?.map((item) => (
+                        <SelectItem key={item.id} value={item.nome}>{item.nome}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
