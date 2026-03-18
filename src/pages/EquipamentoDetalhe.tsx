@@ -23,6 +23,7 @@ import {
   SinalizacaoHorizontal,
 } from '@/hooks/useSinalizacao';
 import { useSinalizacaoVerticalCategoria } from '@/hooks/useSinalizacaoVerticalCategoria';
+import { useSinalizacaoHorizontalCategoria } from '@/hooks/useSinalizacaoHorizontalCategoria';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
