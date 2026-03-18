@@ -178,10 +178,10 @@ export function useCreateSinalizacaoHorizontal() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: Omit<SinalizacaoHorizontal, 'id' | 'created_at' | 'updated_at' | 'sentidos'>) => {
+    mutationFn: async (data: Omit<SinalizacaoHorizontal, 'id' | 'created_at' | 'updated_at' | 'sentidos' | 'categoria_itens'>) => {
       const { data: result, error } = await supabase
         .from('sinalizacao_horizontal_itens')
-        .insert(data)
+        .insert(data as any)
         .select()
         .single();
       
