@@ -173,10 +173,8 @@ export default function Consultas() {
     },
   });
 
-  const tipoHorizontalLabels: Record<string, string> = {
-    defensa_metalica: 'Defensa Metálica',
-    tae_80: 'TAE 80 km/h',
-    tae_100: 'TAE 100 km/h',
+  const getTipoHorizontalLabel = (tipo: string) => {
+    return tipo || 'Sem tipo';
   };
 
   const tipoInfraLabels: Record<string, string> = {

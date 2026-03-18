@@ -211,10 +211,10 @@ export default function Relatorios() {
     };
 
     const instaladoSH = {
-      defensas: sinalizacaoHorizontal?.filter(sh => sh.tipo === 'defensa_metalica').reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0,
+      defensas: sinalizacaoHorizontal?.filter(sh => sh.tipo?.toLowerCase().includes('defensa')).reduce((acc, sh) => acc + (sh.qtd_laminas || 0), 0) || 0,
       postesHorizontal: sinalizacaoHorizontal?.reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0,
-      tae80: sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_80').length || 0,
-      tae100: sinalizacaoHorizontal?.filter(sh => sh.tipo === 'tae_100').length || 0,
+      tae80: sinalizacaoHorizontal?.filter(sh => { const t = sh.tipo?.toLowerCase() || ''; return t.includes('tae 80') || t.includes('tae_80'); }).length || 0,
+      tae100: sinalizacaoHorizontal?.filter(sh => { const t = sh.tipo?.toLowerCase() || ''; return t.includes('tae 100') || t.includes('tae_100'); }).length || 0,
     };
 
     const instaladoInfra = {
