@@ -1865,7 +1865,7 @@ export default function EquipamentoDetalhe() {
                              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 mb-3">
                                <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo</span>
-                                 <p className="font-semibold text-sm">{tipoHorizontalLabels[sh.tipo]}</p>
+                                 <p className="font-semibold text-sm">{sh.categoria_itens?.nome || sh.tipo}</p>
                               </div>
                                <div>
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sentido</span>
