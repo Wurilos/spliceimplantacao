@@ -643,6 +643,7 @@ export default function EquipamentoDetalhe() {
       setShForm({
         sentido_id: sh.sentido_id || '',
         tipo: sh.tipo,
+        categoria_item_id: sh.categoria_item_id || '',
         endereco: sh.endereco,
         lado: sh.lado,
         latitude: sh.latitude?.toString() || '',
@@ -656,7 +657,8 @@ export default function EquipamentoDetalhe() {
       setEditingSH(null);
       setShForm({
         sentido_id: '',
-        tipo: 'defensa_metalica',
+        tipo: '',
+        categoria_item_id: '',
         endereco: '',
         lado: 'D',
         latitude: '',
