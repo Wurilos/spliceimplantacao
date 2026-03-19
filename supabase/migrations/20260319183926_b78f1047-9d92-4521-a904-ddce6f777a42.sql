@@ -1,0 +1,2 @@
+ALTER TABLE public.equipamento_sentidos DROP CONSTRAINT IF EXISTS equipamento_sentidos_equipamento_id_sentido_id_key;
+ALTER TABLE public.equipamento_sentidos ADD CONSTRAINT equipamento_sentidos_equipamento_id_sentido_id_faixa_key UNIQUE (equipamento_id, sentido_id, faixa_numero);
