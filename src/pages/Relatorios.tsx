@@ -76,32 +76,27 @@ export default function Relatorios() {
 
       const equipamentoIds = equipamentos?.map(eq => eq.id) || [];
 
-      const { data: sinalizacaoVertical, error: svError } = await supabase
-        .from('sinalizacao_vertical_blocos')
-        .select('*')
-        .in('equipamento_id', equipamentoIds);
+      const [svRes, shRes, infraRes, prevRes, catRes] = await Promise.all([
+        supabase.from('sinalizacao_vertical_blocos').select('*').in('equipamento_id', equipamentoIds),
+        supabase.from('sinalizacao_horizontal_itens').select('*').in('equipamento_id', equipamentoIds),
+        supabase.from('infraestrutura_itens').select('*').in('equipamento_id', equipamentoIds),
+        supabase.from('equipamento_previsoes').select('equipamento_id, categoria_item_id, quantidade_prevista, categoria_itens:categoria_item_id (id, nome, categoria_id)').in('equipamento_id', equipamentoIds),
+        supabase.from('categorias').select('id, nome').ilike('nome', '%Infraestrutura%'),
+      ]);
 
-      if (svError) throw svError;
+      if (svRes.error) throw svRes.error;
+      if (shRes.error) throw shRes.error;
+      if (infraRes.error) throw infraRes.error;
 
-      const { data: sinalizacaoHorizontal, error: shError } = await supabase
-        .from('sinalizacao_horizontal_itens')
-        .select('*')
-        .in('equipamento_id', equipamentoIds);
-
-      if (shError) throw shError;
-
-      const { data: infraestrutura, error: infraError } = await supabase
-        .from('infraestrutura_itens')
-        .select('*')
-        .in('equipamento_id', equipamentoIds);
-
-      if (infraError) throw infraError;
+      const infraCategoriaIds = (catRes.data || []).map(c => c.id);
 
       return {
         equipamentos,
-        sinalizacaoVertical,
-        sinalizacaoHorizontal,
-        infraestrutura,
+        sinalizacaoVertical: svRes.data,
+        sinalizacaoHorizontal: shRes.data,
+        infraestrutura: infraRes.data,
+        equipamentoPrevisoes: (prevRes.data || []) as any[],
+        infraCategoriaIds,
       };
     },
     enabled: !!selectedContrato,
