@@ -105,14 +105,11 @@ export default function Dashboard() {
         let instalado_afericao = 0;
 
         eq.infraestrutura_itens?.forEach((inf: any) => {
-          switch (inf.tipo?.toLowerCase()) {
-            case 'bases': instalado_bases += inf.quantidade || 0; break;
-            case 'lacos': 
-            case 'laços': instalado_lacos += inf.quantidade || 0; break;
-            case 'postes': instalado_postes_infra += inf.quantidade || 0; break;
-            case 'conectorizacao': 
-            case 'conectorização': instalado_conectorizacao += inf.quantidade || 0; break;
-          }
+          const tipoLower = inf.tipo?.toLowerCase() || '';
+          if (tipoLower.includes('base')) instalado_bases += inf.quantidade || 0;
+          else if (tipoLower.includes('laço') || tipoLower.includes('laco')) instalado_lacos += inf.quantidade || 0;
+          else if (tipoLower.includes('poste')) instalado_postes_infra += inf.quantidade || 0;
+          else if (tipoLower.includes('conectoriza')) instalado_conectorizacao += inf.quantidade || 0;
         });
 
         // Processar itens operacionais
