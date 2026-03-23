@@ -61,11 +61,44 @@ export default function Dashboard() {
           declaracao_conformidade_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
-          infraestrutura_itens (tipo, quantidade),
+          infraestrutura_itens (tipo, quantidade, categoria_item_id),
           operacional_itens (tipo, quantidade)
         `);
       
       if (eqError) throw eqError;
+
+      // Fetch equipamento_previsoes with categoria_itens names
+      const { data: previsoesData, error: prevError } = await supabase
+        .from('equipamento_previsoes')
+        .select(`
+          equipamento_id,
+          categoria_item_id,
+          quantidade_prevista,
+          categoria_itens:categoria_item_id (id, nome, categoria_id)
+        `);
+      
+      if (prevError) throw prevError;
+
+      // Fetch infraestrutura category to filter previsoes
+      const { data: categoriasData } = await supabase
+        .from('categorias')
+        .select('id, nome')
+        .ilike('nome', '%Infraestrutura%');
+      
+      const infraCategoriaIds = (categoriasData || []).map(c => c.id);
+
+      // Build a map of previsoes per equipamento
+      const previsoesMap: Record<string, Array<{ categoria_item_id: string; nome: string; quantidade_prevista: number }>> = {};
+      (previsoesData || []).forEach((p: any) => {
+        const catItem = p.categoria_itens;
+        if (!catItem || !infraCategoriaIds.includes(catItem.categoria_id)) return;
+        if (!previsoesMap[p.equipamento_id]) previsoesMap[p.equipamento_id] = [];
+        previsoesMap[p.equipamento_id].push({
+          categoria_item_id: p.categoria_item_id,
+          nome: catItem.nome,
+          quantidade_prevista: p.quantidade_prevista,
+        });
+      });
 
       const processedData = (eqData || []).map((eq: any) => {
         let instalado_placas = eq.sinalizacao_vertical_blocos?.filter((sv: any) => sv.categoria === 'placas').length || 0;
