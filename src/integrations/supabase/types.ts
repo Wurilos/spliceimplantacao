@@ -336,6 +336,7 @@ export type Database = {
       }
       infraestrutura_itens: {
         Row: {
+          categoria_item_id: string | null
           created_at: string
           data: string | null
           equipamento_id: string
@@ -346,6 +347,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          categoria_item_id?: string | null
           created_at?: string
           data?: string | null
           equipamento_id: string
@@ -356,6 +358,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          categoria_item_id?: string | null
           created_at?: string
           data?: string | null
           equipamento_id?: string
@@ -366,6 +369,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "infraestrutura_itens_categoria_item_id_fkey"
+            columns: ["categoria_item_id"]
+            isOneToOne: false
+            referencedRelation: "categoria_itens"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "infraestrutura_itens_equipamento_id_fkey"
             columns: ["equipamento_id"]
