@@ -313,13 +313,14 @@ export default function Dashboard() {
   const documentStatus = useMemo(() => {
     if (!equipamentos) return { complete: 0, incomplete: 0, total: 0, byType: [] };
     
-    let projetoCroqui = 0, croquiCaracterizacao = 0, estudoViabilidade = 0, relatorioVdm = 0;
+    let projetoCroqui = 0, croquiCaracterizacao = 0, estudoViabilidade = 0, relatorioVdm = 0, declaracaoConformidade = 0;
     
     equipamentos.forEach((eq: any) => {
       if (eq.projeto_croqui_url) projetoCroqui++;
       if (eq.croqui_caracterizacao_url) croquiCaracterizacao++;
       if (eq.estudo_viabilidade_url) estudoViabilidade++;
       if (eq.relatorio_vdm_url) relatorioVdm++;
+      if (eq.declaracao_conformidade_url) declaracaoConformidade++;
     });
     
     const total = equipamentos.length;
@@ -328,10 +329,11 @@ export default function Dashboard() {
       { name: 'Croqui Caracterização', enviados: croquiCaracterizacao, pendentes: total - croquiCaracterizacao },
       { name: 'Estudo Viabilidade', enviados: estudoViabilidade, pendentes: total - estudoViabilidade },
       { name: 'Relatório VDM', enviados: relatorioVdm, pendentes: total - relatorioVdm },
+      { name: 'Declaração de Conformidade', enviados: declaracaoConformidade, pendentes: total - declaracaoConformidade },
     ];
     
-    const totalDocs = total * 4;
-    const completeDocs = projetoCroqui + croquiCaracterizacao + estudoViabilidade + relatorioVdm;
+    const totalDocs = total * 5;
+    const completeDocs = projetoCroqui + croquiCaracterizacao + estudoViabilidade + relatorioVdm + declaracaoConformidade;
     
     return { complete: completeDocs, incomplete: totalDocs - completeDocs, total: totalDocs, byType };
   }, [equipamentos]);
