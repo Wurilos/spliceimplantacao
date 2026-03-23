@@ -218,12 +218,12 @@ export default function Relatorios() {
     };
 
     const instaladoInfra = {
-      bases: infraestrutura?.filter(i => i.tipo === 'bases').reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      lacos: infraestrutura?.filter(i => i.tipo === 'lacos').reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      postesInfra: infraestrutura?.filter(i => i.tipo === 'postes').reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      conectorizacao: infraestrutura?.filter(i => i.tipo === 'conectorizacao').reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      ajustes: infraestrutura?.filter(i => i.tipo === 'ajustes').reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      afericao: infraestrutura?.filter(i => i.tipo === 'afericao').reduce((acc, i) => acc + i.quantidade, 0) || 0,
+      bases: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('base')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
+      lacos: infraestrutura?.filter(i => { const t = i.tipo?.toLowerCase() || ''; return t.includes('laço') || t.includes('laco'); }).reduce((acc, i) => acc + i.quantidade, 0) || 0,
+      postesInfra: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('poste')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
+      conectorizacao: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('conectoriza')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
+      ajustes: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('ajuste')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
+      afericao: infraestrutura?.filter(i => { const t = i.tipo?.toLowerCase() || ''; return t.includes('aferi') || t.includes('aferição'); }).reduce((acc, i) => acc + i.quantidade, 0) || 0,
     };
 
     const calcPercent = (instalado: number, previsto: number) => 

@@ -58,6 +58,7 @@ export default function Dashboard() {
           croqui_caracterizacao_url,
           estudo_viabilidade_url,
           relatorio_vdm_url,
+          declaracao_conformidade_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
           infraestrutura_itens (tipo, quantidade),
@@ -105,14 +106,11 @@ export default function Dashboard() {
         let instalado_afericao = 0;
 
         eq.infraestrutura_itens?.forEach((inf: any) => {
-          switch (inf.tipo?.toLowerCase()) {
-            case 'bases': instalado_bases += inf.quantidade || 0; break;
-            case 'lacos': 
-            case 'laços': instalado_lacos += inf.quantidade || 0; break;
-            case 'postes': instalado_postes_infra += inf.quantidade || 0; break;
-            case 'conectorizacao': 
-            case 'conectorização': instalado_conectorizacao += inf.quantidade || 0; break;
-          }
+          const tipoLower = inf.tipo?.toLowerCase() || '';
+          if (tipoLower.includes('base')) instalado_bases += inf.quantidade || 0;
+          else if (tipoLower.includes('laço') || tipoLower.includes('laco')) instalado_lacos += inf.quantidade || 0;
+          else if (tipoLower.includes('poste')) instalado_postes_infra += inf.quantidade || 0;
+          else if (tipoLower.includes('conectoriza')) instalado_conectorizacao += inf.quantidade || 0;
         });
 
         // Processar itens operacionais
@@ -253,6 +251,7 @@ export default function Dashboard() {
       { name: 'Croqui Caracterização', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.croqui_caracterizacao_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.croqui_caracterizacao_url).length, equipamentos.length) },
       { name: 'Estudo Viabilidade', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.estudo_viabilidade_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.estudo_viabilidade_url).length, equipamentos.length) },
       { name: 'Relatório VDM', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, equipamentos.length) },
+      { name: 'Declaração de Conformidade', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.declaracao_conformidade_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.declaracao_conformidade_url).length, equipamentos.length) },
     ];
 
     // Calcular progresso de conexão e energia
@@ -315,13 +314,14 @@ export default function Dashboard() {
   const documentStatus = useMemo(() => {
     if (!equipamentos) return { complete: 0, incomplete: 0, total: 0, byType: [] };
     
-    let projetoCroqui = 0, croquiCaracterizacao = 0, estudoViabilidade = 0, relatorioVdm = 0;
+    let projetoCroqui = 0, croquiCaracterizacao = 0, estudoViabilidade = 0, relatorioVdm = 0, declaracaoConformidade = 0;
     
     equipamentos.forEach((eq: any) => {
       if (eq.projeto_croqui_url) projetoCroqui++;
       if (eq.croqui_caracterizacao_url) croquiCaracterizacao++;
       if (eq.estudo_viabilidade_url) estudoViabilidade++;
       if (eq.relatorio_vdm_url) relatorioVdm++;
+      if (eq.declaracao_conformidade_url) declaracaoConformidade++;
     });
     
     const total = equipamentos.length;
@@ -330,10 +330,11 @@ export default function Dashboard() {
       { name: 'Croqui Caracterização', enviados: croquiCaracterizacao, pendentes: total - croquiCaracterizacao },
       { name: 'Estudo Viabilidade', enviados: estudoViabilidade, pendentes: total - estudoViabilidade },
       { name: 'Relatório VDM', enviados: relatorioVdm, pendentes: total - relatorioVdm },
+      { name: 'Declaração de Conformidade', enviados: declaracaoConformidade, pendentes: total - declaracaoConformidade },
     ];
     
-    const totalDocs = total * 4;
-    const completeDocs = projetoCroqui + croquiCaracterizacao + estudoViabilidade + relatorioVdm;
+    const totalDocs = total * 5;
+    const completeDocs = projetoCroqui + croquiCaracterizacao + estudoViabilidade + relatorioVdm + declaracaoConformidade;
     
     return { complete: completeDocs, incomplete: totalDocs - completeDocs, total: totalDocs, byType };
   }, [equipamentos]);
