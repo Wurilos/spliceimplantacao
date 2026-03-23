@@ -177,7 +177,48 @@ export default function Relatorios() {
   const progressData = useMemo(() => {
     if (!reportData) return null;
 
-    const { equipamentos, sinalizacaoVertical, sinalizacaoHorizontal, infraestrutura } = reportData;
+    const { equipamentos, sinalizacaoVertical, sinalizacaoHorizontal, infraestrutura, equipamentoPrevisoes, infraCategoriaIds } = reportData;
+
+    // Build infra previsoes map from equipamento_previsoes
+    const infraPrevByName: Record<string, number> = { bases: 0, lacos: 0, postesInfra: 0, conectorizacao: 0 };
+    const infraInstByName: Record<string, number> = { bases: 0, lacos: 0, postesInfra: 0, conectorizacao: 0 };
+
+    // Group previsoes by categoria_item_id
+    const prevByCatItem: Record<string, { nome: string; previsto: number }> = {};
+    equipamentoPrevisoes?.forEach((p: any) => {
+      const catItem = p.categoria_itens;
+      if (!catItem || !infraCategoriaIds.includes(catItem.categoria_id)) return;
+      if (!prevByCatItem[p.categoria_item_id]) {
+        prevByCatItem[p.categoria_item_id] = { nome: catItem.nome, previsto: 0 };
+      }
+      prevByCatItem[p.categoria_item_id].previsto += p.quantidade_prevista;
+    });
+
+    // Map previsoes to named buckets
+    Object.entries(prevByCatItem).forEach(([catItemId, { nome, previsto }]) => {
+      const nomeLower = nome.toLowerCase();
+      if (nomeLower.includes('base')) infraPrevByName.bases += previsto;
+      else if (nomeLower.includes('laço') || nomeLower.includes('laco')) infraPrevByName.lacos += previsto;
+      else if (nomeLower.includes('poste')) infraPrevByName.postesInfra += previsto;
+      else if (nomeLower.includes('conectoriza')) infraPrevByName.conectorizacao += previsto;
+    });
+
+    // Build infra installed by categoria_item_id
+    const infraInstByCat: Record<string, number> = {};
+    infraestrutura?.forEach(i => {
+      if (i.categoria_item_id) {
+        infraInstByCat[i.categoria_item_id] = (infraInstByCat[i.categoria_item_id] || 0) + i.quantidade;
+      }
+    });
+
+    Object.entries(prevByCatItem).forEach(([catItemId, { nome }]) => {
+      const nomeLower = nome.toLowerCase();
+      const inst = infraInstByCat[catItemId] || 0;
+      if (nomeLower.includes('base')) infraInstByName.bases += inst;
+      else if (nomeLower.includes('laço') || nomeLower.includes('laco')) infraInstByName.lacos += inst;
+      else if (nomeLower.includes('poste')) infraInstByName.postesInfra += inst;
+      else if (nomeLower.includes('conectoriza')) infraInstByName.conectorizacao += inst;
+    });
 
     const totaisPrev = {
       placas: equipamentos?.reduce((acc, eq) => acc + (eq.prev_placas || 0), 0) || 0,
@@ -189,10 +230,10 @@ export default function Relatorios() {
       postesHorizontal: equipamentos?.reduce((acc, eq) => acc + (eq.prev_postes_horizontal || 0), 0) || 0,
       tae80: equipamentos?.reduce((acc, eq) => acc + (eq.prev_tae_80 || 0), 0) || 0,
       tae100: equipamentos?.reduce((acc, eq) => acc + (eq.prev_tae_100 || 0), 0) || 0,
-      bases: equipamentos?.reduce((acc, eq) => acc + (eq.prev_bases || 0), 0) || 0,
-      lacos: equipamentos?.reduce((acc, eq) => acc + (eq.prev_lacos || 0), 0) || 0,
-      postesInfra: equipamentos?.reduce((acc, eq) => acc + (eq.prev_postes_infra || 0), 0) || 0,
-      conectorizacao: equipamentos?.reduce((acc, eq) => acc + (eq.prev_conectorizacao || 0), 0) || 0,
+      bases: infraPrevByName.bases,
+      lacos: infraPrevByName.lacos,
+      postesInfra: infraPrevByName.postesInfra,
+      conectorizacao: infraPrevByName.conectorizacao,
       ajustes: equipamentos?.reduce((acc, eq) => acc + (eq.prev_ajustes || 0), 0) || 0,
       afericao: equipamentos?.reduce((acc, eq) => acc + (eq.prev_afericao || 0), 0) || 0,
     };
@@ -210,15 +251,6 @@ export default function Relatorios() {
       postesHorizontal: sinalizacaoHorizontal?.reduce((acc, sh) => acc + (sh.qtd_postes || 0), 0) || 0,
       tae80: sinalizacaoHorizontal?.filter(sh => { const t = sh.tipo?.toLowerCase() || ''; return t.includes('tae 80') || t.includes('tae_80'); }).length || 0,
       tae100: sinalizacaoHorizontal?.filter(sh => { const t = sh.tipo?.toLowerCase() || ''; return t.includes('tae 100') || t.includes('tae_100'); }).length || 0,
-    };
-
-    const instaladoInfra = {
-      bases: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('base')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      lacos: infraestrutura?.filter(i => { const t = i.tipo?.toLowerCase() || ''; return t.includes('laço') || t.includes('laco'); }).reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      postesInfra: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('poste')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      conectorizacao: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('conectoriza')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      ajustes: infraestrutura?.filter(i => i.tipo?.toLowerCase().includes('ajuste')).reduce((acc, i) => acc + i.quantidade, 0) || 0,
-      afericao: infraestrutura?.filter(i => { const t = i.tipo?.toLowerCase() || ''; return t.includes('aferi') || t.includes('aferição'); }).reduce((acc, i) => acc + i.quantidade, 0) || 0,
     };
 
     const calcPercent = (instalado: number, previsto: number) => 
@@ -240,12 +272,12 @@ export default function Relatorios() {
     ];
 
     const infraestruturaProgress: ProgressItem[] = [
-      { name: 'Bases', previsto: totaisPrev.bases, instalado: instaladoInfra.bases, percentual: calcPercent(instaladoInfra.bases, totaisPrev.bases) },
-      { name: 'Laços', previsto: totaisPrev.lacos, instalado: instaladoInfra.lacos, percentual: calcPercent(instaladoInfra.lacos, totaisPrev.lacos) },
-      { name: 'Postes Infra', previsto: totaisPrev.postesInfra, instalado: instaladoInfra.postesInfra, percentual: calcPercent(instaladoInfra.postesInfra, totaisPrev.postesInfra) },
-      { name: 'Conectorização', previsto: totaisPrev.conectorizacao, instalado: instaladoInfra.conectorizacao, percentual: calcPercent(instaladoInfra.conectorizacao, totaisPrev.conectorizacao) },
-      { name: 'Ajustes', previsto: totaisPrev.ajustes, instalado: instaladoInfra.ajustes, percentual: calcPercent(instaladoInfra.ajustes, totaisPrev.ajustes) },
-      { name: 'Aferição', previsto: totaisPrev.afericao, instalado: instaladoInfra.afericao, percentual: calcPercent(instaladoInfra.afericao, totaisPrev.afericao) },
+      { name: 'Bases', previsto: totaisPrev.bases, instalado: infraInstByName.bases, percentual: calcPercent(infraInstByName.bases, totaisPrev.bases) },
+      { name: 'Laços', previsto: totaisPrev.lacos, instalado: infraInstByName.lacos, percentual: calcPercent(infraInstByName.lacos, totaisPrev.lacos) },
+      { name: 'Postes Infra', previsto: totaisPrev.postesInfra, instalado: infraInstByName.postesInfra, percentual: calcPercent(infraInstByName.postesInfra, totaisPrev.postesInfra) },
+      { name: 'Conectorização', previsto: totaisPrev.conectorizacao, instalado: infraInstByName.conectorizacao, percentual: calcPercent(infraInstByName.conectorizacao, totaisPrev.conectorizacao) },
+      { name: 'Ajustes', previsto: totaisPrev.ajustes, instalado: 0, percentual: 0 },
+      { name: 'Aferição', previsto: totaisPrev.afericao, instalado: 0, percentual: 0 },
     ];
 
     const todosPrevisto = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress]
