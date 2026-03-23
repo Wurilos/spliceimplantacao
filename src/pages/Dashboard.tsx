@@ -250,6 +250,7 @@ export default function Dashboard() {
       { name: 'Croqui Caracterização', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.croqui_caracterizacao_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.croqui_caracterizacao_url).length, equipamentos.length) },
       { name: 'Estudo Viabilidade', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.estudo_viabilidade_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.estudo_viabilidade_url).length, equipamentos.length) },
       { name: 'Relatório VDM', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.relatorio_vdm_url).length, equipamentos.length) },
+      { name: 'Declaração de Conformidade', previsto: equipamentos.length, instalado: equipamentos.filter((eq: any) => eq.declaracao_conformidade_url).length, percentual: calcPercent(equipamentos.filter((eq: any) => eq.declaracao_conformidade_url).length, equipamentos.length) },
     ];
 
     // Calcular progresso de conexão e energia
