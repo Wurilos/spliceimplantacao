@@ -153,6 +153,8 @@ export default function Dashboard() {
         });
 
         // Processar itens operacionais
+        let instalado_ajustes = 0;
+        let instalado_afericao = 0;
         eq.operacional_itens?.forEach((op: any) => {
           const tipoLower = op.tipo?.toLowerCase() || '';
           if (tipoLower.includes('ajuste')) {
@@ -180,6 +182,10 @@ export default function Dashboard() {
           instalado_conectorizacao,
           instalado_ajustes,
           instalado_afericao,
+          prev_bases_dyn,
+          prev_lacos_dyn,
+          prev_postes_infra_dyn,
+          prev_conectorizacao_dyn,
         };
       });
 
