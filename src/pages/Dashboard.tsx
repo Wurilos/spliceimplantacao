@@ -61,11 +61,44 @@ export default function Dashboard() {
           declaracao_conformidade_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
-          infraestrutura_itens (tipo, quantidade),
+          infraestrutura_itens (tipo, quantidade, categoria_item_id),
           operacional_itens (tipo, quantidade)
         `);
       
       if (eqError) throw eqError;
+
+      // Fetch equipamento_previsoes with categoria_itens names
+      const { data: previsoesData, error: prevError } = await supabase
+        .from('equipamento_previsoes')
+        .select(`
+          equipamento_id,
+          categoria_item_id,
+          quantidade_prevista,
+          categoria_itens:categoria_item_id (id, nome, categoria_id)
+        `);
+      
+      if (prevError) throw prevError;
+
+      // Fetch infraestrutura category to filter previsoes
+      const { data: categoriasData } = await supabase
+        .from('categorias')
+        .select('id, nome')
+        .ilike('nome', '%Infraestrutura%');
+      
+      const infraCategoriaIds = (categoriasData || []).map(c => c.id);
+
+      // Build a map of previsoes per equipamento
+      const previsoesMap: Record<string, Array<{ categoria_item_id: string; nome: string; quantidade_prevista: number }>> = {};
+      (previsoesData || []).forEach((p: any) => {
+        const catItem = p.categoria_itens;
+        if (!catItem || !infraCategoriaIds.includes(catItem.categoria_id)) return;
+        if (!previsoesMap[p.equipamento_id]) previsoesMap[p.equipamento_id] = [];
+        previsoesMap[p.equipamento_id].push({
+          categoria_item_id: p.categoria_item_id,
+          nome: catItem.nome,
+          quantidade_prevista: p.quantidade_prevista,
+        });
+      });
 
       const processedData = (eqData || []).map((eq: any) => {
         let instalado_placas = eq.sinalizacao_vertical_blocos?.filter((sv: any) => sv.categoria === 'placas').length || 0;
@@ -98,22 +131,30 @@ export default function Dashboard() {
           }
         });
 
-        let instalado_bases = 0;
-        let instalado_lacos = 0;
-        let instalado_postes_infra = 0;
-        let instalado_conectorizacao = 0;
-        let instalado_ajustes = 0;
-        let instalado_afericao = 0;
-
+        // Build infraestrutura installed totals by categoria_item_id
+        const infraInstaladoPorCat: Record<string, number> = {};
         eq.infraestrutura_itens?.forEach((inf: any) => {
-          const tipoLower = inf.tipo?.toLowerCase() || '';
-          if (tipoLower.includes('base')) instalado_bases += inf.quantidade || 0;
-          else if (tipoLower.includes('laço') || tipoLower.includes('laco')) instalado_lacos += inf.quantidade || 0;
-          else if (tipoLower.includes('poste')) instalado_postes_infra += inf.quantidade || 0;
-          else if (tipoLower.includes('conectoriza')) instalado_conectorizacao += inf.quantidade || 0;
+          if (inf.categoria_item_id) {
+            infraInstaladoPorCat[inf.categoria_item_id] = (infraInstaladoPorCat[inf.categoria_item_id] || 0) + (inf.quantidade || 0);
+          }
+        });
+
+        // Use equipamento_previsoes for infra previsao/instalado
+        const eqPrevisoes = previsoesMap[eq.id] || [];
+        let instalado_bases = 0, instalado_lacos = 0, instalado_postes_infra = 0, instalado_conectorizacao = 0;
+        let prev_bases_dyn = 0, prev_lacos_dyn = 0, prev_postes_infra_dyn = 0, prev_conectorizacao_dyn = 0;
+        eqPrevisoes.forEach(p => {
+          const nomeLower = p.nome.toLowerCase();
+          const instalado = infraInstaladoPorCat[p.categoria_item_id] || 0;
+          if (nomeLower.includes('base')) { instalado_bases += instalado; prev_bases_dyn += p.quantidade_prevista; }
+          else if (nomeLower.includes('laço') || nomeLower.includes('laco')) { instalado_lacos += instalado; prev_lacos_dyn += p.quantidade_prevista; }
+          else if (nomeLower.includes('poste')) { instalado_postes_infra += instalado; prev_postes_infra_dyn += p.quantidade_prevista; }
+          else if (nomeLower.includes('conectoriza')) { instalado_conectorizacao += instalado; prev_conectorizacao_dyn += p.quantidade_prevista; }
         });
 
         // Processar itens operacionais
+        let instalado_ajustes = 0;
+        let instalado_afericao = 0;
         eq.operacional_itens?.forEach((op: any) => {
           const tipoLower = op.tipo?.toLowerCase() || '';
           if (tipoLower.includes('ajuste')) {
@@ -141,6 +182,10 @@ export default function Dashboard() {
           instalado_conectorizacao,
           instalado_ajustes,
           instalado_afericao,
+          prev_bases_dyn,
+          prev_lacos_dyn,
+          prev_postes_infra_dyn,
+          prev_conectorizacao_dyn,
         };
       });
 
@@ -192,10 +237,10 @@ export default function Dashboard() {
       postesHorizontal: equipamentos.reduce((acc, eq) => acc + (eq.prev_postes_horizontal || 0), 0),
       tae80: equipamentos.reduce((acc, eq) => acc + (eq.prev_tae_80 || 0), 0),
       tae100: equipamentos.reduce((acc, eq) => acc + (eq.prev_tae_100 || 0), 0),
-      bases: equipamentos.reduce((acc, eq) => acc + (eq.prev_bases || 0), 0),
-      lacos: equipamentos.reduce((acc, eq) => acc + (eq.prev_lacos || 0), 0),
-      postesInfra: equipamentos.reduce((acc, eq) => acc + (eq.prev_postes_infra || 0), 0),
-      conectorizacao: equipamentos.reduce((acc, eq) => acc + (eq.prev_conectorizacao || 0), 0),
+      bases: equipamentos.reduce((acc, eq) => acc + (eq.prev_bases_dyn || 0), 0),
+      lacos: equipamentos.reduce((acc, eq) => acc + (eq.prev_lacos_dyn || 0), 0),
+      postesInfra: equipamentos.reduce((acc, eq) => acc + (eq.prev_postes_infra_dyn || 0), 0),
+      conectorizacao: equipamentos.reduce((acc, eq) => acc + (eq.prev_conectorizacao_dyn || 0), 0),
       ajustes: equipamentos.reduce((acc, eq) => acc + (eq.prev_ajustes || 0), 0),
       afericao: equipamentos.reduce((acc, eq) => acc + (eq.prev_afericao || 0), 0),
     };
