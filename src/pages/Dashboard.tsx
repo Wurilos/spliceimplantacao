@@ -58,6 +58,7 @@ export default function Dashboard() {
           croqui_caracterizacao_url,
           estudo_viabilidade_url,
           relatorio_vdm_url,
+          declaracao_conformidade_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
           sinalizacao_horizontal_itens (tipo, qtd_laminas, qtd_postes),
           infraestrutura_itens (tipo, quantidade),
