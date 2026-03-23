@@ -131,19 +131,25 @@ export default function Dashboard() {
           }
         });
 
-        let instalado_bases = 0;
-        let instalado_lacos = 0;
-        let instalado_postes_infra = 0;
-        let instalado_conectorizacao = 0;
-        let instalado_ajustes = 0;
-        let instalado_afericao = 0;
-
+        // Build infraestrutura installed totals by categoria_item_id
+        const infraInstaladoPorCat: Record<string, number> = {};
         eq.infraestrutura_itens?.forEach((inf: any) => {
-          const tipoLower = inf.tipo?.toLowerCase() || '';
-          if (tipoLower.includes('base')) instalado_bases += inf.quantidade || 0;
-          else if (tipoLower.includes('laço') || tipoLower.includes('laco')) instalado_lacos += inf.quantidade || 0;
-          else if (tipoLower.includes('poste')) instalado_postes_infra += inf.quantidade || 0;
-          else if (tipoLower.includes('conectoriza')) instalado_conectorizacao += inf.quantidade || 0;
+          if (inf.categoria_item_id) {
+            infraInstaladoPorCat[inf.categoria_item_id] = (infraInstaladoPorCat[inf.categoria_item_id] || 0) + (inf.quantidade || 0);
+          }
+        });
+
+        // Use equipamento_previsoes for infra previsao/instalado
+        const eqPrevisoes = previsoesMap[eq.id] || [];
+        let instalado_bases = 0, instalado_lacos = 0, instalado_postes_infra = 0, instalado_conectorizacao = 0;
+        let prev_bases_dyn = 0, prev_lacos_dyn = 0, prev_postes_infra_dyn = 0, prev_conectorizacao_dyn = 0;
+        eqPrevisoes.forEach(p => {
+          const nomeLower = p.nome.toLowerCase();
+          const instalado = infraInstaladoPorCat[p.categoria_item_id] || 0;
+          if (nomeLower.includes('base')) { instalado_bases += instalado; prev_bases_dyn += p.quantidade_prevista; }
+          else if (nomeLower.includes('laço') || nomeLower.includes('laco')) { instalado_lacos += instalado; prev_lacos_dyn += p.quantidade_prevista; }
+          else if (nomeLower.includes('poste')) { instalado_postes_infra += instalado; prev_postes_infra_dyn += p.quantidade_prevista; }
+          else if (nomeLower.includes('conectoriza')) { instalado_conectorizacao += instalado; prev_conectorizacao_dyn += p.quantidade_prevista; }
         });
 
         // Processar itens operacionais
