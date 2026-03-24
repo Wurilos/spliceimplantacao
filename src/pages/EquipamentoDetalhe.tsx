@@ -1128,6 +1128,8 @@ export default function EquipamentoDetalhe() {
               sinalizacaoVertical={sinalizacaoVertical}
               sinalizacaoHorizontal={sinalizacaoHorizontal}
               infraestruturaItens={infraestruturaItens}
+              equipamentoPrevisoes={equipamentoPrevisoes}
+              infraCategoriaItens={infraCategoriaItens}
             />
           )}
         </TabsContent>
