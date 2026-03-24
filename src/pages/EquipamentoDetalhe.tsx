@@ -45,6 +45,8 @@ import { EquipamentoUploads } from '@/components/EquipamentoUploads';
 import { InfraestruturaTab } from '@/components/InfraestruturaTab';
 import { OperacionalTab } from '@/components/OperacionalTab';
 import { useInfraestruturaItens, InfraestruturaItem } from '@/hooks/useInfraestrutura';
+import { useEquipamentoPrevisoes, EquipamentoPrevisao } from '@/hooks/useEquipamentoPrevisoes';
+import { useInfraestruturaItensCategoria } from '@/hooks/useInfraestruturaCategoria';
 
 // Component for equipment progress chart
 interface EquipamentoProgressChartProps {
