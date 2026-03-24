@@ -60,19 +60,15 @@ interface EquipamentoProgressChartProps {
     prev_postes_horizontal: number;
     prev_tae_80: number;
     prev_tae_100: number;
-    prev_bases: number;
-    prev_lacos: number;
-    prev_postes_infra: number;
-    prev_conectorizacao: number;
-    prev_ajustes: number;
-    prev_afericao: number;
   };
   sinalizacaoVertical: SinalizacaoVertical[] | undefined;
   sinalizacaoHorizontal: SinalizacaoHorizontal[] | undefined;
   infraestruturaItens: InfraestruturaItem[] | undefined;
+  equipamentoPrevisoes: EquipamentoPrevisao[] | undefined;
+  infraCategoriaItens: { id: string; nome: string }[] | undefined;
 }
 
-function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHorizontal, infraestruturaItens }: EquipamentoProgressChartProps) {
+function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHorizontal, infraestruturaItens, equipamentoPrevisoes, infraCategoriaItens }: EquipamentoProgressChartProps) {
   // Calculate installed values
   const instalado = useMemo(() => {
     let placas = sinalizacaoVertical?.length || 0;
