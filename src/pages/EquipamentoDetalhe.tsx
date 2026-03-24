@@ -100,72 +100,54 @@ function EquipamentoProgressChart({ formData, sinalizacaoVertical, sinalizacaoHo
     return { placas, pontaletes, postes_colapsiveis, laminas, postes, tae_80, tae_100 };
   }, [sinalizacaoVertical, sinalizacaoHorizontal]);
 
-  // Calculate infrastructure installed values
-  const infraInstalado = useMemo(() => {
-    let bases = 0;
-    let lacos = 0;
-    let postes_infra = 0;
-    let conectorizacao = 0;
-    let ajustes = 0;
-    let afericao = 0;
+  // Build infrastructure chart data dynamically from equipamento_previsoes
+  const infraChartData = useMemo(() => {
+    if (!equipamentoPrevisoes || equipamentoPrevisoes.length === 0) return [];
 
-    infraestruturaItens?.forEach((inf) => {
-      switch (inf.tipo) {
-        case 'bases':
-          bases += inf.quantidade || 0;
-          break;
-        case 'lacos':
-          lacos += inf.quantidade || 0;
-          break;
-        case 'postes':
-          postes_infra += inf.quantidade || 0;
-          break;
-        case 'conectorizacao':
-          conectorizacao += inf.quantidade || 0;
-          break;
-        case 'ajustes':
-          ajustes += inf.quantidade || 0;
-          break;
-        case 'afericao':
-          afericao += inf.quantidade || 0;
-          break;
+    const catNameMap: Record<string, string> = {};
+    infraCategoriaItens?.forEach(c => { catNameMap[c.id] = c.nome; });
+
+    const instaladoMap: Record<string, number> = {};
+    infraestruturaItens?.forEach(inf => {
+      if (inf.categoria_item_id) {
+        instaladoMap[inf.categoria_item_id] = (instaladoMap[inf.categoria_item_id] || 0) + (inf.quantidade || 0);
       }
     });
 
-    return { bases, lacos, postes_infra, conectorizacao, ajustes, afericao };
-  }, [infraestruturaItens]);
+    return equipamentoPrevisoes.map(p => ({
+      name: catNameMap[p.categoria_item_id] || 'Item',
+      previsto: p.quantidade_prevista || 0,
+      instalado: instaladoMap[p.categoria_item_id] || 0,
+    })).filter(item => item.previsto > 0 || item.instalado > 0);
+  }, [equipamentoPrevisoes, infraestruturaItens, infraCategoriaItens]);
 
   // Build chart data
-  const chartData = useMemo(() => [
-    { name: 'Placas', previsto: formData.prev_placas, instalado: instalado.placas },
-    { name: 'Pontaletes', previsto: formData.prev_pontaletes, instalado: instalado.pontaletes },
-    { name: 'Postes Col.', previsto: formData.prev_postes_colapsiveis, instalado: instalado.postes_colapsiveis },
-    { name: 'Braço Proj.', previsto: formData.prev_bracos_projetados, instalado: 0 },
-    { name: 'Semi Pórtico', previsto: formData.prev_semi_porticos, instalado: 0 },
-    { name: 'Defensas', previsto: formData.prev_defensas, instalado: instalado.laminas },
-    { name: 'Postes Hor.', previsto: formData.prev_postes_horizontal, instalado: instalado.postes },
-    { name: 'TAE 80', previsto: formData.prev_tae_80, instalado: instalado.tae_80 },
-    { name: 'TAE 100', previsto: formData.prev_tae_100, instalado: instalado.tae_100 },
-    // Infraestrutura
-    { name: 'Bases', previsto: formData.prev_bases, instalado: infraInstalado.bases },
-    { name: 'Laços', previsto: formData.prev_lacos, instalado: infraInstalado.lacos },
-    { name: 'Postes Infra', previsto: formData.prev_postes_infra, instalado: infraInstalado.postes_infra },
-    { name: 'Conect.', previsto: formData.prev_conectorizacao, instalado: infraInstalado.conectorizacao },
-    { name: 'Ajustes', previsto: formData.prev_ajustes, instalado: infraInstalado.ajustes },
-    { name: 'Aferição', previsto: formData.prev_afericao, instalado: infraInstalado.afericao },
-  ].filter(item => item.previsto > 0 || item.instalado > 0), [formData, instalado, infraInstalado]);
+  const chartData = useMemo(() => {
+    const sinalizacaoData = [
+      { name: 'Placas', previsto: formData.prev_placas, instalado: instalado.placas },
+      { name: 'Pontaletes', previsto: formData.prev_pontaletes, instalado: instalado.pontaletes },
+      { name: 'Postes Col.', previsto: formData.prev_postes_colapsiveis, instalado: instalado.postes_colapsiveis },
+      { name: 'Braço Proj.', previsto: formData.prev_bracos_projetados, instalado: 0 },
+      { name: 'Semi Pórtico', previsto: formData.prev_semi_porticos, instalado: 0 },
+      { name: 'Defensas', previsto: formData.prev_defensas, instalado: instalado.laminas },
+      { name: 'Postes Hor.', previsto: formData.prev_postes_horizontal, instalado: instalado.postes },
+      { name: 'TAE 80', previsto: formData.prev_tae_80, instalado: instalado.tae_80 },
+      { name: 'TAE 100', previsto: formData.prev_tae_100, instalado: instalado.tae_100 },
+    ].filter(item => item.previsto > 0 || item.instalado > 0);
+
+    return [...sinalizacaoData, ...infraChartData];
+  }, [formData, instalado, infraChartData]);
 
   // Calculate totals
+  const totalInfraPrevisto = infraChartData.reduce((sum, item) => sum + item.previsto, 0);
+  const totalInfraInstalado = infraChartData.reduce((sum, item) => sum + item.instalado, 0);
+
   const totalPrevisto = formData.prev_placas + formData.prev_pontaletes + formData.prev_postes_colapsiveis + 
     formData.prev_bracos_projetados + formData.prev_semi_porticos + formData.prev_defensas + 
-    formData.prev_postes_horizontal + formData.prev_tae_80 + formData.prev_tae_100 +
-    formData.prev_bases + formData.prev_lacos + formData.prev_postes_infra +
-    formData.prev_conectorizacao + formData.prev_ajustes + formData.prev_afericao;
+    formData.prev_postes_horizontal + formData.prev_tae_80 + formData.prev_tae_100 + totalInfraPrevisto;
   
   const totalInstalado = instalado.placas + instalado.pontaletes + instalado.postes_colapsiveis + 
-    instalado.laminas + instalado.postes + instalado.tae_80 + instalado.tae_100 +
-    infraInstalado.bases + infraInstalado.lacos + infraInstalado.postes_infra +
-    infraInstalado.conectorizacao + infraInstalado.ajustes + infraInstalado.afericao;
+    instalado.laminas + instalado.postes + instalado.tae_80 + instalado.tae_100 + totalInfraInstalado;
 
   const percentual = totalPrevisto > 0 ? Math.round((totalInstalado / totalPrevisto) * 100) : 0;
 
