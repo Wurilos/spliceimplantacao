@@ -509,7 +509,7 @@ export default function Dashboard() {
       {/* Page Header */}
       <div className="page-header">
         <div className="flex items-center gap-3">
-          <h1 className="page-title">Dashboard</h1>
+          <h1 className="page-title">Splice News</h1>
           <Sparkles className="w-6 h-6 text-warning animate-pulse-soft" />
         </div>
         <p className="page-description">Visão geral do sistema - Previsão vs Instalado</p>
