@@ -56,7 +56,6 @@ export default function Dashboard() {
           prev_afericao,
           projeto_croqui_url,
           croqui_caracterizacao_url,
-          estudo_viabilidade_url,
           relatorio_vdm_url,
           declaracao_conformidade_url,
           sinalizacao_vertical_blocos (qtd_pontaletes, qtd_perfis_metalicos, qtd_postes_colapsiveis, categoria),
