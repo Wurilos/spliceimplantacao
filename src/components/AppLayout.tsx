@@ -135,7 +135,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-xl text-sidebar-foreground">Sistema Radares</span>
+                <span className="font-bold text-xl text-sidebar-foreground">Splice News</span>
               </div>
               <p className="text-xs text-sidebar-foreground/50">Gestão de Implantação</p>
             </div>
