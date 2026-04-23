@@ -89,7 +89,6 @@ export function ConsultaDocumentos() {
       const files = [
         { url: eq.projeto_croqui_url, name: `${eq.numero_serie}_projeto_croqui.pdf` },
         { url: eq.croqui_caracterizacao_url, name: `${eq.numero_serie}_croqui_caracterizacao.pdf` },
-        { url: eq.estudo_viabilidade_url, name: `${eq.numero_serie}_estudo_viabilidade.pdf` },
         { url: eq.relatorio_vdm_url, name: `${eq.numero_serie}_relatorio_vdm.pdf` },
       ];
 
@@ -114,7 +113,6 @@ export function ConsultaDocumentos() {
   const documentLabels = {
     projeto_croqui_url: 'Projeto',
     croqui_caracterizacao_url: 'Croqui',
-    estudo_viabilidade_url: 'Estudo',
     relatorio_vdm_url: 'VDM',
   };
 
