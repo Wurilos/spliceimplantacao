@@ -492,7 +492,7 @@ const EquipamentoRelatorio = forwardRef<HTMLDivElement, EquipamentoRelatorioProp
 
         {/* Footer */}
         <footer className="border-t border-gray-200 pt-4 mt-8 text-center text-xs text-gray-500 print:fixed print:bottom-0 print:left-0 print:right-0 print:bg-white">
-          <p>Sistema de Implantação de Radares - Splice</p>
+          <p>Splice News</p>
           <p>Documento gerado automaticamente em {format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
         </footer>
       </div>
