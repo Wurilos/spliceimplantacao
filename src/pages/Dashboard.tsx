@@ -220,7 +220,7 @@ export default function Dashboard() {
   }, [equipamentosRaw, filtroContrato, filtroEquipamento]);
 
   const calcPercent = (instalado: number, previsto: number) => 
-    previsto > 0 ? Math.round((instalado / previsto) * 100) : 0;
+    previsto > 0 ? Math.min(100, Math.round((instalado / previsto) * 100)) : 0;
 
   // Calcular totais e progresso por categoria
   const progressData = useMemo(() => {
@@ -318,7 +318,8 @@ export default function Dashboard() {
 
     const todosItens = [...sinalizacaoVerticalProgress, ...sinalizacaoHorizontalProgress, ...infraestruturaProgress, ...operacionalProgress];
     const todosPrevisto = todosItens.reduce((acc, item) => acc + item.previsto, 0);
-    const todosInstalado = todosItens.reduce((acc, item) => acc + item.instalado, 0);
+    // Cap instalado por item ao previsto para evitar % > 100 no progresso geral
+    const todosInstalado = todosItens.reduce((acc, item) => acc + Math.min(item.instalado, item.previsto), 0);
     const progressoGeral = calcPercent(todosInstalado, todosPrevisto);
 
     // Verificar se TODOS os itens com previsão > 0 foram 100% concluídos
