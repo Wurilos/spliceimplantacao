@@ -78,7 +78,7 @@ export default function Login() {
               <Radio className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Sistema de Radares</CardTitle>
+          <CardTitle className="text-2xl">Splice News</CardTitle>
           <CardDescription>Gestão de Implantação de Equipamentos</CardDescription>
         </CardHeader>
         <CardContent>
@@ -160,7 +160,7 @@ export default function Login() {
           </Tabs>
         </CardContent>
         <CardFooter className="text-center text-sm text-muted-foreground">
-          Sistema de Gestão de Implantação de Radares
+          Splice News
         </CardFooter>
       </Card>
     </div>
