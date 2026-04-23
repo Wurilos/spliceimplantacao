@@ -2089,7 +2089,6 @@ export default function EquipamentoDetalhe() {
                canEdit={canEdit}
                projetoCroquiUrl={(equipamento as any)?.projeto_croqui_url || null}
                croquiCaracterizacaoUrl={(equipamento as any)?.croqui_caracterizacao_url || null}
-               estudoViabilidadeUrl={(equipamento as any)?.estudo_viabilidade_url || null}
                relatorioVdmUrl={(equipamento as any)?.relatorio_vdm_url || null}
                declaracaoConformidadeUrl={(equipamento as any)?.declaracao_conformidade_url || null}
                onUpdate={() => {
