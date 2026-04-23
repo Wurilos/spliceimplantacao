@@ -21,7 +21,6 @@ interface EquipamentoDocumentos {
   contratos: { id_contrato: string; nome: string } | null;
   projeto_croqui_url: string | null;
   croqui_caracterizacao_url: string | null;
-  estudo_viabilidade_url: string | null;
   relatorio_vdm_url: string | null;
 }
 
@@ -46,7 +45,6 @@ export function ConsultaDocumentos() {
           contratos (id_contrato, nome),
           projeto_croqui_url,
           croqui_caracterizacao_url,
-          estudo_viabilidade_url,
           relatorio_vdm_url
         `);
 
@@ -61,14 +59,13 @@ export function ConsultaDocumentos() {
   });
 
   const hasAnyDocument = (eq: EquipamentoDocumentos) => {
-    return eq.projeto_croqui_url || eq.croqui_caracterizacao_url || eq.estudo_viabilidade_url || eq.relatorio_vdm_url;
+    return eq.projeto_croqui_url || eq.croqui_caracterizacao_url || eq.relatorio_vdm_url;
   };
 
   const countDocuments = (eq: EquipamentoDocumentos) => {
     let count = 0;
     if (eq.projeto_croqui_url) count++;
     if (eq.croqui_caracterizacao_url) count++;
-    if (eq.estudo_viabilidade_url) count++;
     if (eq.relatorio_vdm_url) count++;
     return count;
   };
