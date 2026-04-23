@@ -11,7 +11,6 @@ interface EquipamentoUploadsProps {
   canEdit: boolean;
   projetoCroquiUrl: string | null;
   croquiCaracterizacaoUrl: string | null;
-  estudoViabilidadeUrl: string | null;
   relatorioVdmUrl: string | null;
   declaracaoConformidadeUrl: string | null;
   onUpdate: (field: string, url: string | null) => void;
@@ -117,7 +116,6 @@ export function EquipamentoUploads({
   canEdit,
   projetoCroquiUrl,
   croquiCaracterizacaoUrl,
-  estudoViabilidadeUrl,
   relatorioVdmUrl,
   declaracaoConformidadeUrl,
   onUpdate,
@@ -186,7 +184,6 @@ export function EquipamentoUploads({
   const uploadFields = [
     { key: 'projetoCroqui', label: 'Projeto (Croqui)', value: projetoCroquiUrl },
     { key: 'croquiCaracterizacao', label: 'Croqui de Caracterização', value: croquiCaracterizacaoUrl },
-    { key: 'estudoViabilidade', label: 'Estudo de Viabilidade', value: estudoViabilidadeUrl },
     { key: 'relatorioVdm', label: 'Relatório de VDM', value: relatorioVdmUrl },
     { key: 'declaracaoConformidade', label: 'Declaração de Conformidade', value: declaracaoConformidadeUrl },
   ];
