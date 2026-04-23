@@ -416,7 +416,7 @@ export default function Relatorios() {
         doc.setFontSize(9);
         doc.setTextColor(128);
         doc.text(
-          `Sistema de Implantação de Radares - Página ${i} de ${pageCount}`,
+          `Splice News - Página ${i} de ${pageCount}`,
           pageWidth / 2,
           doc.internal.pageSize.getHeight() - 10,
           { align: 'center' }
