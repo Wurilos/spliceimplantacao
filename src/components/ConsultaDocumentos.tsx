@@ -175,7 +175,6 @@ export function ConsultaDocumentos() {
                   <TableHead className="font-semibold">Município</TableHead>
                   <TableHead className="font-semibold">Projeto</TableHead>
                   <TableHead className="font-semibold">Croqui</TableHead>
-                  <TableHead className="font-semibold">Estudo</TableHead>
                   <TableHead className="font-semibold">VDM</TableHead>
                   <TableHead className="font-semibold text-center">Ações</TableHead>
                 </TableRow>
@@ -211,20 +210,6 @@ export function ConsultaDocumentos() {
                           size="sm"
                           className="h-8 px-2 text-primary hover:text-primary"
                           onClick={() => downloadFile(eq.croqui_caracterizacao_url!, `${eq.numero_serie}_croqui.pdf`)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {eq.estudo_viabilidade_url ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-primary hover:text-primary"
-                          onClick={() => downloadFile(eq.estudo_viabilidade_url!, `${eq.numero_serie}_estudo.pdf`)}
                         >
                           <Download className="h-4 w-4" />
                         </Button>
