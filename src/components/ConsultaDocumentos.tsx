@@ -21,7 +21,6 @@ interface EquipamentoDocumentos {
   contratos: { id_contrato: string; nome: string } | null;
   projeto_croqui_url: string | null;
   croqui_caracterizacao_url: string | null;
-  estudo_viabilidade_url: string | null;
   relatorio_vdm_url: string | null;
 }
 
@@ -46,7 +45,6 @@ export function ConsultaDocumentos() {
           contratos (id_contrato, nome),
           projeto_croqui_url,
           croqui_caracterizacao_url,
-          estudo_viabilidade_url,
           relatorio_vdm_url
         `);
 
@@ -61,14 +59,13 @@ export function ConsultaDocumentos() {
   });
 
   const hasAnyDocument = (eq: EquipamentoDocumentos) => {
-    return eq.projeto_croqui_url || eq.croqui_caracterizacao_url || eq.estudo_viabilidade_url || eq.relatorio_vdm_url;
+    return eq.projeto_croqui_url || eq.croqui_caracterizacao_url || eq.relatorio_vdm_url;
   };
 
   const countDocuments = (eq: EquipamentoDocumentos) => {
     let count = 0;
     if (eq.projeto_croqui_url) count++;
     if (eq.croqui_caracterizacao_url) count++;
-    if (eq.estudo_viabilidade_url) count++;
     if (eq.relatorio_vdm_url) count++;
     return count;
   };
@@ -92,7 +89,6 @@ export function ConsultaDocumentos() {
       const files = [
         { url: eq.projeto_croqui_url, name: `${eq.numero_serie}_projeto_croqui.pdf` },
         { url: eq.croqui_caracterizacao_url, name: `${eq.numero_serie}_croqui_caracterizacao.pdf` },
-        { url: eq.estudo_viabilidade_url, name: `${eq.numero_serie}_estudo_viabilidade.pdf` },
         { url: eq.relatorio_vdm_url, name: `${eq.numero_serie}_relatorio_vdm.pdf` },
       ];
 
@@ -117,7 +113,6 @@ export function ConsultaDocumentos() {
   const documentLabels = {
     projeto_croqui_url: 'Projeto',
     croqui_caracterizacao_url: 'Croqui',
-    estudo_viabilidade_url: 'Estudo',
     relatorio_vdm_url: 'VDM',
   };
 
@@ -180,7 +175,6 @@ export function ConsultaDocumentos() {
                   <TableHead className="font-semibold">Município</TableHead>
                   <TableHead className="font-semibold">Projeto</TableHead>
                   <TableHead className="font-semibold">Croqui</TableHead>
-                  <TableHead className="font-semibold">Estudo</TableHead>
                   <TableHead className="font-semibold">VDM</TableHead>
                   <TableHead className="font-semibold text-center">Ações</TableHead>
                 </TableRow>
@@ -216,20 +210,6 @@ export function ConsultaDocumentos() {
                           size="sm"
                           className="h-8 px-2 text-primary hover:text-primary"
                           onClick={() => downloadFile(eq.croqui_caracterizacao_url!, `${eq.numero_serie}_croqui.pdf`)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {eq.estudo_viabilidade_url ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-primary hover:text-primary"
-                          onClick={() => downloadFile(eq.estudo_viabilidade_url!, `${eq.numero_serie}_estudo.pdf`)}
                         >
                           <Download className="h-4 w-4" />
                         </Button>
